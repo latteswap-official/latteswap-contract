@@ -1,9 +1,7 @@
-import { ethers } from 'hardhat';
-import { Timelock__factory } from '../typechain';
+import { ethers } from "hardhat";
+import { Timelock__factory } from "../typechain";
 import { ITimelockResponse } from "./types";
-import { getConfig } from './config'
-
-
+import { getConfig } from "./config";
 
 export async function queueTransaction(
   info: string,
@@ -12,35 +10,35 @@ export async function queueTransaction(
   signature: string,
   paramTypes: Array<string>,
   params: Array<any>,
-  eta: string,
+  eta: string
 ): Promise<ITimelockResponse> {
-  console.log(`==========`)
-  console.log(`>> Queue tx for: ${info}`)
-  const config = getConfig()
-  const timelock = Timelock__factory.connect(config.Timelock, (await ethers.getSigners())[0])
+  console.log(`==========`);
+  console.log(`>> Queue tx for: ${info}`);
+  const config = getConfig();
+  const timelock = Timelock__factory.connect(config.Timelock, (await ethers.getSigners())[0]);
   const queueTx = await timelock.queueTransaction(
     target,
     value,
     signature,
     ethers.utils.defaultAbiCoder.encode(paramTypes, params),
     eta
-  )
-  const paramTypesStr = paramTypes.map((p) => `'${p}'`)
+  );
+  const paramTypesStr = paramTypes.map((p) => `'${p}'`);
   const paramsStr = params.map((p) => {
-    if(Array.isArray(p)) {
-      const vauleWithQuote = p.map((p) => `'${p}'`)
-      return `[${vauleWithQuote}]`
+    if (Array.isArray(p)) {
+      const vauleWithQuote = p.map((p) => `'${p}'`);
+      return `[${vauleWithQuote}]`;
     }
 
-    if(typeof p === "string") {
-      return `'${p}'`
+    if (typeof p === "string") {
+      return `'${p}'`;
     }
 
-    return p
-  })
+    return p;
+  });
 
-  const executionTx = `await timelock.executionTransaction('${target}', '${value}', '${signature}', ethers.utils.defaultAbiCoder.encode([${paramTypesStr}], [${paramsStr}]), '${eta}')`
-  console.log(`>> Done.`)
+  const executionTx = `await timelock.executionTransaction('${target}', '${value}', '${signature}', ethers.utils.defaultAbiCoder.encode([${paramTypesStr}], [${paramsStr}]), '${eta}')`;
+  console.log(`>> Done.`);
   return {
     info: info,
     queuedAt: queueTx.hash,
@@ -52,7 +50,7 @@ export async function queueTransaction(
     paramTypes,
     params,
     eta,
-  }
+  };
 }
 
 export async function executeTransaction(
@@ -64,21 +62,21 @@ export async function executeTransaction(
   signature: string,
   paramTypes: Array<string>,
   params: Array<any>,
-  eta: string,
+  eta: string
 ): Promise<ITimelockResponse> {
-  console.log(`==========`)
-  console.log(`>> Execute tx for: ${info}`)
-  const config = getConfig()
-  const timelock = Timelock__factory.connect(config.Timelock, (await ethers.getSigners())[0])
+  console.log(`==========`);
+  console.log(`>> Execute tx for: ${info}`);
+  const config = getConfig();
+  const timelock = Timelock__factory.connect(config.Timelock, (await ethers.getSigners())[0]);
   const executeTx = await timelock.executeTransaction(
     target,
     value,
     signature,
     ethers.utils.defaultAbiCoder.encode(paramTypes, params),
     eta
-  )
-  console.log(`>> Done.`)
-  
+  );
+  console.log(`>> Done.`);
+
   return {
     info: info,
     queuedAt: queuedAt,
@@ -90,5 +88,5 @@ export async function executeTransaction(
     paramTypes,
     params,
     eta,
-  }
+  };
 }
