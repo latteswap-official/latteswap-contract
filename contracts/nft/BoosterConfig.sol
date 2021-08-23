@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 import "./interfaces/IBoosterConfig.sol";
+import "../nft/interfaces/ILatteNFT.sol";
 
 contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -24,11 +25,25 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     uint256 maxEnergy;
     uint256 currentEnergy;
     uint256 boostBps;
+    uint256 updatedAt;
+  }
+
+  struct CategoryEnergyInfo {
+    uint256 maxEnergy;
+    uint256 boostBps;
+    uint256 updatedAt;
   }
 
   struct BoosterNFTParams {
     address nftAddress;
     uint256 nftTokenId;
+    uint256 maxEnergy;
+    uint256 boostBps;
+  }
+
+  struct CategoryNFTParams {
+    address nftAddress;
+    uint256 nftCategoryId;
     uint256 maxEnergy;
     uint256 boostBps;
   }
@@ -44,7 +59,8 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     BoosterAllowance[] allowance;
   }
 
-  mapping(address => mapping(uint256 => BoosterEnergyInfo)) public override energyInfo;
+  mapping(address => mapping(uint256 => BoosterEnergyInfo)) internal _boosterEnergyInfo;
+  mapping(address => mapping(uint256 => CategoryEnergyInfo)) internal _categoryEnergyInfo;
 
   mapping(address => mapping(address => mapping(uint256 => bool))) public override boosterNftAllowance;
 
@@ -72,6 +88,12 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     uint256 indexed nftTokenId,
     bool isAllowed
   );
+  event SetCategoryNFTEnergyInfo(
+    address indexed nftAddress,
+    uint256 indexed nftCategoryId,
+    uint256 maxEnergy,
+    uint256 boostBps
+  );
 
   /// @notice only eligible caller can continue the execution
   modifier onlyCaller() {
@@ -82,6 +104,31 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
   function initialize() external initializer {
     OwnableUpgradeable.__Ownable_init();
     ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
+  }
+
+  /// @notice getter function for energy info
+  /// @dev check if the booster energy existed,
+  /// if not, it should be non-preminted version, so use categoryEnergyInfo to get a current, maxEnergy instead
+  function energyInfo(address _nftAddress, uint256 _nftTokenId)
+    public
+    view
+    override
+    returns (
+      uint256 maxEnergy,
+      uint256 currentEnergy,
+      uint256 boostBps
+    )
+  {
+    BoosterEnergyInfo memory boosterInfo = _boosterEnergyInfo[_nftAddress][_nftTokenId];
+    // if there is no preset booster energy info, use preset in category info
+    // presume that it's not a preminted nft
+    if (boosterInfo.updatedAt == 0) {
+      uint256 categoryId = ILatteNFT(_nftAddress).latteNFTToCategory(_nftTokenId);
+      CategoryEnergyInfo memory categoryInfo = _categoryEnergyInfo[_nftAddress][categoryId];
+      return (categoryInfo.maxEnergy, categoryInfo.maxEnergy, categoryInfo.boostBps);
+    }
+    // if there is an updatedAt, it's a preminted nft
+    return (boosterInfo.maxEnergy, boosterInfo.currentEnergy, boosterInfo.boostBps);
   }
 
   /// @notice function for updating a curreny energy of the specified nft
@@ -95,8 +142,18 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     uint256 _updatedCurrentEnergy
   ) external override onlyCaller {
     require(_nftAddress != address(0), "BoosterConfig::updateCurrentEnergy::_nftAddress must not be address(0)");
-    BoosterEnergyInfo storage energy = energyInfo[_nftAddress][_nftTokenId];
+    BoosterEnergyInfo storage energy = _boosterEnergyInfo[_nftAddress][_nftTokenId];
+
+    if (energy.updatedAt == 0) {
+      uint256 categoryId = ILatteNFT(_nftAddress).latteNFTToCategory(_nftTokenId);
+      CategoryEnergyInfo memory categoryEnergy = _categoryEnergyInfo[_nftAddress][categoryId];
+      require(categoryEnergy.updatedAt != 0, "BoosterConfig::updateCurrentEnergy:: invalid nft to be updated");
+      energy.maxEnergy = categoryEnergy.maxEnergy;
+      energy.boostBps = categoryEnergy.boostBps;
+    }
+
     energy.currentEnergy = _updatedCurrentEnergy;
+    energy.updatedAt = block.timestamp;
 
     emit UpdateCurrentEnergy(_nftAddress, _nftTokenId, _updatedCurrentEnergy);
   }
@@ -140,10 +197,11 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
   /// @dev An internal function for setting booster NFT energy info
   /// @param _param a BoosterNFTParams {nftAddress, nftTokenId, maxEnergy, boostBps}
   function _setBoosterNFTEnergyInfo(BoosterNFTParams calldata _param) internal {
-    energyInfo[_param.nftAddress][_param.nftTokenId] = BoosterEnergyInfo({
+    _boosterEnergyInfo[_param.nftAddress][_param.nftTokenId] = BoosterEnergyInfo({
       maxEnergy: _param.maxEnergy,
       currentEnergy: _param.maxEnergy,
-      boostBps: _param.boostBps
+      boostBps: _param.boostBps,
+      updatedAt: block.timestamp
     });
 
     emit SetBoosterNFTEnergyInfo(
@@ -153,6 +211,32 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
       _param.maxEnergy,
       _param.boostBps
     );
+  }
+
+  /// @notice A function for setting category NFT energy info as a batch, used for nft with non-preminted
+  /// @param _params a list of CategoryNFTParams [{nftAddress, nftTokenId, maxEnergy, boostBps}]
+  function setBatchCategoryNFTEnergyInfo(CategoryNFTParams[] calldata _params) external onlyOwner {
+    for (uint256 i = 0; i < _params.length; ++i) {
+      _setCategoryNFTEnergyInfo(_params[i]);
+    }
+  }
+
+  /// @notice A function for setting category NFT energy info, used for nft with non-preminted
+  /// @param _param a CategoryNFTParams {nftAddress, nftTokenId, maxEnergy, boostBps}
+  function setCategoryNFTEnergyInfo(CategoryNFTParams calldata _param) external onlyOwner {
+    _setCategoryNFTEnergyInfo(_param);
+  }
+
+  /// @dev An internal function for setting category NFT energy info, used for nft with non-preminted
+  /// @param _param a CategoryNFTParams {nftAddress, nftCategoryId, maxEnergy, boostBps}
+  function _setCategoryNFTEnergyInfo(CategoryNFTParams calldata _param) internal {
+    _categoryEnergyInfo[_param.nftAddress][_param.nftCategoryId] = CategoryEnergyInfo({
+      maxEnergy: _param.maxEnergy,
+      boostBps: _param.boostBps,
+      updatedAt: block.timestamp
+    });
+
+    emit SetCategoryNFTEnergyInfo(_param.nftAddress, _param.nftCategoryId, _param.maxEnergy, _param.boostBps);
   }
 
   /// @dev A function setting if a particular stake token should allow a specified nft to be boosted
