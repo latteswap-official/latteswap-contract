@@ -62,7 +62,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     address indexed seller,
     address indexed buyer,
     address nftAddress,
-    uint256 indexed tokenId,
+    uint256 indexed nftCategoryId,
     uint256 price,
     uint256 fee,
     uint256 size
