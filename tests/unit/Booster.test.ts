@@ -26,7 +26,6 @@ import { parseEther, parseUnits } from "ethers/lib/utils";
 import { boosterUnitTestFixture } from "../helpers";
 import { ModifiableContract } from "@eth-optimism/smock";
 import { MockERC721 } from "../../typechain/MockERC721";
-import { MockMasterBarista } from "../../typechain/MockMasterBarista";
 import { MockERC721__factory } from "../../typechain/factories/MockERC721__factory";
 import { AddressZero, MaxUint256, Zero } from "@ethersproject/constants";
 import { Address } from "ethereumjs-util";
@@ -276,11 +275,12 @@ describe("Booster", () => {
                   },
                 },
               },
-              energyInfo: {
+              _boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     currentEnergy: parseEther("10").toString(),
                     boostBps: "1000",
+                    updatedAt: 1,
                   },
                 },
               },
@@ -296,7 +296,7 @@ describe("Booster", () => {
             ).to.eq(nftToken.address.toLowerCase());
             expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -318,7 +318,7 @@ describe("Booster", () => {
                 [stakingTokens[0].address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               stakingTokens[0].address,
               booster.address
             );
@@ -334,6 +334,9 @@ describe("Booster", () => {
             expect(
               (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
             ).to.eq(0);
+            expect((await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps).to.eq(
+              "1000"
+            );
             // should update a user staking nft info
             expect(
               (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -370,6 +373,13 @@ describe("Booster", () => {
               callerAllowance: {
                 [booster.address]: true,
               },
+              _boosterEnergyInfo: {
+                [nftToken.address]: {
+                  1: {
+                    updatedAt: 1,
+                  },
+                },
+              },
             });
             // stake for the first time, its' energy will be used to amplify
             await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
@@ -379,7 +389,7 @@ describe("Booster", () => {
             ).to.eq(nftToken.address.toLowerCase());
             expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -401,7 +411,7 @@ describe("Booster", () => {
                 [stakingTokens[0].address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               stakingTokens[0].address,
               booster.address
             );
@@ -527,11 +537,12 @@ describe("Booster", () => {
                 },
               },
             },
-            energyInfo: {
+            _boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: parseEther("10").toString(),
                   boostBps: "1000",
+                  updatedAt: 1,
                 },
               },
             },
@@ -547,7 +558,7 @@ describe("Booster", () => {
           );
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-          await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+          await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
           // MOCK master barista storages
           await masterBarista.smodify.put({
@@ -569,7 +580,7 @@ describe("Booster", () => {
               [stakingTokens[0].address]: true,
             },
           });
-          await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+          await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
             stakingTokens[0].address,
             booster.address
           );
@@ -585,6 +596,9 @@ describe("Booster", () => {
           expect(
             (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
           ).to.eq(0);
+          expect((await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps).to.eq(
+            "1000"
+          );
           // should update a user staking nft info
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
             AddressZero
@@ -617,11 +631,12 @@ describe("Booster", () => {
                 },
               },
             },
-            energyInfo: {
+            _boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: "0",
                   boostBps: "1000",
+                  updatedAt: 1,
                 },
               },
             },
@@ -637,7 +652,7 @@ describe("Booster", () => {
           );
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-          await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+          await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
           // MOCK master barista storages
           await masterBarista.smodify.put({
@@ -659,7 +674,7 @@ describe("Booster", () => {
               [stakingTokens[0].address]: true,
             },
           });
-          await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+          await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
             stakingTokens[0].address,
             booster.address
           );
@@ -674,6 +689,9 @@ describe("Booster", () => {
           expect(
             (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
           ).to.eq(0);
+          expect((await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps).to.eq(
+            "1000"
+          );
           // should update a user staking nft info
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
             AddressZero
@@ -715,15 +733,17 @@ describe("Booster", () => {
               },
             },
           },
-          energyInfo: {
+          _boosterEnergyInfo: {
             [nftToken.address]: {
               1: {
                 currentEnergy: parseEther("10").toString(),
                 boostBps: "1000",
+                updatedAt: 1,
               },
               2: {
                 currentEnergy: parseEther("10").toString(),
                 boostBps: "1000",
+                updatedAt: 1,
               },
             },
           },
@@ -744,8 +764,8 @@ describe("Booster", () => {
         );
         expect((await booster.userStakingNFT(stakingTokens[1].address, ownerAddress)).nftTokenId).to.eq(2);
 
-        await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
-        await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[1].address, "1000");
+        await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
+        await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[1].address, "1000");
 
         // MOCK master barista storages
         await masterBarista.smodify.put({
@@ -778,11 +798,11 @@ describe("Booster", () => {
             [stakingTokens[1].address]: true,
           },
         });
-        await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+        await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
           stakingTokens[0].address,
           booster.address
         );
-        await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+        await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
           stakingTokens[1].address,
           booster.address
         );
@@ -850,11 +870,12 @@ describe("Booster", () => {
                   },
                 },
               },
-              energyInfo: {
+              _boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     currentEnergy: parseEther("10").toString(),
                     boostBps: "1000",
+                    updatedAt: 1,
                   },
                 },
               },
@@ -870,7 +891,7 @@ describe("Booster", () => {
             ).to.eq(nftToken.address.toLowerCase());
             expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -894,7 +915,7 @@ describe("Booster", () => {
                 [stakingTokens[0].address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               stakingTokens[0].address,
               booster.address
             );
@@ -933,11 +954,12 @@ describe("Booster", () => {
                 },
               },
             },
-            energyInfo: {
+            _boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: parseEther("10").toString(),
                   boostBps: "1000",
+                  updatedAt: 1,
                 },
               },
             },
@@ -953,7 +975,7 @@ describe("Booster", () => {
           );
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-          await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+          await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
           // MOCK master barista storages
           await masterBarista.smodify.put({
@@ -975,7 +997,7 @@ describe("Booster", () => {
               [stakingTokens[0].address]: true,
             },
           });
-          await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+          await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
             stakingTokens[0].address,
             booster.address
           );
@@ -1041,11 +1063,12 @@ describe("Booster", () => {
                 },
               },
             },
-            energyInfo: {
+            _boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: parseEther("10").toString(),
                   boostBps: "1000",
+                  updatedAt: 1,
                 },
               },
             },
@@ -1080,7 +1103,7 @@ describe("Booster", () => {
               [latteToken.address]: true,
             },
           });
-          await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+          await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
             latteToken.address,
             booster.address
           );
@@ -1124,7 +1147,7 @@ describe("Booster", () => {
                 },
               });
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
               // MOCK master barista storages
               await masterBarista.smodify.put({
@@ -1138,7 +1161,7 @@ describe("Booster", () => {
                   [wbnb.address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 wbnb.address,
                 booster.address
               );
@@ -1167,7 +1190,7 @@ describe("Booster", () => {
               },
             });
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -1181,7 +1204,7 @@ describe("Booster", () => {
                 [wbnb.address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               wbnb.address,
               booster.address
             );
@@ -1198,7 +1221,7 @@ describe("Booster", () => {
             expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
             // expect balance of the owner to be 100 (from stake)
             expect(
-              (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+              (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
             ).to.eq(parseEther("100"));
           });
         });
@@ -1229,11 +1252,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -1249,7 +1273,7 @@ describe("Booster", () => {
               );
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
               // MOCK master barista storages
               await masterBarista.smodify.put({
@@ -1271,7 +1295,7 @@ describe("Booster", () => {
                   [wbnb.address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 wbnb.address,
                 booster.address
               );
@@ -1294,7 +1318,7 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("1.5"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+                (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq(parseEther("60"));
             });
           });
@@ -1324,11 +1348,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -1344,7 +1369,7 @@ describe("Booster", () => {
               );
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
               // MOCK master barista storages
               await masterBarista.smodify.put({
@@ -1366,7 +1391,7 @@ describe("Booster", () => {
                   [wbnb.address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 wbnb.address,
                 booster.address
               );
@@ -1386,7 +1411,7 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+                (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq(parseEther("60"));
             });
           });
@@ -1408,7 +1433,7 @@ describe("Booster", () => {
                 },
               });
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
               // MOCK master barista storages
               await masterBarista.smodify.put({
@@ -1422,7 +1447,7 @@ describe("Booster", () => {
                   [stakingTokens[0].address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 stakingTokens[0].address,
                 booster.address
               );
@@ -1455,7 +1480,7 @@ describe("Booster", () => {
               },
             });
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -1469,7 +1494,7 @@ describe("Booster", () => {
                 [stakingTokens[0].address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               stakingTokens[0].address,
               booster.address
             );
@@ -1489,7 +1514,7 @@ describe("Booster", () => {
             expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
             // expect balance of the owner to be 100 (from stake)
             expect(
-              (await (masterBarista as unknown as MockMasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
+              (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                 .amount
             ).to.eq(parseEther("100"));
           });
@@ -1521,11 +1546,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -1541,7 +1567,7 @@ describe("Booster", () => {
               ).to.eq(nftToken.address.toLowerCase());
               expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
               // MOCK master barista storages
               await masterBarista.smodify.put({
@@ -1563,7 +1589,7 @@ describe("Booster", () => {
                   [stakingTokens[0].address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 stakingTokens[0].address,
                 booster.address
               );
@@ -1586,7 +1612,7 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("1.5"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
+                (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
               ).to.eq(parseEther("60"));
             });
@@ -1617,11 +1643,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -1637,7 +1664,7 @@ describe("Booster", () => {
               ).to.eq(nftToken.address.toLowerCase());
               expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
               // MOCK master barista storages
               await masterBarista.smodify.put({
@@ -1659,7 +1686,7 @@ describe("Booster", () => {
                   [stakingTokens[0].address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 stakingTokens[0].address,
                 booster.address
               );
@@ -1679,7 +1706,7 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
+                (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
               ).to.eq(parseEther("60"));
             });
@@ -1714,7 +1741,7 @@ describe("Booster", () => {
               [latteToken.address]: true,
             },
           });
-          await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+          await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
             latteToken.address,
             booster.address
           );
@@ -1731,7 +1758,7 @@ describe("Booster", () => {
           expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
           // expect balance of the owner to be 100 (from stake)
           expect(
-            (await (masterBarista as unknown as MockMasterBarista).userInfo(latteToken.address, ownerAddress)).amount
+            (await (masterBarista as unknown as MasterBarista).userInfo(latteToken.address, ownerAddress)).amount
           ).to.eq(parseEther("100"));
         });
       });
@@ -1762,11 +1789,12 @@ describe("Booster", () => {
                   },
                 },
               },
-              energyInfo: {
+              _boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     currentEnergy: parseEther("10").toString(),
                     boostBps: "1000",
+                    updatedAt: 1,
                   },
                 },
               },
@@ -1802,7 +1830,7 @@ describe("Booster", () => {
                 [latteToken.address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               latteToken.address,
               booster.address
             );
@@ -1822,7 +1850,7 @@ describe("Booster", () => {
             expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("1.5"));
             // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
             expect(
-              (await (masterBarista as unknown as MockMasterBarista).userInfo(latteToken.address, ownerAddress)).amount
+              (await (masterBarista as unknown as MasterBarista).userInfo(latteToken.address, ownerAddress)).amount
             ).to.eq(parseEther("60"));
           });
         });
@@ -1852,11 +1880,12 @@ describe("Booster", () => {
                   },
                 },
               },
-              energyInfo: {
+              _boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     currentEnergy: "0",
                     boostBps: "1000",
+                    updatedAt: 1,
                   },
                 },
               },
@@ -1892,7 +1921,7 @@ describe("Booster", () => {
                 [latteToken.address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               latteToken.address,
               booster.address
             );
@@ -1909,7 +1938,7 @@ describe("Booster", () => {
             expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
             // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
             expect(
-              (await (masterBarista as unknown as MockMasterBarista).userInfo(latteToken.address, ownerAddress)).amount
+              (await (masterBarista as unknown as MasterBarista).userInfo(latteToken.address, ownerAddress)).amount
             ).to.eq(parseEther("60"));
           });
         });
@@ -1939,9 +1968,16 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [wbnb.address]: true,
               },
+              _boosterEnergyInfo: {
+                [constants.AddressZero]: {
+                  0: {
+                    updatedAt: 1,
+                  },
+                },
+              },
             });
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -1963,7 +1999,7 @@ describe("Booster", () => {
                 [wbnb.address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               wbnb.address,
               booster.address
             );
@@ -1973,7 +2009,7 @@ describe("Booster", () => {
               .to.emit(booster, "Unstake")
               .withArgs(ownerAddress, wbnb.address, parseEther("10"));
             expect(
-              (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+              (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
             ).to.eq("0");
           });
           it("should be able to unstake with a correct return native amount", async () => {
@@ -1986,9 +2022,16 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [wbnb.address]: true,
               },
+              _boosterEnergyInfo: {
+                [constants.AddressZero]: {
+                  0: {
+                    updatedAt: 1,
+                  },
+                },
+              },
             });
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -2010,7 +2053,7 @@ describe("Booster", () => {
                 [wbnb.address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               wbnb.address,
               booster.address
             );
@@ -2023,7 +2066,7 @@ describe("Booster", () => {
             const totalGas = receipt.gasUsed.mul(await alice.getGasPrice());
             expect(aliceBalanceAfter.sub(parseEther("10").sub(totalGas))).to.eq(aliceBalanceBefore);
             expect(
-              (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+              (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
             ).to.eq("0");
           });
         });
@@ -2052,11 +2095,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -2072,7 +2116,7 @@ describe("Booster", () => {
               );
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
               // block #0
               const snapshotBlock = await latestBlockNumber();
@@ -2097,7 +2141,7 @@ describe("Booster", () => {
                   [wbnb.address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 wbnb.address,
                 booster.address
               );
@@ -2118,11 +2162,14 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("16.5"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+                (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
               expect(
                 (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
               ).to.eq(0);
+              expect(
+                (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps
+              ).to.eq(1000);
             });
 
             it("should be able to unstake with reward + extra reward from energy with a correct balance returned", async () => {
@@ -2147,11 +2194,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -2167,7 +2215,7 @@ describe("Booster", () => {
               );
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
               // block #0
               const snapshotBlock = await latestBlockNumber();
@@ -2192,7 +2240,7 @@ describe("Booster", () => {
                   [wbnb.address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 wbnb.address,
                 booster.address
               );
@@ -2214,11 +2262,14 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("16.5"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+                (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
               expect(
                 (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
               ).to.eq(0);
+              expect(
+                (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps
+              ).to.eq("1000");
             });
           });
 
@@ -2245,11 +2296,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -2265,7 +2317,7 @@ describe("Booster", () => {
               );
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
               // block #0
               const snapshotBlock = await latestBlockNumber();
@@ -2290,7 +2342,7 @@ describe("Booster", () => {
                   [wbnb.address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 wbnb.address,
                 booster.address
               );
@@ -2309,11 +2361,14 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("15"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+                (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
               expect(
                 (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
               ).to.eq(0);
+              expect(
+                (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps
+              ).to.eq("1000");
             });
 
             it("should be able to unstake with reward with a correct balance returned", async () => {
@@ -2338,11 +2393,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -2358,7 +2414,7 @@ describe("Booster", () => {
               );
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(wbnb.address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
 
               // block #0
               const snapshotBlock = await latestBlockNumber();
@@ -2383,7 +2439,7 @@ describe("Booster", () => {
                   [wbnb.address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 wbnb.address,
                 booster.address
               );
@@ -2405,11 +2461,14 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("15"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(wbnb.address, ownerAddress)).amount
+                (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
               expect(
                 (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
               ).to.eq(0);
+              expect(
+                (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps
+              ).to.eq("1000");
             });
           });
         });
@@ -2427,9 +2486,16 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [stakingTokens[0].address]: true,
               },
+              _boosterEnergyInfo: {
+                [constants.AddressZero]: {
+                  0: {
+                    updatedAt: 1,
+                  },
+                },
+              },
             });
 
-            await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+            await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
             // MOCK master barista storages
             await masterBarista.smodify.put({
@@ -2451,7 +2517,7 @@ describe("Booster", () => {
                 [stakingTokens[0].address]: true,
               },
             });
-            await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
               stakingTokens[0].address,
               booster.address
             );
@@ -2464,7 +2530,7 @@ describe("Booster", () => {
               .withArgs(ownerAddress, stakingTokens[0].address, parseEther("10"));
             expect(await stakingTokens[0].balanceOf(ownerAddress)).to.eq(parseEther("10"));
             expect(
-              (await (masterBarista as unknown as MockMasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
+              (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                 .amount
             ).to.eq("0");
           });
@@ -2494,11 +2560,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -2514,7 +2581,7 @@ describe("Booster", () => {
               ).to.eq(nftToken.address.toLowerCase());
               expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
               // block #0
               const snapshotBlock = await latestBlockNumber();
@@ -2539,7 +2606,7 @@ describe("Booster", () => {
                   [stakingTokens[0].address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 stakingTokens[0].address,
                 booster.address
               );
@@ -2560,12 +2627,15 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("16.5"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
+                (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
               ).to.eq("0");
               expect(
                 (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
               ).to.eq(0);
+              expect(
+                (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps
+              ).to.eq("1000");
             });
           });
 
@@ -2592,11 +2662,12 @@ describe("Booster", () => {
                     },
                   },
                 },
-                energyInfo: {
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
                       boostBps: "1000",
+                      updatedAt: 1,
                     },
                   },
                 },
@@ -2612,7 +2683,7 @@ describe("Booster", () => {
               ).to.eq(nftToken.address.toLowerCase());
               expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-              await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+              await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
 
               // block #0
               const snapshotBlock = await latestBlockNumber();
@@ -2637,7 +2708,7 @@ describe("Booster", () => {
                   [stakingTokens[0].address]: true,
                 },
               });
-              await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
                 stakingTokens[0].address,
                 booster.address
               );
@@ -2656,12 +2727,15 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("15"));
               // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
-                (await (masterBarista as unknown as MockMasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
+                (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
               ).to.eq("0");
               expect(
                 (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).currentEnergy
               ).to.eq(0);
+              expect(
+                (await (boosterConfig as unknown as BoosterConfig).energyInfo(nftToken.address, 1)).boostBps
+              ).to.eq("1000");
             });
           });
         });
@@ -2694,11 +2768,12 @@ describe("Booster", () => {
             },
           },
         },
-        energyInfo: {
+        _boosterEnergyInfo: {
           [nftToken.address]: {
             1: {
               currentEnergy: parseEther("10").toString(),
               boostBps: "1000",
+              updatedAt: 1,
             },
           },
         },
@@ -2707,7 +2782,7 @@ describe("Booster", () => {
         },
       });
 
-      await (masterBarista as unknown as MockMasterBarista).addPool(stakingTokens[0].address, "1000");
+      await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
       // MOCK master barista storages
       await masterBarista.smodify.put({
         poolInfo: {
@@ -2728,7 +2803,7 @@ describe("Booster", () => {
           [stakingTokens[0].address]: true,
         },
       });
-      await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
+      await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
         stakingTokens[0].address,
         booster.address
       );
