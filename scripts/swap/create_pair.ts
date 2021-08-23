@@ -1,9 +1,7 @@
 import { getCreate2Address } from "ethers/lib/utils";
 import { ethers } from "hardhat";
-import DevelopConfig from "../../develop.json";
-import ProdConfig from "../../prod.json";
 import { LatteSwapFactory__factory } from "../../typechain";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 interface IPairAddress {
   TOKEN0: string;
@@ -11,7 +9,7 @@ interface IPairAddress {
 }
 
 async function main() {
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
   const PAIR_ADDRESS: IPairAddress = {
     TOKEN0: config.Tokens.LATTE,
     TOKEN1: config.Tokens.BUSD,

@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import DevelopConfig from "../../develop.json";
+import DevelopConfig from "@latteswap/latteswap-contract-config/develop.json";
 import { SimpleToken, SimpleToken__factory } from "../../typechain";
 import { withNetworkFile } from "../../utils";
 
@@ -20,9 +20,9 @@ async function main() {
   const deployer = (await ethers.getSigners())[0];
   console.log(`deployer: ${await deployer.getAddress()}`);
 
-  for (let entry of mockedERC20Entries) {
+  for (const entry of mockedERC20Entries) {
     const [key, erc20Address] = entry;
-    for (let target of TARGET_ADDRESSES) {
+    for (const target of TARGET_ADDRESSES) {
       console.log(`>> sending ${target} a token ${key} address ${erc20Address} amount ${AMOUNT}`);
       const token: SimpleToken = SimpleToken__factory.connect(erc20Address, deployer);
       const tx = await token.mint(target, AMOUNT);

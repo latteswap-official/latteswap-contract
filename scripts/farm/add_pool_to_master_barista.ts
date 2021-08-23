@@ -1,8 +1,6 @@
 import { ethers, network } from "hardhat";
-import ProdConfig from "../../prod.json";
-import DevelopConfig from "../../develop.json";
 import { MasterBarista, MasterBarista__factory } from "../../typechain";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 interface IStakingPool {
   STAKING_TOKEN_ADDRESS: string;
@@ -21,7 +19,7 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
       STAKING_TOKEN_ADDRESS: "0xa63b4be46eC650E2D786fA0fd763C61D6B56871c",
@@ -29,7 +27,7 @@ async function main() {
     },
   ];
 
-  for (let STAKING_POOL of STAKING_POOLS) {
+  for (const STAKING_POOL of STAKING_POOLS) {
     const masterBarista = MasterBarista__factory.connect(
       config.MasterBarista,
       (await ethers.getSigners())[0]

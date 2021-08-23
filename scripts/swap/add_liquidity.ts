@@ -1,11 +1,9 @@
 import { ethers } from "hardhat";
 import { ERC20__factory, LatteSwapRouter, LatteSwapRouter__factory } from "../../typechain";
-import ProdConfig from "../../prod.json";
-import DevelopConfig from "../../develop.json";
 import { BigNumber, constants } from "ethers";
 import hre from "hardhat";
 import { parseEther } from "ethers/lib/utils";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 const FOREVER = 20000000000;
 
@@ -49,7 +47,7 @@ export class Pair {
 async function main() {
   const { network } = hre;
 
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
 
   const ROUTER_ADDRESS = config.Router;
 

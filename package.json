@@ -3,7 +3,7 @@
   "scripts": {
     "compile": "hardhat typechain --config hardhat.config.ts",
     "remove:sol-log": "hardhat remove-logs",
-    "prettier-format:default": "prettier --config .prettierrc 'deploy/**/*.ts' 'scripts/**/*.ts' --write",
+    "prettier-format:default": "prettier --config .prettierrc 'deploy/**/*.ts' 'utils/**/*.ts' 'scripts/**/*.ts' --write",
     "deploy:mainnet": "hardhat --network mainnet deploy --reset",
     "deploy:testnet": "hardhat --network testnet deploy --reset",
     "test": "hardhat test --no-compile",
@@ -51,6 +51,7 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
+    "@latteswap/latteswap-contract-config": "^0.0.1-rc.1",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
@@ -93,8 +94,6 @@
   "files": [
     "typechain",
     "artifacts",
-    "contracts",
-    "develop.json",
-    "prod.json"
+    "contracts"
   ]
 }

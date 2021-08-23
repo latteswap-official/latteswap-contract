@@ -1,8 +1,6 @@
 import { ethers, network } from "hardhat";
-import ProdConfig from "../../prod.json";
-import DevelopConfig from "../../develop.json";
 import { MasterBarista, MasterBarista__factory } from "../../typechain";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 async function main() {
   /*
@@ -14,7 +12,7 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
   const LATTE_PER_BLOCK = ethers.utils.parseEther("10");
 
   const masterBarista = MasterBarista__factory.connect(

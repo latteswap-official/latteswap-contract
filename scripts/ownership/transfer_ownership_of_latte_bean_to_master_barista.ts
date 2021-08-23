@@ -1,8 +1,6 @@
-import ProdConfig from "../../prod.json";
-import DevelopConfig from "../../develop.json";
 import { LATTE__factory, LATTE, BeanBag__factory, BeanBag } from "../../typechain";
 import { ethers, network } from "hardhat";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 async function main() {
   /*
@@ -14,7 +12,7 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
 
   const latte = LATTE__factory.connect(config.Tokens.LATTE, (await ethers.getSigners())[0]) as LATTE;
 

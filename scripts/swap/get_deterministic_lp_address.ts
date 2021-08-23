@@ -1,7 +1,5 @@
 import { getCreate2Address } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
-import DevelopConfig from "../../develop.json";
-import ProdConfig from "../../prod.json";
 import { getConfig, withNetworkFile } from "../../utils";
 import { pack, keccak256 } from "@ethersproject/solidity";
 

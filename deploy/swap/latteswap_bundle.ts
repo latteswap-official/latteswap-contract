@@ -1,15 +1,13 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import ProdConfig from "../../prod.json";
-import DevelopConfig from "../../develop.json";
 import { LatteSwapFactory__factory } from "../../typechain";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network, ethers } = hre;
   const { deploy } = deployments;
   if (!process.env.DEPLOYMENT_ENV) throw new Error("unspecified deployment env :(");
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
   const WBNB_ADDRESS = config.Tokens.WBNB;
   const FEETO = "";
 

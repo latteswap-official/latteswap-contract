@@ -1,8 +1,6 @@
 import { ethers, network } from "hardhat";
-import ProdConfig from "../../prod.json";
-import DevelopConfig from "../../develop.json";
 import { LatteSwapFactory, LatteSwapFactory__factory } from "../../typechain";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 async function main() {
   /*
@@ -14,7 +12,7 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
   const FEETO = "0xc4536F1526B683269ad1442255214f618ec943f8";
 
   const latteSwapFactory = LatteSwapFactory__factory.connect(

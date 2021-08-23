@@ -1,8 +1,6 @@
 import { Ownable__factory } from "../../typechain";
 import { ethers, network } from "hardhat";
-import ProdConfig from "../../prod.json";
-import DevelopConfig from "../../develop.json";
-import { withNetworkFile } from "../../utils";
+import { withNetworkFile, getConfig } from "../../utils";
 
 async function main() {
   /*
@@ -17,7 +15,7 @@ async function main() {
 
   const TO_BE_TRANSFERED: Array<string> = [];
 
-  const config = process.env.DEPLOYMENT_ENV === "prod" ? ProdConfig : DevelopConfig;
+  const config = getConfig();
 
   for (let i = 0; i < TO_BE_TRANSFERED.length; i++) {
     console.log(`>> Transferring ownership of ${TO_BE_TRANSFERED[i]} to TIMELOCK`);
