@@ -59,10 +59,22 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     BoosterAllowance[] allowance;
   }
 
+  struct CategoryAllowance {
+    address nftAddress;
+    uint256 nftCategoryId;
+    bool allowance;
+  }
+
+  struct CategoryAllowanceParams {
+    address stakingToken;
+    CategoryAllowance[] allowance;
+  }
+
   mapping(address => mapping(uint256 => BoosterEnergyInfo)) internal _boosterEnergyInfo;
   mapping(address => mapping(uint256 => CategoryEnergyInfo)) internal _categoryEnergyInfo;
 
-  mapping(address => mapping(address => mapping(uint256 => bool))) public override boosterNftAllowance;
+  mapping(address => mapping(address => mapping(uint256 => bool))) internal _boosterNftAllowance;
+  mapping(address => mapping(address => mapping(uint256 => bool))) internal _categoryNftAllowance;
 
   mapping(address => bool) public override stakeTokenAllowance;
 
@@ -93,6 +105,12 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     uint256 indexed nftCategoryId,
     uint256 maxEnergy,
     uint256 boostBps
+  );
+  event SetCategoryNFTAllowance(
+    address indexed stakeToken,
+    address indexed nftAddress,
+    uint256 indexed nftCategoryId,
+    bool isAllowed
   );
 
   /// @notice only eligible caller can continue the execution
@@ -239,6 +257,27 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     emit SetCategoryNFTEnergyInfo(_param.nftAddress, _param.nftCategoryId, _param.maxEnergy, _param.boostBps);
   }
 
+  /// @dev A function setting if a particular stake token should allow a specified nft category to be boosted (used with non-preminted nft)
+  /// @param _param a CategoryAllowanceParams {stakingToken, [{nftAddress, nftCategoryId, allowance;}]}
+  function setStakingTokenCategoryAllowance(CategoryAllowanceParams calldata _param) external onlyOwner {
+    for (uint256 i = 0; i < _param.allowance.length; ++i) {
+      require(
+        stakeTokenAllowance[_param.stakingToken],
+        "BoosterConfig::setStakingTokenCategoryAllowance:: bad staking token"
+      );
+      _categoryNftAllowance[_param.stakingToken][_param.allowance[i].nftAddress][
+        _param.allowance[i].nftCategoryId
+      ] = _param.allowance[i].allowance;
+
+      emit SetCategoryNFTAllowance(
+        _param.stakingToken,
+        _param.allowance[i].nftAddress,
+        _param.allowance[i].nftCategoryId,
+        _param.allowance[i].allowance
+      );
+    }
+  }
+
   /// @dev A function setting if a particular stake token should allow a specified nft to be boosted
   /// @param _param a BoosterAllowanceParams {stakingToken, [{nftAddress, nftTokenId,allowance;}]}
   function setStakingTokenBoosterAllowance(BoosterAllowanceParams calldata _param) external onlyOwner {
@@ -247,7 +286,7 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
         stakeTokenAllowance[_param.stakingToken],
         "BoosterConfig::setStakingTokenBoosterAllowance:: bad staking token"
       );
-      boosterNftAllowance[_param.stakingToken][_param.allowance[i].nftAddress][_param.allowance[i].nftTokenId] = _param
+      _boosterNftAllowance[_param.stakingToken][_param.allowance[i].nftAddress][_param.allowance[i].nftTokenId] = _param
         .allowance[i]
         .allowance;
 
@@ -258,5 +297,19 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
         _param.allowance[i].allowance
       );
     }
+  }
+
+  /// @notice use for checking whether or not this nft supports an input stakeToken
+  /// @dev if not support when checking with token, need to try checking with category level (_categoryNftAllowance) as well since there should not be _boosterNftAllowance in non-preminted nft
+  function boosterNftAllowance(
+    address _stakeToken,
+    address _nftAddress,
+    uint256 _nftTokenId
+  ) external view override returns (bool) {
+    if (!_boosterNftAllowance[_stakeToken][_nftAddress][_nftTokenId]) {
+      uint256 categoryId = ILatteNFT(_nftAddress).latteNFTToCategory(_nftTokenId);
+      return _categoryNftAllowance[_stakeToken][_nftAddress][categoryId];
+    }
+    return true;
   }
 }
