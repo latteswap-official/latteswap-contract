@@ -16,6 +16,7 @@ import {
   WNativeRelayer,
   BoosterConfig,
   MasterBarista,
+  LatteNFT,
 } from "../../../typechain";
 import { ModifiableContract, smoddit } from "@eth-optimism/smock";
 
@@ -31,6 +32,7 @@ export interface IBoosterUnitTestFixtureDTO {
   beanBag: BeanBag;
   wbnb: MockWBNB;
   wNativeRelayer: WNativeRelayer;
+  latteNft: ModifiableContract;
   signatureFn: (signer: Signer, msg?: string) => Promise<string>;
 }
 
@@ -82,6 +84,15 @@ export async function boosterUnitTestFixture(
   const MockERC721 = await smoddit("MockERC721", deployer);
   const mockERC721: ModifiableContract = await MockERC721.deploy(`NFT`, `NFT`);
 
+  const LatteNft = await smoddit("LatteNFT", deployer);
+  const latteNft = await LatteNft.deploy();
+  await (latteNft as unknown as LatteNFT).initialize("baseURI");
+  await latteNft.smodify.put({
+    latteNFTToCategory: {
+      0: 1,
+    },
+  });
+
   // Deploy mocked booster config
   const BoosterConfigFactory = await smoddit("BoosterConfig", deployer);
   const mockBoosterConfig = await BoosterConfigFactory.deploy();
@@ -125,5 +136,6 @@ export async function boosterUnitTestFixture(
     signatureFn,
     wbnb,
     wNativeRelayer,
+    latteNft,
   } as IBoosterUnitTestFixtureDTO;
 }
