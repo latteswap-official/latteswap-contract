@@ -343,6 +343,35 @@ describe("BoosterConfig", () => {
       });
     });
 
+    context("when stakingTokenBoosterAllowance is false", () => {
+      it("should set staking token category allowance with boosterNftAllowance getting from category", async () => {
+        await latteNft.smodify.put({
+          latteNFTToCategory: {
+            1: 0,
+          },
+        });
+        await boosterConfig.setStakeTokenAllowance(await alice.getAddress(), true);
+        const boosterAllowanceParams = {
+          stakingToken: await alice.getAddress(),
+          allowance: [{ nftAddress: latteNft.address, nftTokenId: 1, allowance: false }],
+        };
+        await boosterConfig.setStakingTokenBoosterAllowance(boosterAllowanceParams);
+
+        const allowance = [{ nftAddress: latteNft.address, nftCategoryId: 0, allowance: true }];
+        const categoryAllowanceParams = {
+          stakingToken: await alice.getAddress(),
+          allowance: allowance,
+        };
+        await boosterConfig.setStakingTokenCategoryAllowance(categoryAllowanceParams);
+        const boosterAllowance = await boosterConfig.boosterNftAllowance(
+          await alice.getAddress(),
+          allowance[0].nftAddress,
+          1
+        );
+        expect(boosterAllowance).to.be.true;
+      });
+    });
+
     context("when stakingTokenBoosterAllowance has been set", () => {
       it("should set staking token category allowance with boosterNftAllowance getting from category", async () => {
         await latteNft.smodify.put({
