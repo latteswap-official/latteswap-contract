@@ -218,7 +218,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       "MasterBarista::setPoolAllocBps::_stakeToken must not be address(0) or address(1)"
     );
     require(pools.has(_stakeToken), "MasterBarista::setPoolAllocBps::pool hasn't been set");
-    require(_allocBps > 1000, "MasterBarista::setPoolallocBps::_allocBps must > 1000");
     address curr = pools.next[LinkList.start];
     uint256 accumAllocBps = 0;
     while (curr != LinkList.end) {
@@ -229,6 +228,10 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     }
     require(accumAllocBps.add(_allocBps) < 10000, "MasterBarista::setPoolallocBps::accumAllocBps must < 10000");
     massUpdatePools();
+    if (_allocBps == 0) {
+      totalAllocPoint = totalAllocPoint.sub(poolInfo[_stakeToken].allocPoint);
+      poolInfo[_stakeToken].allocPoint = 0;
+    }
     poolInfo[_stakeToken].allocBps = _allocBps;
     updatePoolsAlloc();
   }
