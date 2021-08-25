@@ -346,6 +346,9 @@ contract Booster is
   ) external override inExec {
     NFTStakingInfo memory stakingNFT = userStakingNFT[stakeToken][userAddr];
     UserInfo storage user = userInfo[stakeToken][userAddr];
+    if (stakingNFT.nftAddress == address(0)) {
+      return;
+    }
     (, uint256 currentEnergy, uint256 boostBps) = boosterConfig.energyInfo(
       stakingNFT.nftAddress,
       stakingNFT.nftTokenId
