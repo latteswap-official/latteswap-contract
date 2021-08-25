@@ -1984,13 +1984,6 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [wbnb.address]: true,
               },
-              _boosterEnergyInfo: {
-                [constants.AddressZero]: {
-                  0: {
-                    updatedAt: 1,
-                  },
-                },
-              },
             });
 
             await (masterBarista as unknown as MasterBarista).addPool(wbnb.address, "1000");
@@ -2037,13 +2030,6 @@ describe("Booster", () => {
             await boosterConfig.smodify.put({
               stakeTokenAllowance: {
                 [wbnb.address]: true,
-              },
-              _boosterEnergyInfo: {
-                [constants.AddressZero]: {
-                  0: {
-                    updatedAt: 1,
-                  },
-                },
               },
             });
 
@@ -2501,13 +2487,6 @@ describe("Booster", () => {
             await boosterConfig.smodify.put({
               stakeTokenAllowance: {
                 [stakingTokens[0].address]: true,
-              },
-              _boosterEnergyInfo: {
-                [constants.AddressZero]: {
-                  0: {
-                    updatedAt: 1,
-                  },
-                },
               },
             });
 
