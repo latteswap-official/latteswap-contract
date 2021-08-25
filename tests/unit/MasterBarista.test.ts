@@ -235,6 +235,7 @@ describe("MasterBarista", () => {
         let stakeToken0Pool = await masterBarista.poolInfo(stakingTokens[0].address);
         let stakeToken1Pool = await masterBarista.poolInfo(stakingTokens[1].address);
         let totalAllocPoint = await masterBarista.totalAllocPoint();
+
         expect(lattePool.allocBps).to.eq(4000);
         expect(lattePool.allocPoint).to.eq(4000);
         expect(stakeToken0Pool.allocBps).to.eq(0);
@@ -257,6 +258,20 @@ describe("MasterBarista", () => {
         expect(stakeToken1Pool.allocBps).to.eq(0);
         expect(stakeToken1Pool.allocPoint).to.eq(0);
         expect(totalAllocPoint).to.eq(1666);
+
+        masterBarista.setPoolAllocBps(stakingTokens[1].address, 3000);
+        lattePool = await masterBarista.poolInfo(latteToken.address);
+        stakeToken0Pool = await masterBarista.poolInfo(stakingTokens[0].address);
+        stakeToken1Pool = await masterBarista.poolInfo(stakingTokens[1].address);
+        totalAllocPoint = await masterBarista.totalAllocPoint();
+
+        expect(lattePool.allocBps).to.eq(4000);
+        expect(lattePool.allocPoint).to.eq(1333);
+        expect(stakeToken0Pool.allocBps).to.eq(0);
+        expect(stakeToken0Pool.allocPoint).to.eq(1000);
+        expect(stakeToken1Pool.allocBps).to.eq(3000);
+        expect(stakeToken1Pool.allocPoint).to.eq(1000);
+        expect(totalAllocPoint).to.eq(3333);
       });
     });
   });

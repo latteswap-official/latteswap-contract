@@ -362,14 +362,13 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address curr = pools.next[LinkList.start];
     uint256 num = _accumNonBpsPoolPoints.mul(_accumAllocBps);
     uint256 denom = uint256(10000).sub(_accumAllocBps);
-    uint256 adjustedPoints = num.div(denom);
     uint256 poolPoints;
     while (curr != LinkList.end) {
       if (poolInfo[curr].allocBps == 0) {
         curr = pools.getNextOf(curr);
         continue;
       }
-      poolPoints = adjustedPoints.mul(poolInfo[curr].allocBps).div(_accumAllocBps);
+      poolPoints = (num.mul(poolInfo[curr].allocBps)).div(_accumAllocBps.mul(denom));
       totalAllocPoint = totalAllocPoint.sub(poolInfo[curr].allocPoint).add(poolPoints);
       poolInfo[curr].allocPoint = poolPoints;
       emit PoolAllocChanged(curr, poolInfo[curr].allocBps, poolPoints);
