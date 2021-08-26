@@ -361,7 +361,7 @@ contract Booster is
     user.accumBoostedReward = user.accumBoostedReward.add(extraReward);
     uint256 newEnergy = currentEnergy.sub(extraReward);
     masterBarista.mintExtraReward(stakeToken, userAddr, extraReward);
-    boosterConfig.updateCurrentEnergy(stakingNFT.nftAddress, stakingNFT.nftTokenId, newEnergy);
+    boosterConfig.consumeEnergy(stakingNFT.nftAddress, stakingNFT.nftTokenId, extraReward);
 
     emit MasterBaristaCall(userAddr, extraReward, stakeToken, currentEnergy, newEnergy);
   }

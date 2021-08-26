@@ -153,27 +153,28 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
   /// @dev Only eligible caller can freely update an energy
   /// @param _nftAddress a composite key for nft
   /// @param _nftTokenId a composite key for nft
-  /// @param _updatedCurrentEnergy an updated curreny energy for the nft
-  function updateCurrentEnergy(
+  /// @param _energyToBeConsumed an energy to be consumed
+  function consumeEnergy(
     address _nftAddress,
     uint256 _nftTokenId,
-    uint256 _updatedCurrentEnergy
+    uint256 _energyToBeConsumed
   ) external override onlyCaller {
-    require(_nftAddress != address(0), "BoosterConfig::updateCurrentEnergy::_nftAddress must not be address(0)");
+    require(_nftAddress != address(0), "BoosterConfig::consumeEnergy::_nftAddress must not be address(0)");
     BoosterEnergyInfo storage energy = _boosterEnergyInfo[_nftAddress][_nftTokenId];
 
     if (energy.updatedAt == 0) {
       uint256 categoryId = ILatteNFT(_nftAddress).latteNFTToCategory(_nftTokenId);
       CategoryEnergyInfo memory categoryEnergy = _categoryEnergyInfo[_nftAddress][categoryId];
-      require(categoryEnergy.updatedAt != 0, "BoosterConfig::updateCurrentEnergy:: invalid nft to be updated");
+      require(categoryEnergy.updatedAt != 0, "BoosterConfig::consumeEnergy:: invalid nft to be updated");
       energy.maxEnergy = categoryEnergy.maxEnergy;
       energy.boostBps = categoryEnergy.boostBps;
+      energy.currentEnergy = categoryEnergy.maxEnergy;
     }
 
-    energy.currentEnergy = _updatedCurrentEnergy;
+    energy.currentEnergy = energy.currentEnergy.sub(_energyToBeConsumed);
     energy.updatedAt = block.timestamp;
 
-    emit UpdateCurrentEnergy(_nftAddress, _nftTokenId, _updatedCurrentEnergy);
+    emit UpdateCurrentEnergy(_nftAddress, _nftTokenId, energy.currentEnergy);
   }
 
   /// @notice set stake token allowance
