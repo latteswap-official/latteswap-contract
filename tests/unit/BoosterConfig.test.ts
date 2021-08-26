@@ -30,18 +30,32 @@ describe("BoosterConfig", () => {
     boosterConfigAsBob = BoosterConfig__factory.connect(boosterConfig.address, bob);
     boosterConfigAsAlice = BoosterConfig__factory.connect(boosterConfig.address, alice);
   });
-  describe("#updateCurrentEnergy()", () => {
+  describe("#consumeEnergy()", () => {
     context("if the energy hasn't been set before", async () => {
       it("should be reverted", async () => {
         await boosterConfig.setCallerAllowance(await bob.getAddress(), true);
-        await expect(boosterConfigAsBob.updateCurrentEnergy(latteNft.address, 0, 2)).to.be.revertedWith(
-          "BoosterConfig::updateCurrentEnergy:: invalid nft to be updated"
+        await expect(boosterConfigAsBob.consumeEnergy(latteNft.address, 0, 2)).to.be.revertedWith(
+          "BoosterConfig::consumeEnergy:: invalid nft to be updated"
         );
       });
     });
 
     context("if the energy has been set", async () => {
       context("set by using booster energy", () => {
+        context("when energy to be consumed is < currentEnergy", () => {
+          it("should revert", async () => {
+            await boosterConfig.setCallerAllowance(await bob.getAddress(), true);
+            await boosterConfig.setBoosterNFTEnergyInfo({
+              nftAddress: latteNft.address,
+              nftTokenId: 0,
+              maxEnergy: 100,
+              boostBps: 100,
+            });
+            await expect(boosterConfigAsBob.consumeEnergy(latteNft.address, 0, 101)).to.revertedWith(
+              "SafeMath: subtraction overflow"
+            );
+          });
+        });
         it("should be successfully set", async () => {
           await boosterConfig.setCallerAllowance(await bob.getAddress(), true);
           await boosterConfig.setBoosterNFTEnergyInfo({
@@ -50,34 +64,62 @@ describe("BoosterConfig", () => {
             maxEnergy: 100,
             boostBps: 100,
           });
-          await boosterConfigAsBob.updateCurrentEnergy(latteNft.address, 0, 2);
+          await boosterConfigAsBob.consumeEnergy(latteNft.address, 0, 2);
           const energyInfo = await boosterConfigAsBob.energyInfo(latteNft.address, 0);
           expect(energyInfo.maxEnergy).to.eq(100);
-          expect(energyInfo.currentEnergy).to.eq(2);
+          expect(energyInfo.currentEnergy).to.eq(98);
           expect(energyInfo.boostBps).to.eq(100);
         });
       });
       context("set by using category", () => {
+        context("when energy to be consumed is < currentEnergy", () => {
+          it("should revert", async () => {
+            await boosterConfig.setCallerAllowance(await bob.getAddress(), true);
+            await boosterConfig.setCategoryNFTEnergyInfo({
+              nftAddress: latteNft.address,
+              nftCategoryId: 1,
+              maxEnergy: 111,
+              boostBps: 100,
+            });
+            await expect(boosterConfigAsBob.consumeEnergy(latteNft.address, 0, 112)).to.revertedWith(
+              "SafeMath: subtraction overflow"
+            );
+          });
+        });
         it("should be successfully set", async () => {
           await boosterConfig.setCallerAllowance(await bob.getAddress(), true);
           await boosterConfig.setCategoryNFTEnergyInfo({
             nftAddress: latteNft.address,
             nftCategoryId: 1,
-            maxEnergy: 100,
+            maxEnergy: 111,
             boostBps: 100,
           });
-          await boosterConfigAsBob.updateCurrentEnergy(latteNft.address, 0, 2);
-          const energyInfo = await boosterConfigAsBob.energyInfo(latteNft.address, 0);
-          expect(energyInfo.maxEnergy).to.eq(100);
-          expect(energyInfo.currentEnergy).to.eq(2);
+          await boosterConfigAsBob.consumeEnergy(latteNft.address, 0, 2);
+          let energyInfo = await boosterConfigAsBob.energyInfo(latteNft.address, 0);
+          expect(energyInfo.maxEnergy).to.eq(111);
+          expect(energyInfo.currentEnergy).to.eq(109);
           expect(energyInfo.boostBps).to.eq(100);
+
+          await boosterConfigAsBob.consumeEnergy(latteNft.address, 0, 9);
+          energyInfo = await boosterConfigAsBob.energyInfo(latteNft.address, 0);
+          expect(energyInfo.maxEnergy).to.eq(111);
+          expect(energyInfo.currentEnergy).to.eq(100);
+          expect(energyInfo.boostBps).to.eq(100);
+        });
+      });
+      context("if not set by both booster and category", () => {
+        it("should revert", async () => {
+          await boosterConfig.setCallerAllowance(await bob.getAddress(), true);
+          await expect(boosterConfigAsBob.consumeEnergy(latteNft.address, 0, 2)).to.revertedWith(
+            "BoosterConfig::consumeEnergy:: invalid nft to be updated"
+          );
         });
       });
     });
 
     context("when the caller is not allowance", async () => {
       it("should reverted", async () => {
-        await expect(boosterConfigAsAlice.updateCurrentEnergy(await eve.getAddress(), 1, 2)).to.be.revertedWith(
+        await expect(boosterConfigAsAlice.consumeEnergy(await eve.getAddress(), 1, 2)).to.be.revertedWith(
           "BoosterConfig::onlyCaller::only eligible caller"
         );
       });
