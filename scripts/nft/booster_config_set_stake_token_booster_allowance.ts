@@ -63,7 +63,7 @@ async function main() {
   ) as BoosterConfig;
 
   let tx, estimatedGas;
-  for (let STAKING_POOL of STAKING_POOLS) {
+  for (const STAKING_POOL of STAKING_POOLS) {
     console.log(`>> Execute BoosterConfig Transaction to setStakingTokenBoosterAllowance ${STAKING_POOL.stakingToken}`);
     console.table(STAKING_POOL.allowance);
     estimatedGas = await boosterConfig.estimateGas.setStakingTokenBoosterAllowance(STAKING_POOL);
