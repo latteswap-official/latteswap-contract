@@ -21,6 +21,12 @@ async function main() {
   const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
+      STAKING_TOKEN_ADDRESS: config.Tokens.BUSD,
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.WBNB,
+    },
+    {
       STAKING_TOKEN_ADDRESS: config.Tokens.LATTE,
     },
     {
@@ -38,7 +44,7 @@ async function main() {
   ) as MasterBarista;
 
   let tx, estimatedGas;
-  for (let STAKING_POOL of STAKING_POOLS) {
+  for (const STAKING_POOL of STAKING_POOLS) {
     console.log(`>> Execute BoosterConfig Transaction to setStakeTokenAllowance ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`);
     estimatedGas = await boosterConfig.estimateGas.setStakeTokenAllowance(STAKING_POOL.STAKING_TOKEN_ADDRESS, true);
     tx = await boosterConfig.setStakeTokenAllowance(STAKING_POOL.STAKING_TOKEN_ADDRESS, true, {

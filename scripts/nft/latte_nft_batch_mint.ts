@@ -24,7 +24,7 @@ async function main() {
   const PARAMS: IMintBatchParams = [
     {
       TO: "0x06A7322cDDCBe5b714b712688331015790240547",
-      CATEGORY_ID: "1",
+      CATEGORY_ID: "0",
       SIZE: 1,
       TOKEN_URI: "",
     },
@@ -32,7 +32,7 @@ async function main() {
 
   const config = getConfig();
   const latteNFT = LatteNFT__factory.connect(config.LatteNFT, (await ethers.getSigners())[0]) as LatteNFT;
-  for (let PARAM of PARAMS) {
+  for (const PARAM of PARAMS) {
     console.log(
       `>> Execute Transaction to batch mint ${PARAM.CATEGORY_ID} to ${PARAM.TO} size ${PARAM.SIZE} with tokenURI ${PARAM.TOKEN_URI}`
     );
