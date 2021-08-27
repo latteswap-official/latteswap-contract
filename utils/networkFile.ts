@@ -6,32 +6,38 @@ function copyContent(fileName: string, dest: string) {
   console.log(dest);
 }
 
-export async function generateNetworkFile() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
-  const srcFile = `${__dirname}/../.openzeppelinz/${process.env.DEPLOYMENT_ENV}-unknown-${chainId}.json`;
-  const destFile = `${__dirname}/../.openzeppelinz/unknown-${chainId}.json`;
+export async function generateNetworkFile(): Promise<void> {
   try {
+    const chainId = (await ethers.provider.getNetwork()).chainId;
+    const srcFile = `${__dirname}/../.openzeppelin/${process.env.DEPLOYMENT_ENV}-unknown-${chainId}.json`;
+    const destFile = `${__dirname}/../.openzeppelin/unknown-${chainId}.json`;
     fs.renameSync(srcFile, destFile);
     console.log(`✅ successfully rename to a file ${destFile}`);
   } catch (err) {
-    console.error(`❌ failed to create a file ${destFile}: ${err}`);
+    console.error(`❌ failed to rename to a file: ${err}`);
+    throw err;
   }
 }
 
-export async function updateNetworkFile() {
-  const chainId = (await ethers.provider.getNetwork()).chainId;
-  const srcFile = `${__dirname}/../.openzeppelinz/unknown-${chainId}.json`;
-  const destFile = `${__dirname}/../.openzeppelinz/${process.env.DEPLOYMENT_ENV}-unknown-${chainId}.json`;
+export async function updateNetworkFile(): Promise<void> {
   try {
+    const chainId = (await ethers.provider.getNetwork()).chainId;
+    const srcFile = `${__dirname}/../.openzeppelin/unknown-${chainId}.json`;
+    const destFile = `${__dirname}/../.openzeppelin/${process.env.DEPLOYMENT_ENV}-unknown-${chainId}.json`;
     fs.renameSync(srcFile, destFile);
     console.log(`✅ successfully rename back to a file ${destFile}`);
   } catch (err) {
-    console.error(err);
+    console.error(`❌ failed to rename back a file: ${err}`);
+    throw err;
   }
 }
 
-export async function withNetworkFile(mainFn: () => Promise<void>) {
+export async function withNetworkFile(mainFn: () => Promise<void>): Promise<void> {
   await generateNetworkFile();
-  await mainFn();
+  try {
+    await mainFn();
+  } catch (err) {
+    console.error(`❌ failed to execute function: ${err}`);
+  }
   await updateNetworkFile();
 }
