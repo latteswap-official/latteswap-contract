@@ -23,7 +23,7 @@ async function main() {
   )) as MasterBarista__factory;
   const masterBarista = (await upgrades.upgradeProxy(config.MasterBarista, MasterBarista)) as MasterBarista;
   await masterBarista.deployed();
-  console.log(`✅ Done Upgrading a booster`);
+  console.log(`✅ Done Upgrading a MasterBarista`);
 }
 
 withNetworkFile(main)
