@@ -43,14 +43,13 @@ async function main() {
     (await ethers.getSigners())[0]
   ) as BoosterConfig;
 
-  let tx, estimatedGas;
   console.log(
     `>> Execute BoosterConfig Transaction to setBatchBoosterNFTEnergyInfo ${PARAMS.map((param) => {
       return `${param.nftAddress}-${param.nftTokenId}`;
     })}`
   );
-  estimatedGas = await boosterConfig.estimateGas.setBatchBoosterNFTEnergyInfo(PARAMS);
-  tx = await boosterConfig.setBatchBoosterNFTEnergyInfo(PARAMS, {
+  const estimatedGas = await boosterConfig.estimateGas.setBatchBoosterNFTEnergyInfo(PARAMS);
+  const tx = await boosterConfig.setBatchBoosterNFTEnergyInfo(PARAMS, {
     gasLimit: estimatedGas.add(100000),
   });
   console.log(`>> returned add a staking token pool tx hash: ${tx.hash}`);
