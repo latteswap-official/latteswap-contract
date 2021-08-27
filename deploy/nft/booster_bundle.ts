@@ -1,7 +1,14 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, upgrades } from "hardhat";
-import { BoosterConfig, BoosterConfig__factory, Booster, Booster__factory } from "../../typechain";
+import {
+  BoosterConfig,
+  BoosterConfig__factory,
+  Booster,
+  Booster__factory,
+  WNativeRelayer__factory,
+  WNativeRelayer,
+} from "../../typechain";
 import { getConfig, withNetworkFile } from "../../utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -16,7 +23,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   */
 
   const config = getConfig();
-  withNetworkFile(async () => {
+  let tx, estimatedGas;
+  await withNetworkFile(async () => {
     // Deploy BoosterConfig
     console.log(`>> Deploying BoosterConfig`);
     const BoosterConfig = (await ethers.getContractFactory(
@@ -36,18 +44,32 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       config.Tokens.LATTE,
       config.MasterBarista,
       boosterConfig.address,
+      config.WnativeRelayer,
+      config.Tokens.WBNB,
     ])) as Booster;
     await booster.deployed();
     console.log(`>> Deployed at ${booster.address}`);
     console.log(`>> ✅ Done Deploying Booster`);
 
     console.log(`>> Adding a Booster as a BoosterConfig's Caller Allowance`);
-    const estimatedGas = await boosterConfig.estimateGas.setCallerAllowance(booster.address, true);
-    const tx = await boosterConfig.setCallerAllowance(booster.address, true, {
+    estimatedGas = await boosterConfig.estimateGas.setCallerAllowance(booster.address, true);
+    tx = await boosterConfig.setCallerAllowance(booster.address, true, {
       gasLimit: estimatedGas.add(100000),
     });
     console.log(`>> Done Adding a Booster as a BoosterConfig's Caller Allowance with tx hash ${tx.hash}`);
     console.log(`>> ✅ Done Adding a Booster as a BoosterConfig's Caller Allowance`);
+
+    const wNativeRelayer = WNativeRelayer__factory.connect(
+      config.WnativeRelayer,
+      (await ethers.getSigners())[0]
+    ) as WNativeRelayer;
+    console.log(`>> Execute Transaction to set wNativeRelayer setCallerOK to ${booster.address}`);
+    estimatedGas = await wNativeRelayer.estimateGas.setCallerOk([booster.address], true);
+    tx = await wNativeRelayer.setCallerOk([booster.address], true, {
+      gasLimit: estimatedGas.add(100000),
+    });
+    console.log(`>> returned tx hash: ${tx.hash}`);
+    console.log("✅ Done");
   });
 };
 
