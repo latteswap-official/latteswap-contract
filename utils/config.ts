@@ -15,6 +15,9 @@ export interface IConfig {
   Booster: string;
   BoosterConfig: string;
   LatteNFT: string;
+  WnativeRelayer: string;
+  OGNFT: string;
+  LatteMarket: string;
 }
 
 export interface ITokens {
