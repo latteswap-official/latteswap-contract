@@ -20,7 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();
-  withNetworkFile(async () => {
+  await withNetworkFile(async () => {
     await deploy("LatteVault", {
       from: deployer,
       contract: "LatteVault",

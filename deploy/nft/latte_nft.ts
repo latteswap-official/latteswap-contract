@@ -19,7 +19,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Deploy LatteNFT
   console.log(`>> Deploying LatteNFT`);
-  withNetworkFile(async () => {
+  await withNetworkFile(async () => {
     const LatteNFT = (await ethers.getContractFactory("LatteNFT", (await ethers.getSigners())[0])) as LatteNFT__factory;
     const latteNft = (await upgrades.deployProxy(LatteNFT, [BASE_URI])) as LatteNFT;
     await latteNft.deployed();

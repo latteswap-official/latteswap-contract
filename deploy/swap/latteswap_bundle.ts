@@ -12,7 +12,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const FEETO = "";
 
   const { deployer } = await getNamedAccounts();
-  withNetworkFile(async () => {
+  await withNetworkFile(async () => {
     await deploy("LatteSwapFactory", {
       from: deployer,
       args: [deployer],
