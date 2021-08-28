@@ -761,6 +761,46 @@ describe("LatteMarket", () => {
       });
     });
 
+    context("when recreate an auction", () => {
+      it("should revert", async () => {
+        await latteMarket.setSupportNFT([latteNFT.address], true);
+        await expect(
+          latteMarket.readyToStartAuction(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(3),
+            startingBlock.add(10),
+            stakingTokens[0].address
+          )
+        )
+          .to.emit(latteMarket, "Ask")
+          .withArgs(await deployer.getAddress(), latteNFT.address, 0, parseEther("10"), stakingTokens[0].address)
+          .to.emit(latteMarket, "SetLatteNFTMetadata")
+          .withArgs(latteNFT.address, 0, 1, startingBlock.add(3), startingBlock.add(10));
+        const metadata = await latteMarket.latteNFTMetadata(latteNFT.address, 0);
+        expect(metadata.isBidding).to.eq(true);
+        expect(metadata.quoteBep20).to.eq(stakingTokens[0].address);
+        expect(metadata.cap).to.eq(1);
+        expect(metadata.startBlock).to.eq(startingBlock.add(3));
+        expect(metadata.endBlock).to.eq(startingBlock.add(10));
+        expect(metadata.price).to.eq(parseEther("10"));
+
+        await expect(
+          latteMarket.readyToStartAuction(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(4),
+            startingBlock.add(10),
+            wbnb.address
+          )
+        ).revertedWith("LatteMarket::onlyNonBiddingNFT::only selling token can be used here");
+      });
+    });
+
     it("should create a correct latteNFTMetadata", async () => {
       await latteMarket.setSupportNFT([latteNFT.address], true);
       await expect(
@@ -973,13 +1013,13 @@ describe("LatteMarket", () => {
             );
 
             // bid phase
-            let aliceBalBefore = await alice.getBalance();
-            let aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
+            const aliceBalBefore = await alice.getBalance();
+            const aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
               value: parseEther("11"),
             });
-            let aliceReceipt = await aliceTx.wait();
-            let aliceGasUsed = aliceReceipt.gasUsed;
-            let aliceBalAfter = await alice.getBalance();
+            const aliceReceipt = await aliceTx.wait();
+            const aliceGasUsed = aliceReceipt.gasUsed;
+            const aliceBalAfter = await alice.getBalance();
             let bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
             expect(bid.bidder).to.eq(await alice.getAddress());
             expect(bid.price).to.eq(parseEther("11"));
@@ -987,13 +1027,13 @@ describe("LatteMarket", () => {
               aliceBalBefore.sub(parseEther("11").add((await ethers.provider.getGasPrice()).mul(aliceGasUsed)))
             );
 
-            let bobBalBefore = await bob.getBalance();
-            let bobTx = await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsBob, {
+            const bobBalBefore = await bob.getBalance();
+            const bobTx = await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsBob, {
               value: parseEther("12"),
             });
-            let bobReceipt = await bobTx.wait();
-            let bobGasUsed = bobReceipt.gasUsed;
-            let bobBalAfter = await bob.getBalance();
+            const bobReceipt = await bobTx.wait();
+            const bobGasUsed = bobReceipt.gasUsed;
+            const bobBalAfter = await bob.getBalance();
             bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
             expect(bid.bidder).to.eq(await bob.getAddress());
             expect(bid.price).to.eq(parseEther("12"));
@@ -1196,7 +1236,7 @@ describe("LatteMarket", () => {
 
         // bid phase
         await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
-        let bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
+        const bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
         expect(bid.bidder).to.eq(await alice.getAddress());
         expect(bid.price).to.eq(parseEther("11"));
         expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
