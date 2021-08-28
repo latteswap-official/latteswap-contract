@@ -363,7 +363,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     uint256 _startBlock,
     uint256 _endBlock,
     IERC20Upgradeable _quoteToken
-  ) external whenNotPaused onlySupportedNFT(_nftAddress) onlyGovernance {
+  ) external whenNotPaused onlySupportedNFT(_nftAddress) onlyNonBiddingNFT(_nftAddress, _categoryId) onlyGovernance {
     latteNFTMetadata[_nftAddress][_categoryId].isBidding = true;
     _readyToSellNFTTo(
       _nftAddress,
