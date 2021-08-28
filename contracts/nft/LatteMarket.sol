@@ -166,7 +166,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
   }
 
   /// @dev set LATTE NFT metadata consisted of cap, startBlock, and endBlock
-  function setLatteNFTMetadata(LatteNFTMetadataParam[] calldata _params) external onlyOwner {
+  function setLatteNFTMetadata(LatteNFTMetadataParam[] calldata _params) external onlyGovernance {
     for (uint256 i = 0; i < _params.length; i++) {
       require(isNFTSupported[_params[i].nftAddress], "LatteMarket::setLatteNFTMetadata::unsupported nft");
       _setLatteNFTMetadata(_params[i]);
