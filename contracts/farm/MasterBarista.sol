@@ -669,7 +669,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
 
     // Burn BEAN if user emergencyWithdraw LATTE
     if (_stakeToken == address(latte)) {
-      bean.burn(_msgSender(), user.amount);
+      bean.burn(_for, user.amount);
     }
 
     // Reset user info

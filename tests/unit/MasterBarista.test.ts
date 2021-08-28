@@ -530,4 +530,26 @@ describe("MasterBarista", () => {
       });
     });
   });
+
+  describe("#emergencyWithdraw", () => {
+    it("should return a stake token to _for rather than msg sender", async () => {
+      const stakingToken0AsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
+      // pretend that alice is a stake caller contract
+      await stakingTokens[0].mint(await alice.getAddress(), parseEther("200"));
+      await stakingToken0AsAlice.approve(masterBarista.address, parseEther("200"));
+
+      const stakeCallerContract = await alice.getAddress();
+      await masterBarista.addPool(stakingTokens[0].address, 1000);
+      await masterBarista.setStakeTokenCallerAllowancePool(stakingTokens[0].address, true);
+      await masterBarista.addStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract);
+      await masterBaristaAsAlice.deposit(
+        await deployer.getAddress(),
+        stakingTokens[0].address,
+        ethers.utils.parseEther("100")
+      );
+      await masterBaristaAsAlice.emergencyWithdraw(await deployer.getAddress(), stakingTokens[0].address);
+      expect(await stakingTokens[0].balanceOf(await deployer.getAddress())).to.eq(ethers.utils.parseEther("100"));
+      expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(ethers.utils.parseEther("100"));
+    });
+  });
 });
