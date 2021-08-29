@@ -346,6 +346,9 @@ contract Booster is
   ) external override inExec {
     NFTStakingInfo memory stakingNFT = userStakingNFT[stakeToken][userAddr];
     UserInfo storage user = userInfo[stakeToken][userAddr];
+    if (stakingNFT.nftAddress == address(0)) {
+      return;
+    }
     (, uint256 currentEnergy, uint256 boostBps) = boosterConfig.energyInfo(
       stakingNFT.nftAddress,
       stakingNFT.nftTokenId
@@ -358,7 +361,7 @@ contract Booster is
     user.accumBoostedReward = user.accumBoostedReward.add(extraReward);
     uint256 newEnergy = currentEnergy.sub(extraReward);
     masterBarista.mintExtraReward(stakeToken, userAddr, extraReward);
-    boosterConfig.updateCurrentEnergy(stakingNFT.nftAddress, stakingNFT.nftTokenId, newEnergy);
+    boosterConfig.consumeEnergy(stakingNFT.nftAddress, stakingNFT.nftTokenId, extraReward);
 
     emit MasterBaristaCall(userAddr, extraReward, stakeToken, currentEnergy, newEnergy);
   }

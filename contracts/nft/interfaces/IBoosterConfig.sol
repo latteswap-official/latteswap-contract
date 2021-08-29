@@ -28,9 +28,9 @@ interface IBoosterConfig {
 
   // external
 
-  function updateCurrentEnergy(
+  function consumeEnergy(
     address nftAddress,
     uint256 nftTokenId,
-    uint256 updatedCurrentEnergy
+    uint256 energyToBeConsumed
   ) external;
 }

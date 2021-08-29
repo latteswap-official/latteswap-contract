@@ -218,7 +218,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       "MasterBarista::setPoolAllocBps::_stakeToken must not be address(0) or address(1)"
     );
     require(pools.has(_stakeToken), "MasterBarista::setPoolAllocBps::pool hasn't been set");
-    require(_allocBps > 1000, "MasterBarista::setPoolallocBps::_allocBps must > 1000");
     address curr = pools.next[LinkList.start];
     uint256 accumAllocBps = 0;
     while (curr != LinkList.end) {
@@ -229,6 +228,10 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     }
     require(accumAllocBps.add(_allocBps) < 10000, "MasterBarista::setPoolallocBps::accumAllocBps must < 10000");
     massUpdatePools();
+    if (_allocBps == 0) {
+      totalAllocPoint = totalAllocPoint.sub(poolInfo[_stakeToken].allocPoint);
+      poolInfo[_stakeToken].allocPoint = 0;
+    }
     poolInfo[_stakeToken].allocBps = _allocBps;
     updatePoolsAlloc();
   }
@@ -359,14 +362,13 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address curr = pools.next[LinkList.start];
     uint256 num = _accumNonBpsPoolPoints.mul(_accumAllocBps);
     uint256 denom = uint256(10000).sub(_accumAllocBps);
-    uint256 adjustedPoints = num.div(denom);
     uint256 poolPoints;
     while (curr != LinkList.end) {
       if (poolInfo[curr].allocBps == 0) {
         curr = pools.getNextOf(curr);
         continue;
       }
-      poolPoints = adjustedPoints.mul(poolInfo[curr].allocBps).div(_accumAllocBps);
+      poolPoints = (num.mul(poolInfo[curr].allocBps)).div(_accumAllocBps.mul(denom));
       totalAllocPoint = totalAllocPoint.sub(poolInfo[curr].allocPoint).add(poolPoints);
       poolInfo[curr].allocPoint = poolPoints;
       emit PoolAllocChanged(curr, poolInfo[curr].allocBps, poolPoints);

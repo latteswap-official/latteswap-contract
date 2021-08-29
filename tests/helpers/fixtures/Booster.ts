@@ -14,8 +14,9 @@ import {
   MockWBNB__factory,
   WNativeRelayer__factory,
   WNativeRelayer,
-  WBNB__factory,
-  WBNB,
+  BoosterConfig,
+  MasterBarista,
+  LatteNFT,
 } from "../../../typechain";
 import { ModifiableContract, smoddit } from "@eth-optimism/smock";
 
@@ -31,6 +32,7 @@ export interface IBoosterUnitTestFixtureDTO {
   beanBag: BeanBag;
   wbnb: MockWBNB;
   wNativeRelayer: WNativeRelayer;
+  latteNft: ModifiableContract;
   signatureFn: (signer: Signer, msg?: string) => Promise<string>;
 }
 
@@ -56,8 +58,9 @@ export async function boosterUnitTestFixture(
   await beanBag.deployed();
 
   // Deploy mocked MasterBarista
-  const MasterBarista = await smoddit("MockMasterBarista", deployer);
-  const mockMasterBarista: ModifiableContract = await MasterBarista.deploy(
+  const MasterBarista = await smoddit("MasterBarista", deployer);
+  const mockMasterBarista: ModifiableContract = await MasterBarista.deploy();
+  await (mockMasterBarista as unknown as MasterBarista).initialize(
     latteToken.address,
     beanBag.address,
     await dev.getAddress(),
@@ -69,7 +72,7 @@ export async function boosterUnitTestFixture(
   await beanBag.transferOwnership(mockMasterBarista.address);
 
   // Deploy mocked stake tokens
-  const stakingTokens = new Array();
+  const stakingTokens = [];
   for (let i = 0; i < 4; i++) {
     const SimpleToken = (await ethers.getContractFactory("SimpleToken", deployer)) as SimpleToken__factory;
     const simpleToken = (await SimpleToken.deploy(`STOKEN${i}`, `STOKEN${i}`)) as SimpleToken;
@@ -81,9 +84,19 @@ export async function boosterUnitTestFixture(
   const MockERC721 = await smoddit("MockERC721", deployer);
   const mockERC721: ModifiableContract = await MockERC721.deploy(`NFT`, `NFT`);
 
+  const LatteNft = await smoddit("LatteNFT", deployer);
+  const latteNft = await LatteNft.deploy();
+  await (latteNft as unknown as LatteNFT).initialize("baseURI");
+  await latteNft.smodify.put({
+    latteNFTToCategory: {
+      0: 1,
+    },
+  });
+
   // Deploy mocked booster config
   const BoosterConfigFactory = await smoddit("BoosterConfig", deployer);
   const mockBoosterConfig = await BoosterConfigFactory.deploy();
+  await (mockBoosterConfig as unknown as BoosterConfig).initialize();
 
   const WBNB = (await ethers.getContractFactory("MockWBNB", deployer)) as MockWBNB__factory;
   const wbnb = await WBNB.deploy();
@@ -123,5 +136,6 @@ export async function boosterUnitTestFixture(
     signatureFn,
     wbnb,
     wNativeRelayer,
+    latteNft,
   } as IBoosterUnitTestFixtureDTO;
 }
