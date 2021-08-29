@@ -59,6 +59,9 @@
     "script:mainnet:nft:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster.ts",
     "script:mainnet:nft:upgrade:001": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster_config.ts",
     "script:mainnet:nft:upgrade:002": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_latte_nft.ts",
+
+    "script:mainnet:market:000": "hardhat --network mainnet run --no-compile ./scripts/market/set_supported_nft.ts",
+    "script:mainnet:market:001": "hardhat --network mainnet run --no-compile ./scripts/market/ready_to_sell.ts",
     
     "script:mainnet:periphery:T000": "hardhat --network mainnet run --no-compile ./scripts/periphery/fund_me_dummies.ts"
   },
@@ -66,7 +69,7 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@latteswap/latteswap-contract-config": "^0.0.1-rc.6",
+    "@latteswap/latteswap-contract-config": "^0.0.1-rc.7",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
