@@ -48,6 +48,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await latteMarket.deployed();
     console.log(`>> Deployed at ${latteMarket.address}`);
     console.log(`>> ✅ Done Deploying LatteMarket`);
+    console.log(
+      `>> Execute Transaction to set support nft of ${latteMarket.address} to ${[config.OGNFT, config.LatteNFT]}`
+    );
+    estimatedGas = await latteMarket.estimateGas.setSupportNFT([config.OGNFT, config.LatteNFT], true);
+    tx = await latteMarket.setSupportNFT([config.OGNFT, config.LatteNFT], true, {
+      gasLimit: estimatedGas.add(100000),
+    });
+    console.log(`>> returned tx hash: ${tx.hash}`);
+    console.log("✅ Done");
 
     const latteNFT = LatteNFT__factory.connect(config.LatteNFT, (await ethers.getSigners())[0]) as LatteNFT;
     console.log(`>> Execute Transaction to set minter of a latte nft to ${latteMarket.address}`);
