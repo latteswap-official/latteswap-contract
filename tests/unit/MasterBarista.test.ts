@@ -226,6 +226,56 @@ describe("MasterBarista", () => {
     });
 
     context("when all parameters are valid", () => {
+      context("with existing pool alloc bps cover all 10000 bps", () => {
+        it("should successfully update total alloc points regardless of any previous bps of the pool", async () => {
+          masterBarista.addPool(stakingTokens[0].address, 1000);
+          masterBarista.addPool(stakingTokens[1].address, 1000);
+          // latte pool takes 40% since the initialization
+          masterBarista.setPoolAllocBps(stakingTokens[1].address, 5999);
+          masterBarista.setPoolAllocBps(stakingTokens[1].address, 5000);
+          let lattePool = await masterBarista.poolInfo(latteToken.address);
+          let stakeToken0Pool = await masterBarista.poolInfo(stakingTokens[0].address);
+          let stakeToken1Pool = await masterBarista.poolInfo(stakingTokens[1].address);
+          let totalAllocPoint = await masterBarista.totalAllocPoint();
+
+          expect(lattePool.allocBps).to.eq(4000);
+          expect(lattePool.allocPoint).to.eq(4000);
+          expect(stakeToken0Pool.allocBps).to.eq(0);
+          expect(stakeToken0Pool.allocPoint).to.eq(1000);
+          expect(stakeToken1Pool.allocBps).to.eq(5000);
+          expect(stakeToken1Pool.allocPoint).to.eq(5000);
+          expect(totalAllocPoint).to.eq(10000);
+
+          // reset to 0
+          masterBarista.setPoolAllocBps(stakingTokens[1].address, 0);
+          lattePool = await masterBarista.poolInfo(latteToken.address);
+          stakeToken0Pool = await masterBarista.poolInfo(stakingTokens[0].address);
+          stakeToken1Pool = await masterBarista.poolInfo(stakingTokens[1].address);
+          totalAllocPoint = await masterBarista.totalAllocPoint();
+
+          expect(lattePool.allocBps).to.eq(4000);
+          expect(lattePool.allocPoint).to.eq(666);
+          expect(stakeToken0Pool.allocBps).to.eq(0);
+          expect(stakeToken0Pool.allocPoint).to.eq(1000);
+          expect(stakeToken1Pool.allocBps).to.eq(0);
+          expect(stakeToken1Pool.allocPoint).to.eq(0);
+          expect(totalAllocPoint).to.eq(1666);
+
+          masterBarista.setPoolAllocBps(stakingTokens[1].address, 3000);
+          lattePool = await masterBarista.poolInfo(latteToken.address);
+          stakeToken0Pool = await masterBarista.poolInfo(stakingTokens[0].address);
+          stakeToken1Pool = await masterBarista.poolInfo(stakingTokens[1].address);
+          totalAllocPoint = await masterBarista.totalAllocPoint();
+
+          expect(lattePool.allocBps).to.eq(4000);
+          expect(lattePool.allocPoint).to.eq(1333);
+          expect(stakeToken0Pool.allocBps).to.eq(0);
+          expect(stakeToken0Pool.allocPoint).to.eq(1000);
+          expect(stakeToken1Pool.allocBps).to.eq(3000);
+          expect(stakeToken1Pool.allocPoint).to.eq(1000);
+          expect(totalAllocPoint).to.eq(3333);
+        });
+      });
       it("should successfully update total alloc points", async () => {
         masterBarista.addPool(stakingTokens[0].address, 1000);
         masterBarista.addPool(stakingTokens[1].address, 1000);

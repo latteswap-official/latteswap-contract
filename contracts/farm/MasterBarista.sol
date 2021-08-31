@@ -221,7 +221,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address curr = pools.next[LinkList.start];
     uint256 accumAllocBps = 0;
     while (curr != LinkList.end) {
-      if (poolInfo[curr].allocBps > 0) {
+      if (curr != _stakeToken) {
         accumAllocBps = accumAllocBps.add(poolInfo[curr].allocBps);
       }
       curr = pools.getNextOf(curr);
