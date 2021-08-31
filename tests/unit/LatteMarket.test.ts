@@ -494,14 +494,14 @@ describe("LatteMarket", () => {
       });
     });
 
-    context("when reaching a maximum cap", () => {
+    context("when exceeds a maximum cap", () => {
       it("should revert", async () => {
         await latteMarket.setSupportNFT([latteNFT.address], true);
         await latteMarket.readyToSellNFT(
           latteNFT.address,
           0,
           parseEther("10"),
-          0,
+          1,
           startingBlock.add(3),
           startingBlock.add(10),
           stakingTokens[0].address
@@ -526,7 +526,7 @@ describe("LatteMarket", () => {
               latteNFT.address,
               0,
               parseEther("10"),
-              1,
+              2,
               startingBlock.add(4),
               startingBlock.add(10),
               wbnb.address
@@ -552,7 +552,7 @@ describe("LatteMarket", () => {
           latteNFT.address,
           0,
           parseEther("10"),
-          1,
+          3,
           startingBlock.add(4),
           startingBlock.add(10),
           wbnb.address
@@ -570,6 +570,7 @@ describe("LatteMarket", () => {
         expect(await wbnb.balanceOf(seller)).to.eq(parseEther("18"));
         expect(balAfter).to.eq(balBefore.sub(parseEther("20").add((await ethers.provider.getGasPrice()).mul(gasUsed))));
         expect(await _latteNFT.ownerOf(0)).to.eq(await alice.getAddress());
+        expect((await latteMarket.latteNFTMetadata(latteNFT.address, 0)).cap).to.eq(1);
       });
     });
 
@@ -586,7 +587,7 @@ describe("LatteMarket", () => {
             latteNFT.address,
             0,
             parseEther("10"),
-            1,
+            2,
             startingBlock.add(4),
             startingBlock.add(10),
             stakingTokens[0].address
@@ -647,7 +648,7 @@ describe("LatteMarket", () => {
           latteNFT.address,
           0,
           parseEther("10"),
-          1,
+          3,
           startingBlock.add(4),
           startingBlock.add(10),
           stakingTokens[0].address
@@ -662,6 +663,7 @@ describe("LatteMarket", () => {
         expect(await stakingTokens[0].balanceOf(seller)).to.eq(parseEther("18"));
         expect(await _latteNFT.ownerOf(0)).to.eq(await alice.getAddress());
         expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(0);
+        expect((await latteMarket.latteNFTMetadata(latteNFT.address, 0)).cap).to.eq(1);
       });
     });
   });
