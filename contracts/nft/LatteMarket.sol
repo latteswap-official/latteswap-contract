@@ -453,14 +453,11 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     onlyGovernance
     onlyBiddingNFT(_nftAddress, _categoryId)
   {
-    BidEntry memory toBeReturned = tokenBid[_nftAddress][_categoryId];
-    IERC20Upgradeable returnedQuoteBep20 = latteNFTMetadata[_nftAddress][_categoryId].quoteBep20;
+    BidEntry memory bidEntry = tokenBid[_nftAddress][_categoryId];
+    require(bidEntry.bidder == address(0), "LatteMarket::cancelBiddingNFT::auction already has a bidder");
     _delBidByCompositeId(_nftAddress, _categoryId);
     _cancelSellNFT(_nftAddress, _categoryId);
-    if (toBeReturned.bidder != address(0)) {
-      _safeUnwrap(returnedQuoteBep20, toBeReturned.bidder, toBeReturned.price);
-    }
-    emit CancelBidNFT(toBeReturned.bidder, _nftAddress, _categoryId);
+    emit CancelBidNFT(bidEntry.bidder, _nftAddress, _categoryId);
   }
 
   /// @dev internal function for cancelling a selling token

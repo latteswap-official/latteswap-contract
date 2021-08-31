@@ -16,6 +16,7 @@ import { ModifiableContract } from "@eth-optimism/smock";
 import { latteMarketUnitTestFixture } from "../helpers";
 import { parseEther } from "ethers/lib/utils";
 import { advanceBlockTo, latestBlockNumber } from "../helpers/time";
+import { O_TRUNC } from "constants";
 
 chai.use(solidity);
 const { expect } = chai;
@@ -1359,7 +1360,38 @@ describe("LatteMarket", () => {
     });
 
     context("when cancel auction", () => {
-      it("should return all bids back to the bidder with reverted message if continue to either bid or cancel auction", async () => {
+      context("when there is an existing bidder", () => {
+        it("should revert", async () => {
+          // preparation phase
+          const _latteNFT = latteNFT as unknown as MockLatteNFT;
+          await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
+          // start auction phase
+          await latteMarket.setSupportNFT([latteNFT.address], true);
+          await latteMarket.readyToStartAuction(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(4),
+            startingBlock.add(6),
+            stakingTokens[0].address
+          );
+          await stakingTokens[0].mint(await alice.getAddress(), parseEther("100"));
+          await SimpleToken__factory.connect(stakingTokens[0].address, alice).approve(
+            latteMarket.address,
+            parseEther("11")
+          );
+          // bid phase
+          await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
+          expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
+          await expect(latteMarket.cancelBiddingNFT(latteNFT.address, 0)).to.revertedWith(
+            "LatteMarket::cancelBiddingNFT::auction already has a bidder"
+          );
+          expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
+        });
+      });
+
+      it("should be able to cancel", async () => {
         // preparation phase
         const _latteNFT = latteNFT as unknown as MockLatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
@@ -1380,10 +1412,7 @@ describe("LatteMarket", () => {
           parseEther("11")
         );
         // bid phase
-        await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
-        expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
         await latteMarket.cancelBiddingNFT(latteNFT.address, 0);
-        expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("100"));
         expect(await latteMarket.tokenCategorySellers(latteNFT.address, 0)).to.eq(constants.AddressZero);
         const metadata = await latteMarket.latteNFTMetadata(latteNFT.address, 0);
         expect(metadata.isBidding).to.eq(false);
