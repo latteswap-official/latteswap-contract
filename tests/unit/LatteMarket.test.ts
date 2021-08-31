@@ -166,6 +166,46 @@ describe("LatteMarket", () => {
       });
     });
 
+    context("when duplicate sell", () => {
+      it("should revert", async () => {
+        await latteMarket.setSupportNFT([latteNFT.address], true);
+        await expect(
+          latteMarket.readyToSellNFT(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(100),
+            startingBlock.add(101),
+            stakingTokens[0].address
+          )
+        )
+          .to.emit(latteMarket, "Ask")
+          .withArgs(await deployer.getAddress(), latteNFT.address, 0, parseEther("10"), stakingTokens[0].address)
+          .to.emit(latteMarket, "SetLatteNFTMetadata")
+          .withArgs(latteNFT.address, 0, 1, startingBlock.add(100), startingBlock.add(101));
+        const metadata = await latteMarket.latteNFTMetadata(latteNFT.address, 0);
+        expect(metadata.isBidding).to.eq(false);
+        expect(metadata.quoteBep20).to.eq(stakingTokens[0].address);
+        expect(metadata.cap).to.eq(1);
+        expect(metadata.startBlock).to.eq(startingBlock.add(100));
+        expect(metadata.endBlock).to.eq(startingBlock.add(101));
+        expect(metadata.price).to.eq(parseEther("10"));
+
+        await expect(
+          latteMarket.readyToSellNFT(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(100),
+            startingBlock.add(101),
+            stakingTokens[0].address
+          )
+        ).to.revertedWith("LatteMarket::_readyToSellNFTTo::duplicated entry");
+      });
+    });
+
     it("should create a correct latteNFTMetadata", async () => {
       await latteMarket.setSupportNFT([latteNFT.address], true);
       await expect(

@@ -416,6 +416,10 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     uint256 _endBlock,
     IERC20Upgradeable _quoteToken
   ) internal {
+    require(
+      latteNFTMetadata[_nftAddress][_categoryId].startBlock == 0,
+      "LatteMarket::_readyToSellNFTTo::duplicated entry"
+    );
     tokenCategorySellers[_nftAddress][_categoryId] = _to;
     _setLatteNFTMetadata(
       LatteNFTMetadataParam({
