@@ -252,7 +252,7 @@ describe("OGNFT", () => {
         await ogNFT.mint(await alice.getAddress(), 0, "tokenURI");
         await ogNFT.addCategoryInfo("foo", "bar");
         expect(await ogNFT.updateTokenCategory(0, 1));
-        let tokenCategory = await ogNFT.latteNFTToCategory(0);
+        const tokenCategory = await ogNFT.latteNFTToCategory(0);
         expect(tokenCategory).to.be.eq(1);
       });
     });
@@ -306,7 +306,7 @@ describe("OGNFT", () => {
           it("should mint", async () => {
             const _masterBarista = masterBarista as unknown as MockMasterBarista;
             await ogNFT.mint(await alice.getAddress(), 0, "tokenUrl");
-            let categoryId = await ogNFT.latteNFTToCategory(0);
+            const categoryId = await ogNFT.latteNFTToCategory(0);
             expect(categoryId).to.be.eq(0);
             const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, await alice.getAddress());
             expect(userInfo.fundedBy).to.eq(ogNFT.address);
@@ -325,7 +325,7 @@ describe("OGNFT", () => {
             await ogNFT.setCategoryOGOwnerToken(1, ogOwnerToken.address);
             await ogNFT.addCategoryInfo("foo", "bar");
             await ogNFT.mint(await alice.getAddress(), 1, "tokenUrl");
-            let categoryId = await ogNFT.latteNFTToCategory(0);
+            const categoryId = await ogNFT.latteNFTToCategory(0);
             expect(categoryId).to.be.eq(1);
             const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, await alice.getAddress());
             expect(userInfo.fundedBy).to.eq(ogNFT.address);
@@ -362,7 +362,7 @@ describe("OGNFT", () => {
             await latteToken.transfer(beanBag.address, parseEther("100"));
             const _masterBarista = masterBarista as unknown as MockMasterBarista;
             await ogNFT.mint(ogNftOwnerAddress, 0, "tokenUrl");
-            let categoryId = await ogNFT.latteNFTToCategory(0);
+            const categoryId = await ogNFT.latteNFTToCategory(0);
             expect(categoryId).to.be.eq(0);
             const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, ogNftOwnerAddress);
             expect(userInfo.fundedBy).to.eq(ogNFT.address);
@@ -403,7 +403,7 @@ describe("OGNFT", () => {
             await ogNFT.setCategoryOGOwnerToken(1, ogOwnerToken.address);
             await ogNFT.addCategoryInfo("foo", "bar");
             await ogNFT.mint(ogNftOwnerAddress, 1, "tokenUrl");
-            let categoryId = await ogNFT.latteNFTToCategory(0);
+            const categoryId = await ogNFT.latteNFTToCategory(0);
             expect(categoryId).to.be.eq(1);
             const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, ogNftOwnerAddress);
             expect(userInfo.fundedBy).to.eq(ogNFT.address);
@@ -573,7 +573,7 @@ describe("OGNFT", () => {
 
         await ogNFTAsAlice.approve(ogNFT.address, 0);
         await ogNFTAsAlice.stake(0);
-        let categoryId = await ogNFT.latteNFTToCategory(0);
+        const categoryId = await ogNFT.latteNFTToCategory(0);
         expect(categoryId).to.be.eq(0);
         userInfo = await _masterBarista.userInfo(ogOwnerToken.address, ownerAddress);
         expect(userInfo.fundedBy).to.eq(ogNFT.address);
@@ -641,43 +641,6 @@ describe("OGNFT", () => {
       it("should setted latte name", async () => {
         expect(await ogNFT.setLatteName(0, "settedName"));
         expect(await ogNFT.latteNames(0)).to.be.eq("settedName");
-      });
-    });
-  });
-
-  describe("#burn()", () => {
-    context("when caller is not owner", async () => {
-      it("should reverted", async () => {
-        await expect(ogNFTAsBob.burn(0)).to.be.revertedWith("LatteNFT::onlyMinter::only MINTER role");
-      });
-    });
-
-    context("when caller used to be minter", async () => {
-      it("should reverted", async () => {
-        await ogNFT.revokeRole(await ogNFT.MINTER_ROLE(), await deployer.getAddress());
-        await expect(ogNFT.burn(0)).to.be.revertedWith("LatteNFT::onlyMinter::only MINTER role");
-      });
-    });
-
-    context("when paused", async () => {
-      it("should reverted", async () => {
-        await ogNFT.mint(await alice.getAddress(), 0, "tokenURI");
-        await ogNFT.pause();
-        await expect(ogNFT.burn(0)).to.be.revertedWith("revert ERC721Pausable: token transfer while paused");
-      });
-    });
-
-    context("when burn", async () => {
-      it("should burn", async () => {
-        await ogNFT.mint(await alice.getAddress(), 0, "tokenURI");
-        expect(await ogNFT.burn(0));
-        expect((await ogNFT.categoryToLatteNFTList(await ogNFT.latteNFTToCategory(0))).length).to.be.eq(0);
-      });
-    });
-
-    context("when burn with does not exits", async () => {
-      it("should reverted", async () => {
-        await expect(ogNFT.burn(0)).to.be.revertedWith("LatteNFT::burn::tokenId not found");
       });
     });
   });

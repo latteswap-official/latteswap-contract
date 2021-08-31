@@ -298,19 +298,6 @@ contract LatteNFT is ILatteNFT, ERC721PausableUpgradeable, OwnableUpgradeable, A
     emit SetLatteName(_tokenId, _prevName, _name);
   }
 
-  /**
-   * @dev Burn a NFT token. Callable by owner only.
-   */
-  function burn(uint256 _tokenId) external onlyMinter {
-    uint256 categoryId = latteNFTToCategory[_tokenId];
-    require(_categoryToLatteNFTList[categoryId].remove(_tokenId), "LatteNFT::burn::tokenId not found");
-    // Clear metadata (if any)
-    if (bytes(_tokenURIs[_tokenId]).length != 0) {
-      delete _tokenURIs[_tokenId];
-    }
-    _burn(_tokenId);
-  }
-
   function pause() public onlyGovernance whenNotPaused {
     _pause();
 
