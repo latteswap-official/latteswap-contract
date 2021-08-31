@@ -84,6 +84,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   event AddStakeTokenCallerContract(address indexed stakeToken, address indexed caller);
   event RemoveStakeTokenCallerContract(address indexed stakeToken, address indexed caller);
   event MintExtraReward(address indexed sender, address indexed stakeToken, address indexed to, uint256 amount);
+  event SetLattePerBlock(uint256 prevLattePerBlock, uint256 currentLattePerBlock);
 
   /// @dev Initializer to create LatteMasterBarista instance + add pool(0)
   /// @param _latte The address of LATTE
@@ -206,6 +207,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @param _lattePerBlock The new emission rate for LATTE
   function setLattePerBlock(uint256 _lattePerBlock) external onlyOwner {
     massUpdatePools();
+    emit SetLattePerBlock(lattePerBlock, _lattePerBlock);
     lattePerBlock = _lattePerBlock;
   }
 
