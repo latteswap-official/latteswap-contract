@@ -18,6 +18,8 @@ contract OGOwnerToken is IOGOwnerToken, ERC20Upgradeable, OwnableUpgradeable {
     _;
   }
 
+  event SetOkHolders(address indexed holder, bool isOk);
+
   function initialize(
     string calldata _name,
     string calldata _symbol,
@@ -31,6 +33,7 @@ contract OGOwnerToken is IOGOwnerToken, ERC20Upgradeable, OwnableUpgradeable {
   function setOkHolders(address[] memory _okHolders, bool _isOk) public override onlyOwner {
     for (uint256 idx = 0; idx < _okHolders.length; idx++) {
       okHolders[_okHolders[idx]] = _isOk;
+      emit SetOkHolders(_okHolders[idx], _isOk);
     }
   }
 
