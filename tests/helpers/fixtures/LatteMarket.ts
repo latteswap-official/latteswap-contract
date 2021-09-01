@@ -9,11 +9,9 @@ import {
   WNativeRelayer__factory,
   WNativeRelayer,
   WBNB,
-  MockLatteNFT__factory,
   LatteMarket__factory,
   LatteMarket,
   LatteNFT,
-  MockLatteNFT,
 } from "../../../typechain";
 import { ModifiableContract, smoddit } from "@eth-optimism/smock";
 import { latestBlockNumber } from "../time";
@@ -39,12 +37,12 @@ export async function latteMarketUnitTestFixture(
   const FEE_BPS = 1000;
 
   // Deploy LatteNFT
-  const LatteNFT = await smoddit("MockLatteNFT", deployer);
-  const latteNFT = await LatteNFT.deploy("baseURI");
-  await latteNFT.deployed();
+  const LatteNFT = await smoddit("LatteNFT", deployer);
+  const latteNFT = await LatteNFT.deploy();
+  await (latteNFT as unknown as LatteNFT).initialize("baseURI");
 
   // Deploy mocked stake tokens
-  const stakingTokens = new Array();
+  const stakingTokens = [];
   for (let i = 0; i < 4; i++) {
     const SimpleToken = (await ethers.getContractFactory("SimpleToken", deployer)) as SimpleToken__factory;
     const simpleToken = (await SimpleToken.deploy(`STOKEN${i}`, `STOKEN${i}`)) as SimpleToken;
