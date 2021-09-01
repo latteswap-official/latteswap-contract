@@ -298,13 +298,13 @@ contract LatteNFT is ILatteNFT, ERC721PausableUpgradeable, OwnableUpgradeable, A
     emit SetLatteName(_tokenId, _prevName, _name);
   }
 
-  function pause() public onlyGovernance whenNotPaused {
+  function pause() external onlyGovernance whenNotPaused {
     _pause();
 
     emit Pause();
   }
 
-  function unpause() public onlyGovernance whenPaused {
+  function unpause() external onlyGovernance whenPaused {
     _unpause();
 
     emit Unpause();
