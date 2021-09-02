@@ -490,9 +490,10 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
 
     if (user.fundedBy != address(0)) require(user.fundedBy == _msgSender(), "MasterBarista::deposit::bad sof");
 
+    uint256 lastRewardBlock = pool.lastRewardBlock;
     updatePool(_stakeToken);
 
-    if (user.amount > 0) _harvest(_for, _stakeToken);
+    if (user.amount > 0) _harvest(_for, _stakeToken, lastRewardBlock);
     if (user.fundedBy == address(0)) user.fundedBy = _msgSender();
     if (_amount > 0) {
       IERC20(_stakeToken).safeTransferFrom(address(_msgSender()), address(this), _amount);
@@ -526,8 +527,9 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     require(user.fundedBy == _msgSender(), "MasterBarista::withdraw::only funder");
     require(user.amount >= _amount, "MasterBarista::withdraw::not good");
 
+    uint256 lastRewardBlock = pool.lastRewardBlock;
     updatePool(_stakeToken);
-    _harvest(_for, _stakeToken);
+    _harvest(_for, _stakeToken, lastRewardBlock);
 
     if (_amount > 0) {
       user.amount = user.amount.sub(_amount);
@@ -553,9 +555,10 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
 
     if (user.fundedBy != address(0)) require(user.fundedBy == _msgSender(), "MasterBarista::depositLatte::bad sof");
 
+    uint256 lastRewardBlock = pool.lastRewardBlock;
     updatePool(address(latte));
 
-    if (user.amount > 0) _harvest(_for, address(latte));
+    if (user.amount > 0) _harvest(_for, address(latte), lastRewardBlock);
     if (user.fundedBy == address(0)) user.fundedBy = _msgSender();
     if (_amount > 0) {
       IERC20(address(latte)).safeTransferFrom(address(_msgSender()), address(this), _amount);
@@ -578,8 +581,9 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     require(user.fundedBy == _msgSender(), "MasterBarista::withdrawLatte::only funder");
     require(user.amount >= _amount, "MasterBarista::withdrawLatte::not good");
 
+    uint256 lastRewardBlock = pool.lastRewardBlock;
     updatePool(address(latte));
-    _harvest(_for, address(latte));
+    _harvest(_for, address(latte), lastRewardBlock);
 
     if (_amount > 0) {
       user.amount = user.amount.sub(_amount);
@@ -600,8 +604,9 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     PoolInfo storage pool = poolInfo[_stakeToken];
     UserInfo storage user = userInfo[_stakeToken][_for];
 
+    uint256 lastRewardBlock = pool.lastRewardBlock;
     updatePool(_stakeToken);
-    _harvest(_for, _stakeToken);
+    _harvest(_for, _stakeToken, lastRewardBlock);
 
     user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
     user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
@@ -613,8 +618,9 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     for (uint256 i = 0; i < _stakeTokens.length; i++) {
       PoolInfo storage pool = poolInfo[_stakeTokens[i]];
       UserInfo storage user = userInfo[_stakeTokens[i]][_for];
+      uint256 lastRewardBlock = pool.lastRewardBlock;
       updatePool(_stakeTokens[i]);
-      _harvest(_for, _stakeTokens[i]);
+      _harvest(_for, _stakeTokens[i], lastRewardBlock);
       user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
       user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
     }
@@ -623,7 +629,11 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @dev Internal function to harvest LATTE
   /// @param _for The beneficiary address
   /// @param _stakeToken The pool's stake token
-  function _harvest(address _for, address _stakeToken) internal {
+  function _harvest(
+    address _for,
+    address _stakeToken,
+    uint256 _lastRewardBlock
+  ) internal {
     PoolInfo memory pool = poolInfo[_stakeToken];
     UserInfo memory user = userInfo[_stakeToken][_for];
     require(user.fundedBy == _msgSender(), "MasterBarista::_harvest::only funder");
@@ -631,10 +641,9 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     uint256 pending = user.amount.mul(pool.accLattePerShare).div(1e12).sub(user.rewardDebt);
     require(pending <= latte.balanceOf(address(bean)), "MasterBarista::_harvest::wait what.. not enough LATTE");
     uint256 bonus = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12).sub(user.bonusDebt);
-
     bean.safeLatteTransfer(_for, pending);
     if (stakeTokenCallerContracts[_stakeToken].has(_msgSender())) {
-      _masterBaristaCallee(_msgSender(), _stakeToken, _for, pending);
+      _masterBaristaCallee(_msgSender(), _stakeToken, _for, pending, _lastRewardBlock);
     }
     latte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
   }
@@ -648,13 +657,20 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address _caller,
     address _stakeToken,
     address _for,
-    uint256 _pending
+    uint256 _pending,
+    uint256 _lastRewardBlock
   ) internal {
     if (!_caller.isContract()) {
       return;
     }
     (bool success, ) = _caller.call(
-      abi.encodeWithSelector(IMasterBaristaCallback.masterBaristaCall.selector, _stakeToken, _for, _pending)
+      abi.encodeWithSelector(
+        IMasterBaristaCallback.masterBaristaCall.selector,
+        _stakeToken,
+        _for,
+        _pending,
+        _lastRewardBlock
+      )
     );
     require(success, "MasterBarista::_masterBaristaCallee:: failed to execute masterBaristaCall");
   }
@@ -681,16 +697,43 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     user.fundedBy = address(0);
   }
 
+  /// @dev what is a proportion of onlyBonusMultiplier in a form of BPS comparing to the total multiplier
+  /// @param _lastRewardBlock The last block that rewards have been paid
+  /// @param _currentBlock The current block
+  function _getBonusMultiplierProportionBps(uint256 _lastRewardBlock, uint256 _currentBlock)
+    internal
+    view
+    returns (uint256)
+  {
+    if (_currentBlock <= bonusEndBlock) {
+      return 1e4;
+    }
+    if (_lastRewardBlock >= bonusEndBlock) {
+      return 0;
+    }
+    // This is the case where bonusEndBlock is in the middle of _lastRewardBlock and _currentBlock block.
+    uint256 onlyBonusMultiplier = bonusEndBlock.sub(_lastRewardBlock).mul(bonusMultiplier);
+    uint256 totalMultiplier = onlyBonusMultiplier.add(_currentBlock.sub(bonusEndBlock));
+    return onlyBonusMultiplier.mul(1e4).div(totalMultiplier);
+  }
+
   /// @dev This is a function for mining an extra amount of latte, should be called only by stake token caller contract (boosting purposed)
   /// @param _stakeToken a stake token address for validating a msg sender
   /// @param _amount amount to be minted
   function mintExtraReward(
     address _stakeToken,
     address _to,
-    uint256 _amount
+    uint256 _amount,
+    uint256 _lastRewardBlock
   ) external override onlyStakeTokenCallerContract(_stakeToken) {
+    uint256 multiplierBps = _getBonusMultiplierProportionBps(_lastRewardBlock, block.number);
+    uint256 toBeLockedNum = _amount.mul(multiplierBps).mul(bonusLockUpBps);
+
+    // mint & lock(if any) an extra reward
     latte.mint(_to, _amount);
+    latte.lock(_to, toBeLockedNum.div(1e8));
     latte.mint(devAddr, _amount.mul(devFeeBps).div(1e4));
+    latte.lock(devAddr, (toBeLockedNum.mul(devFeeBps)).div(1e12));
 
     emit MintExtraReward(_msgSender(), _stakeToken, _to, _amount);
   }

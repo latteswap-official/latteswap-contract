@@ -165,7 +165,8 @@ contract OGNFT is LatteNFT, ReentrancyGuardUpgradeable, IMasterBaristaCallback {
   function masterBaristaCall(
     address, /*stakeToken*/
     address, /*userAddr*/
-    uint256 /*reward*/
+    uint256, /*reward*/
+    uint256 /*lastRewardBlock*/
   ) external override {
     return;
   }
