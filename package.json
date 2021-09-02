@@ -43,6 +43,7 @@
 
     "script:mainnet:farm:000": "hardhat --network mainnet run --no-compile ./scripts/farm/add_pool_to_master_barista.ts",
     "script:mainnet:farm:001": "hardhat --network mainnet run --no-compile ./scripts/farm/set_latte_per_block_to_master_barista.ts",
+    "script:mainnet:farm:002": "hardhat --network mainnet run --no-compile ./scripts/farm/master_barista_set_pool.ts",
     "script:mainnet:farm:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
 
     "script:mainnet:nft:000": "hardhat --network mainnet run --no-compile ./scripts/nft/latte_nft_add_category.ts",
