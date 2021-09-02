@@ -63,6 +63,7 @@
 
     "script:mainnet:market:000": "hardhat --network mainnet run --no-compile ./scripts/market/set_supported_nft.ts",
     "script:mainnet:market:001": "hardhat --network mainnet run --no-compile ./scripts/market/ready_to_sell.ts",
+    "script:mainnet:market:002": "hardhat --network mainnet run --no-compile ./scripts/market/set_sale_cap.ts",
     
     "script:mainnet:periphery:T000": "hardhat --network mainnet run --no-compile ./scripts/periphery/fund_me_dummies.ts"
   },
