@@ -863,88 +863,186 @@ describe("Booster", () => {
 
       context("with some energy", () => {
         context("with bonus reward", () => {
-          it("should harvest the reward", async () => {
-            // mock master barista reward for stakingToken[0]
-            const ownerAddress = await alice.getAddress();
-            const snapshotBlock = await latestBlockNumber();
+          context("when a current block is in a bonus period", () => {
+            it("should harvest the reward", async () => {
+              // mock master barista reward for stakingToken[0]
+              const ownerAddress = await alice.getAddress();
+              const snapshotBlock = await latestBlockNumber();
 
-            // mint and approve nft
-            await (nftToken as unknown as MockERC721).mint(ownerAddress, 1);
-            await nftTokenAsAlice.approve(booster.address, 1);
-            await (nftToken as unknown as MockERC721).mint(ownerAddress, 2);
-            await nftTokenAsAlice.approve(booster.address, 2);
+              // mint and approve nft
+              await (nftToken as unknown as MockERC721).mint(ownerAddress, 1);
+              await nftTokenAsAlice.approve(booster.address, 1);
+              await (nftToken as unknown as MockERC721).mint(ownerAddress, 2);
+              await nftTokenAsAlice.approve(booster.address, 2);
 
-            // MOCK a booster config storage
-            await boosterConfig.smodify.put({
-              stakeTokenAllowance: {
-                [stakingTokens[0].address]: true,
-              },
-              _boosterNftAllowance: {
-                [stakingTokens[0].address]: {
+              // MOCK a booster config storage
+              await boosterConfig.smodify.put({
+                stakeTokenAllowance: {
+                  [stakingTokens[0].address]: true,
+                },
+                _boosterNftAllowance: {
+                  [stakingTokens[0].address]: {
+                    [nftToken.address]: {
+                      1: true,
+                    },
+                  },
+                },
+                _boosterEnergyInfo: {
                   [nftToken.address]: {
-                    1: true,
+                    1: {
+                      currentEnergy: parseEther("10").toString(),
+                      boostBps: "1000",
+                      updatedAt: 1,
+                    },
                   },
                 },
-              },
-              _boosterEnergyInfo: {
-                [nftToken.address]: {
-                  1: {
-                    currentEnergy: parseEther("10").toString(),
-                    boostBps: "1000",
-                    updatedAt: 1,
+                callerAllowance: {
+                  [booster.address]: true,
+                },
+              });
+              // stake for the first time, its' energy will be used to amplify
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              // should expect some storage changes in a booster
+              expect(
+                (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
+              ).to.eq(nftToken.address.toLowerCase());
+              expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
+
+              await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
+
+              // MOCK master barista storages
+              await masterBarista.smodify.put({
+                bonusLockUpBps: 6000,
+                bonusEndBlock: snapshotBlock.add(100),
+                poolInfo: {
+                  [stakingTokens[0].address]: {
+                    lastRewardBlock: snapshotBlock,
+                    accLattePerShare: parseUnits("25", 12).toString(),
+                    accLattePerShareTilBonusEnd: parseUnits("25", 12).toString(),
                   },
                 },
-              },
-              callerAllowance: {
-                [booster.address]: true,
-              },
+                userInfo: {
+                  [stakingTokens[0].address]: {
+                    [ownerAddress]: {
+                      amount: parseEther("10").toString(),
+                      fundedBy: booster.address,
+                    },
+                  },
+                },
+                stakeTokenCallerAllowancePool: {
+                  [stakingTokens[0].address]: true,
+                },
+              });
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
+                stakingTokens[0].address,
+                booster.address
+              );
+
+              // MOCK that master barista has enough LATTE
+              await latteToken.transfer(beanBag.address, parseEther("250"));
+              await expect(boosterAsAlice["harvest(address)"](stakingTokens[0].address))
+                .to.emit(booster, "Harvest")
+                .withArgs(ownerAddress, stakingTokens[0].address, parseEther("100").add(parseEther("4")));
+              // owner is expected to get 100 reward (40% 0f 250) + 4 (40% of 10) extra rewards from staking an nft
+              expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100").add(parseEther("4")));
+              // dev is expected to get 15% of 4 (40% of 10) extra reward, thus making the dev able to collect 0.6
+              expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0.6"));
             });
-            // stake for the first time, its' energy will be used to amplify
-            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
-            // should expect some storage changes in a booster
-            expect(
-              (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
-            ).to.eq(nftToken.address.toLowerCase());
-            expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
+          });
+          context("when a current block is in a middle of a bonus period and normal period", () => {
+            it("should harvest the reward", async () => {
+              // mock master barista reward for stakingToken[0]
+              const ownerAddress = await alice.getAddress();
 
-            await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
+              // mint and approve nft
+              await (nftToken as unknown as MockERC721).mint(ownerAddress, 1);
+              await nftTokenAsAlice.approve(booster.address, 1);
+              await (nftToken as unknown as MockERC721).mint(ownerAddress, 2);
+              await nftTokenAsAlice.approve(booster.address, 2);
 
-            // MOCK master barista storages
-            await masterBarista.smodify.put({
-              bonusLockUpBps: 6000,
-              poolInfo: {
-                [stakingTokens[0].address]: {
-                  lastRewardBlock: snapshotBlock,
-                  accLattePerShare: parseUnits("25", 12).toString(),
-                  accLattePerShareTilBonusEnd: parseUnits("25", 12).toString(),
+              // MOCK a booster config storage
+              await boosterConfig.smodify.put({
+                stakeTokenAllowance: {
+                  [stakingTokens[0].address]: true,
                 },
-              },
-              userInfo: {
-                [stakingTokens[0].address]: {
-                  [ownerAddress]: {
-                    amount: parseEther("10").toString(),
-                    fundedBy: booster.address,
+                _boosterNftAllowance: {
+                  [stakingTokens[0].address]: {
+                    [nftToken.address]: {
+                      1: true,
+                    },
                   },
                 },
-              },
-              stakeTokenCallerAllowancePool: {
-                [stakingTokens[0].address]: true,
-              },
-            });
-            await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
-              stakingTokens[0].address,
-              booster.address
-            );
+                _boosterEnergyInfo: {
+                  [nftToken.address]: {
+                    1: {
+                      currentEnergy: parseEther("10").toString(),
+                      boostBps: "1000",
+                      updatedAt: 1,
+                    },
+                  },
+                },
+                callerAllowance: {
+                  [booster.address]: true,
+                },
+              });
+              // stake for the first time, its' energy will be used to amplify
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              // should expect some storage changes in a booster
+              expect(
+                (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
+              ).to.eq(nftToken.address.toLowerCase());
+              expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftTokenId).to.eq(1);
 
-            // MOCK that master barista has enough LATTE
-            await latteToken.transfer(beanBag.address, parseEther("250"));
-            await expect(boosterAsAlice["harvest(address)"](stakingTokens[0].address))
-              .to.emit(booster, "Harvest")
-              .withArgs(ownerAddress, stakingTokens[0].address, parseEther("100").add(parseEther("10")));
-            // owner is expected to get 100 reward + 10 extra rewards from staking an nft
-            expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100").add(parseEther("10")));
-            // dev is expected to get 15% of 10 extra reward, thus making the dev able to collect 1.5
-            expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("1.5"));
+              await (masterBarista as unknown as MasterBarista).addPool(stakingTokens[0].address, "1000");
+              const snapshotBlock = await latestBlockNumber();
+              // MOCK master barista storages
+              await masterBarista.smodify.put({
+                bonusLockUpBps: 6000,
+                bonusEndBlock: snapshotBlock.sub(2),
+                bonusMultiplier: 5,
+                poolInfo: {
+                  [stakingTokens[0].address]: {
+                    lastRewardBlock: snapshotBlock.sub(7),
+                    accLattePerShare: parseUnits("30", 12).toString(),
+                    accLattePerShareTilBonusEnd: parseUnits("25", 12).toString(),
+                  },
+                },
+                userInfo: {
+                  [stakingTokens[0].address]: {
+                    [ownerAddress]: {
+                      amount: parseEther("10").toString(),
+                      fundedBy: booster.address,
+                    },
+                  },
+                },
+                stakeTokenCallerAllowancePool: {
+                  [stakingTokens[0].address]: true,
+                },
+              });
+              await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(
+                stakingTokens[0].address,
+                booster.address
+              );
+
+              // MOCK that master barista has enough LATTE
+              await latteToken.transfer(beanBag.address, parseEther("300"));
+              // current block will be visualized like this
+              // 21|---5x multiplier---|26|--- normal multiplier|31
+              // this the reward is calculated based on bonus and normal
+              // thus, an extra reward minted from these twos needs to be locked proportional to a bonus reward
+              // in this case the reward will be 300 which is calculated from 250 rewards with bonus + 50 normal reward
+              // this the percentage of bonus reward to the sum is 83.33 %
+              // extra reward is 10 reward
+              // for extra reward of a harvester, 83.33% of it will be 8.33, 40% of 8.33 will be ~~3.3332 will be returned to the user + 1.67 from normal reward (the rest 16.67%) ~= 5.0002
+              // for extra reward of a dev addr, 15% of 10 = 1.5, 83.33% of it will be 1.24995, 40% of 1.24995 will be ~0.49998 will be returned to the user + 0.25005 from normal reward = 0.75003
+              await expect(boosterAsAlice["harvest(address)"](stakingTokens[0].address))
+                .to.emit(booster, "Harvest")
+                .withArgs(ownerAddress, stakingTokens[0].address, parseEther("150").add(parseEther("5.0002")));
+              // owner is expected to get 100 reward (40% 0f 250) + 50 + 5.0002 extra rewards from staking an nft
+              expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("150").add(parseEther("5.0002")));
+              // dev is expected to get 15% of 4 (40% of 10) extra reward, thus making the dev able to collect 0.6
+              expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0.75003"));
+            });
           });
         });
         it("should harvest the reward", async () => {
