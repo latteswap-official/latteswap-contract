@@ -40,6 +40,7 @@ async function main() {
     const tx = await latteNFT.mintBatch(PARAM.TO, PARAM.CATEGORY_ID, PARAM.TOKEN_URI, PARAM.SIZE, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
   }
