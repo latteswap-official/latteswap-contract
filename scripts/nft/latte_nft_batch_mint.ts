@@ -25,7 +25,7 @@ async function main() {
     {
       TO: "0x06A7322cDDCBe5b714b712688331015790240547",
       CATEGORY_ID: "0",
-      SIZE: 1,
+      SIZE: 2,
       TOKEN_URI: "",
     },
   ];
