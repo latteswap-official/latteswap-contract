@@ -61,13 +61,15 @@ async function main() {
     console.log(`>> Deployed at ${ogOwnerToken.address}`);
     console.log(`>> ✅ Done Deploying ogOwnerToken`);
 
-    console.log(">> Transferring ownership of ogOwnerToken to Vault");
-    tx = await ogOwnerToken.transferOwnership(config.OGNFT);
+    console.log(">> Set okHolders on ogOwnerToken to be be Vault");
+    tx = await ogOwnerToken.setOkHolders([config.OGNFT, config.MasterBarista], true);
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
 
-    console.log(">> Set okHolders on ogOwnerToken to be be Vault");
-    tx = await ogOwnerToken.setOkHolders([config.OGNFT, config.MasterBarista], true);
+    console.log(">> Transferring ownership of ogOwnerToken to Vault");
+    tx = await ogOwnerToken.transferOwnership(config.OGNFT);
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
 
