@@ -60,6 +60,7 @@
     "script:mainnet:nft:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster.ts",
     "script:mainnet:nft:upgrade:001": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster_config.ts",
     "script:mainnet:nft:upgrade:002": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_latte_nft.ts",
+    "script:mainnet:nft:upgrade:003": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_og_nft.ts",
 
     "script:mainnet:market:000": "hardhat --network mainnet run --no-compile ./scripts/market/set_supported_nft.ts",
     "script:mainnet:market:001": "hardhat --network mainnet run --no-compile ./scripts/market/ready_to_sell.ts",
