@@ -336,6 +336,6 @@ contract OGNFTOffering is ERC721HolderUpgradeable, OwnableUpgradeable, PausableU
     }
   }
 
-  /// @dev Fallback function to accept ETH. Workers will send ETH back the pool.
+  /// @dev Fallback function to accept BNB
   receive() external payable {}
 }

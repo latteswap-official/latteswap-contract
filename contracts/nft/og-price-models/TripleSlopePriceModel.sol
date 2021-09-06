@@ -30,7 +30,7 @@ contract TripleSlopePriceModel is IOGPriceModel, Ownable {
     _setPricePerCategories(_params);
   }
 
-  /// @dev Return the price based on quadruple slope
+  /// @dev Return the price based on triple slope
   function getPrice(
     uint256 maxCap,
     uint256 cap,
