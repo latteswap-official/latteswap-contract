@@ -37,7 +37,7 @@ contract OGNFT is LatteNFT, ReentrancyGuardUpgradeable, IMasterBaristaCallback {
     string memory _baseURI,
     IERC20Upgradeable _latte,
     IMasterBarista _masterBarista
-  ) public initializer {
+  ) external initializer {
     LatteNFT.initialize(_baseURI);
 
     masterBarista = _masterBarista;
@@ -165,7 +165,8 @@ contract OGNFT is LatteNFT, ReentrancyGuardUpgradeable, IMasterBaristaCallback {
   function masterBaristaCall(
     address, /*stakeToken*/
     address, /*userAddr*/
-    uint256 /*reward*/
+    uint256, /*reward*/
+    uint256 /*lastRewardBlock*/
   ) external override {
     return;
   }

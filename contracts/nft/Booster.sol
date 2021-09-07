@@ -342,7 +342,8 @@ contract Booster is
   function masterBaristaCall(
     address stakeToken,
     address userAddr,
-    uint256 unboostedReward
+    uint256 unboostedReward,
+    uint256 lastRewardBlock
   ) external override inExec {
     NFTStakingInfo memory stakingNFT = userStakingNFT[stakeToken][userAddr];
     UserInfo storage user = userInfo[stakeToken][userAddr];
@@ -360,7 +361,7 @@ contract Booster is
     totalAccumBoostedReward[stakeToken] = totalAccumBoostedReward[stakeToken].add(extraReward);
     user.accumBoostedReward = user.accumBoostedReward.add(extraReward);
     uint256 newEnergy = currentEnergy.sub(extraReward);
-    masterBarista.mintExtraReward(stakeToken, userAddr, extraReward);
+    masterBarista.mintExtraReward(stakeToken, userAddr, extraReward, lastRewardBlock);
     boosterConfig.consumeEnergy(stakingNFT.nftAddress, stakingNFT.nftTokenId, extraReward);
 
     emit MasterBaristaCall(userAddr, extraReward, stakeToken, currentEnergy, newEnergy);

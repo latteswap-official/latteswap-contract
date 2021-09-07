@@ -69,7 +69,7 @@ contract LatteNFT is ILatteNFT, ERC721PausableUpgradeable, OwnableUpgradeable, A
   }
 
   function initialize(string memory _baseURI) public initializer {
-    ERC721Upgradeable.__ERC721_init("LATTE", "LATTE NFT");
+    ERC721Upgradeable.__ERC721_init("LATTE NFT", "LATTE");
     ERC721PausableUpgradeable.__ERC721Pausable_init();
     OwnableUpgradeable.__Ownable_init();
     AccessControlUpgradeable.__AccessControl_init();
@@ -298,26 +298,13 @@ contract LatteNFT is ILatteNFT, ERC721PausableUpgradeable, OwnableUpgradeable, A
     emit SetLatteName(_tokenId, _prevName, _name);
   }
 
-  /**
-   * @dev Burn a NFT token. Callable by owner only.
-   */
-  function burn(uint256 _tokenId) external onlyMinter {
-    uint256 categoryId = latteNFTToCategory[_tokenId];
-    require(_categoryToLatteNFTList[categoryId].remove(_tokenId), "LatteNFT::burn::tokenId not found");
-    // Clear metadata (if any)
-    if (bytes(_tokenURIs[_tokenId]).length != 0) {
-      delete _tokenURIs[_tokenId];
-    }
-    _burn(_tokenId);
-  }
-
-  function pause() public onlyGovernance whenNotPaused {
+  function pause() external onlyGovernance whenNotPaused {
     _pause();
 
     emit Pause();
   }
 
-  function unpause() public onlyGovernance whenPaused {
+  function unpause() external onlyGovernance whenPaused {
     _unpause();
 
     emit Unpause();

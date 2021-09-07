@@ -6,7 +6,6 @@ import {
   LatteMarket,
   LatteMarket__factory,
   LatteNFT,
-  MockLatteNFT,
   MockWBNB,
   SimpleToken,
   SimpleToken__factory,
@@ -16,6 +15,7 @@ import { ModifiableContract } from "@eth-optimism/smock";
 import { latteMarketUnitTestFixture } from "../helpers";
 import { parseEther } from "ethers/lib/utils";
 import { advanceBlockTo, latestBlockNumber } from "../helpers/time";
+import { O_TRUNC } from "constants";
 
 chai.use(solidity);
 const { expect } = chai;
@@ -165,6 +165,46 @@ describe("LatteMarket", () => {
       });
     });
 
+    context("when duplicate sell", () => {
+      it("should revert", async () => {
+        await latteMarket.setSupportNFT([latteNFT.address], true);
+        await expect(
+          latteMarket.readyToSellNFT(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(100),
+            startingBlock.add(101),
+            stakingTokens[0].address
+          )
+        )
+          .to.emit(latteMarket, "Ask")
+          .withArgs(await deployer.getAddress(), latteNFT.address, 0, parseEther("10"), stakingTokens[0].address)
+          .to.emit(latteMarket, "SetLatteNFTMetadata")
+          .withArgs(latteNFT.address, 0, 1, startingBlock.add(100), startingBlock.add(101));
+        const metadata = await latteMarket.latteNFTMetadata(latteNFT.address, 0);
+        expect(metadata.isBidding).to.eq(false);
+        expect(metadata.quoteBep20).to.eq(stakingTokens[0].address);
+        expect(metadata.cap).to.eq(1);
+        expect(metadata.startBlock).to.eq(startingBlock.add(100));
+        expect(metadata.endBlock).to.eq(startingBlock.add(101));
+        expect(metadata.price).to.eq(parseEther("10"));
+
+        await expect(
+          latteMarket.readyToSellNFT(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(100),
+            startingBlock.add(101),
+            stakingTokens[0].address
+          )
+        ).to.revertedWith("LatteMarket::_readyToSellNFTTo::duplicated entry");
+      });
+    });
+
     it("should create a correct latteNFTMetadata", async () => {
       await latteMarket.setSupportNFT([latteNFT.address], true);
       await expect(
@@ -281,7 +321,7 @@ describe("LatteMarket", () => {
           it("should revert", async () => {
             const seller = await deployer.getAddress();
             // preparation phase
-            const _latteNFT = latteNFT as unknown as MockLatteNFT;
+            const _latteNFT = latteNFT as unknown as LatteNFT;
             await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
             // sell phase
             await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -307,7 +347,7 @@ describe("LatteMarket", () => {
       it("should be able to mint a token with transfer wNative back to the seller", async () => {
         const seller = await deployer.getAddress();
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // sell phase
         const latestBlock = await latestBlockNumber();
@@ -342,7 +382,7 @@ describe("LatteMarket", () => {
         it("should revert", async () => {
           const seller = await deployer.getAddress();
           // preparation phase
-          const _latteNFT = latteNFT as unknown as MockLatteNFT;
+          const _latteNFT = latteNFT as unknown as LatteNFT;
           await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
           // sell phase
           await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -369,7 +409,7 @@ describe("LatteMarket", () => {
         it("should revert with within block range", async () => {
           const seller = await deployer.getAddress();
           // preparation phase
-          const _latteNFT = latteNFT as unknown as MockLatteNFT;
+          const _latteNFT = latteNFT as unknown as LatteNFT;
           await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
           // sell phase
           await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -402,7 +442,7 @@ describe("LatteMarket", () => {
       it("should be able to mint a token with transfer a token back to the seller", async () => {
         const seller = await deployer.getAddress();
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // sell phase
         await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -494,14 +534,14 @@ describe("LatteMarket", () => {
       });
     });
 
-    context("when reaching a maximum cap", () => {
+    context("when exceeds a maximum cap", () => {
       it("should revert", async () => {
         await latteMarket.setSupportNFT([latteNFT.address], true);
         await latteMarket.readyToSellNFT(
           latteNFT.address,
           0,
           parseEther("10"),
-          0,
+          1,
           startingBlock.add(3),
           startingBlock.add(10),
           stakingTokens[0].address
@@ -518,7 +558,7 @@ describe("LatteMarket", () => {
           it("should revert", async () => {
             const seller = await deployer.getAddress();
             // preparation phase
-            const _latteNFT = latteNFT as unknown as MockLatteNFT;
+            const _latteNFT = latteNFT as unknown as LatteNFT;
             await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
             // sell phase
             await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -526,7 +566,7 @@ describe("LatteMarket", () => {
               latteNFT.address,
               0,
               parseEther("10"),
-              1,
+              2,
               startingBlock.add(4),
               startingBlock.add(10),
               wbnb.address
@@ -544,7 +584,7 @@ describe("LatteMarket", () => {
       it("should be able to mint a token with transfer wNative back to the seller", async () => {
         const seller = await deployer.getAddress();
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // sell phase
         await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -552,7 +592,7 @@ describe("LatteMarket", () => {
           latteNFT.address,
           0,
           parseEther("10"),
-          1,
+          3,
           startingBlock.add(4),
           startingBlock.add(10),
           wbnb.address
@@ -570,6 +610,7 @@ describe("LatteMarket", () => {
         expect(await wbnb.balanceOf(seller)).to.eq(parseEther("18"));
         expect(balAfter).to.eq(balBefore.sub(parseEther("20").add((await ethers.provider.getGasPrice()).mul(gasUsed))));
         expect(await _latteNFT.ownerOf(0)).to.eq(await alice.getAddress());
+        expect((await latteMarket.latteNFTMetadata(latteNFT.address, 0)).cap).to.eq(1);
       });
     });
 
@@ -578,7 +619,7 @@ describe("LatteMarket", () => {
         it("should revert", async () => {
           const seller = await deployer.getAddress();
           // preparation phase
-          const _latteNFT = latteNFT as unknown as MockLatteNFT;
+          const _latteNFT = latteNFT as unknown as LatteNFT;
           await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
           // sell phase
           await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -586,7 +627,7 @@ describe("LatteMarket", () => {
             latteNFT.address,
             0,
             parseEther("10"),
-            1,
+            2,
             startingBlock.add(4),
             startingBlock.add(10),
             stakingTokens[0].address
@@ -605,7 +646,7 @@ describe("LatteMarket", () => {
         it("should revert with within block range", async () => {
           const seller = await deployer.getAddress();
           // preparation phase
-          const _latteNFT = latteNFT as unknown as MockLatteNFT;
+          const _latteNFT = latteNFT as unknown as LatteNFT;
           await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
           // sell phase
           const latestBlock = await latestBlockNumber();
@@ -639,7 +680,7 @@ describe("LatteMarket", () => {
       it("should be able to mint a token with transfer a token back to the seller", async () => {
         const seller = await deployer.getAddress();
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // sell phase
         await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -647,7 +688,7 @@ describe("LatteMarket", () => {
           latteNFT.address,
           0,
           parseEther("10"),
-          1,
+          3,
           startingBlock.add(4),
           startingBlock.add(10),
           stakingTokens[0].address
@@ -662,6 +703,7 @@ describe("LatteMarket", () => {
         expect(await stakingTokens[0].balanceOf(seller)).to.eq(parseEther("18"));
         expect(await _latteNFT.ownerOf(0)).to.eq(await alice.getAddress());
         expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(0);
+        expect((await latteMarket.latteNFTMetadata(latteNFT.address, 0)).cap).to.eq(1);
       });
     });
   });
@@ -758,6 +800,46 @@ describe("LatteMarket", () => {
             stakingTokens[0].address
           )
         ).to.revertedWith("LatteMarket::onlyGovernance::only GOVERNANCE role");
+      });
+    });
+
+    context("when recreate an auction", () => {
+      it("should revert", async () => {
+        await latteMarket.setSupportNFT([latteNFT.address], true);
+        await expect(
+          latteMarket.readyToStartAuction(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(3),
+            startingBlock.add(10),
+            stakingTokens[0].address
+          )
+        )
+          .to.emit(latteMarket, "Ask")
+          .withArgs(await deployer.getAddress(), latteNFT.address, 0, parseEther("10"), stakingTokens[0].address)
+          .to.emit(latteMarket, "SetLatteNFTMetadata")
+          .withArgs(latteNFT.address, 0, 1, startingBlock.add(3), startingBlock.add(10));
+        const metadata = await latteMarket.latteNFTMetadata(latteNFT.address, 0);
+        expect(metadata.isBidding).to.eq(true);
+        expect(metadata.quoteBep20).to.eq(stakingTokens[0].address);
+        expect(metadata.cap).to.eq(1);
+        expect(metadata.startBlock).to.eq(startingBlock.add(3));
+        expect(metadata.endBlock).to.eq(startingBlock.add(10));
+        expect(metadata.price).to.eq(parseEther("10"));
+
+        await expect(
+          latteMarket.readyToStartAuction(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(4),
+            startingBlock.add(10),
+            wbnb.address
+          )
+        ).revertedWith("LatteMarket::onlyNonBiddingNFT::only selling token can be used here");
       });
     });
 
@@ -873,7 +955,7 @@ describe("LatteMarket", () => {
         context("when the current input bid is < the prev bid", () => {
           it("should revert", async () => {
             // preparation phase
-            const _latteNFT = latteNFT as unknown as MockLatteNFT;
+            const _latteNFT = latteNFT as unknown as LatteNFT;
             await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
             // start auction phase
             await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -907,7 +989,7 @@ describe("LatteMarket", () => {
           it("should successfully add up a bid with requiring only an amount left", async () => {
             it("should successfully replace a bid with the previous bid returned to the user", async () => {
               // preparation phase
-              const _latteNFT = latteNFT as unknown as MockLatteNFT;
+              const _latteNFT = latteNFT as unknown as LatteNFT;
               await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
               // start auction phase
               await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -957,7 +1039,7 @@ describe("LatteMarket", () => {
         context("when the prev bid and the request bid is not the same user", () => {
           it("should successfully replace a bid with the previous bid returned to the user", async () => {
             // preparation phase
-            const _latteNFT = latteNFT as unknown as MockLatteNFT;
+            const _latteNFT = latteNFT as unknown as LatteNFT;
             await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
             // start auction phase
             const latestBlock = await latestBlockNumber();
@@ -973,13 +1055,13 @@ describe("LatteMarket", () => {
             );
 
             // bid phase
-            let aliceBalBefore = await alice.getBalance();
-            let aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
+            const aliceBalBefore = await alice.getBalance();
+            const aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
               value: parseEther("11"),
             });
-            let aliceReceipt = await aliceTx.wait();
-            let aliceGasUsed = aliceReceipt.gasUsed;
-            let aliceBalAfter = await alice.getBalance();
+            const aliceReceipt = await aliceTx.wait();
+            const aliceGasUsed = aliceReceipt.gasUsed;
+            const aliceBalAfter = await alice.getBalance();
             let bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
             expect(bid.bidder).to.eq(await alice.getAddress());
             expect(bid.price).to.eq(parseEther("11"));
@@ -987,13 +1069,13 @@ describe("LatteMarket", () => {
               aliceBalBefore.sub(parseEther("11").add((await ethers.provider.getGasPrice()).mul(aliceGasUsed)))
             );
 
-            let bobBalBefore = await bob.getBalance();
-            let bobTx = await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsBob, {
+            const bobBalBefore = await bob.getBalance();
+            const bobTx = await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsBob, {
               value: parseEther("12"),
             });
-            let bobReceipt = await bobTx.wait();
-            let bobGasUsed = bobReceipt.gasUsed;
-            let bobBalAfter = await bob.getBalance();
+            const bobReceipt = await bobTx.wait();
+            const bobGasUsed = bobReceipt.gasUsed;
+            const bobBalAfter = await bob.getBalance();
             bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
             expect(bid.bidder).to.eq(await bob.getAddress());
             expect(bid.price).to.eq(parseEther("12"));
@@ -1006,7 +1088,7 @@ describe("LatteMarket", () => {
       });
       it("should successfully create a bid entry", async () => {
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // start auction phase
         await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -1040,7 +1122,7 @@ describe("LatteMarket", () => {
         context("when the current input bid is < the prev bid", () => {
           it("should revert", async () => {
             // preparation phase
-            const _latteNFT = latteNFT as unknown as MockLatteNFT;
+            const _latteNFT = latteNFT as unknown as LatteNFT;
             await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
             // start auction phase
             await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -1079,7 +1161,7 @@ describe("LatteMarket", () => {
           it("should successfully add up a bid with requiring only an amount left", async () => {
             it("should successfully replace a bid with the previous bid returned to the user", async () => {
               // preparation phase
-              const _latteNFT = latteNFT as unknown as MockLatteNFT;
+              const _latteNFT = latteNFT as unknown as LatteNFT;
               await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
               // start auction phase
               await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -1123,7 +1205,7 @@ describe("LatteMarket", () => {
         context("when the prev bid and the request bid is not the same user", () => {
           it("should successfully replace a bid with the previous bid returned to the user", async () => {
             // preparation phase
-            const _latteNFT = latteNFT as unknown as MockLatteNFT;
+            const _latteNFT = latteNFT as unknown as LatteNFT;
             await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
             // start auction phase
             await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -1172,7 +1254,7 @@ describe("LatteMarket", () => {
       });
       it("should successfully create a bid entry", async () => {
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // start auction phase
         await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -1196,7 +1278,7 @@ describe("LatteMarket", () => {
 
         // bid phase
         await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
-        let bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
+        const bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
         expect(bid.bidder).to.eq(await alice.getAddress());
         expect(bid.price).to.eq(parseEther("11"));
         expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
@@ -1290,7 +1372,7 @@ describe("LatteMarket", () => {
     context("when reaching a maximum cap", () => {
       it("should revert", async () => {
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // start auction phase
         await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -1317,9 +1399,40 @@ describe("LatteMarket", () => {
     });
 
     context("when cancel auction", () => {
-      it("should return all bids back to the bidder with reverted message if continue to either bid or cancel auction", async () => {
+      context("when there is an existing bidder", () => {
+        it("should revert", async () => {
+          // preparation phase
+          const _latteNFT = latteNFT as unknown as LatteNFT;
+          await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
+          // start auction phase
+          await latteMarket.setSupportNFT([latteNFT.address], true);
+          await latteMarket.readyToStartAuction(
+            latteNFT.address,
+            0,
+            parseEther("10"),
+            1,
+            startingBlock.add(4),
+            startingBlock.add(6),
+            stakingTokens[0].address
+          );
+          await stakingTokens[0].mint(await alice.getAddress(), parseEther("100"));
+          await SimpleToken__factory.connect(stakingTokens[0].address, alice).approve(
+            latteMarket.address,
+            parseEther("11")
+          );
+          // bid phase
+          await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
+          expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
+          await expect(latteMarket.cancelBiddingNFT(latteNFT.address, 0)).to.revertedWith(
+            "LatteMarket::cancelBiddingNFT::auction already has a bidder"
+          );
+          expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
+        });
+      });
+
+      it("should be able to cancel", async () => {
         // preparation phase
-        const _latteNFT = latteNFT as unknown as MockLatteNFT;
+        const _latteNFT = latteNFT as unknown as LatteNFT;
         await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
         // start auction phase
         await latteMarket.setSupportNFT([latteNFT.address], true);
@@ -1338,10 +1451,7 @@ describe("LatteMarket", () => {
           parseEther("11")
         );
         // bid phase
-        await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
-        expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
         await latteMarket.cancelBiddingNFT(latteNFT.address, 0);
-        expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("100"));
         expect(await latteMarket.tokenCategorySellers(latteNFT.address, 0)).to.eq(constants.AddressZero);
         const metadata = await latteMarket.latteNFTMetadata(latteNFT.address, 0);
         expect(metadata.isBidding).to.eq(false);
@@ -1368,7 +1478,7 @@ describe("LatteMarket", () => {
 
     it("should successfully conclude an auction", async () => {
       // preparation phase
-      const _latteNFT = latteNFT as unknown as MockLatteNFT;
+      const _latteNFT = latteNFT as unknown as LatteNFT;
       await _latteNFT.grantRole(await _latteNFT.MINTER_ROLE(), latteMarket.address);
       // start auction phase
       await latteMarket.setSupportNFT([latteNFT.address], true);

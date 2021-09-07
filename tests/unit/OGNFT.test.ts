@@ -4,8 +4,7 @@ import {
   BeanBag,
   Booster,
   LATTE,
-  MockMasterBarista,
-  MockOGOwnerToken,
+  MasterBarista,
   MockWBNB,
   OGNFT,
   OGNFT__factory,
@@ -304,23 +303,23 @@ describe("OGNFT", () => {
       context("without rewards to be harvest()", () => {
         context("when category 0", () => {
           it("should mint", async () => {
-            const _masterBarista = masterBarista as unknown as MockMasterBarista;
+            const _masterBarista = masterBarista as unknown as MasterBarista;
             await ogNFT.mint(await alice.getAddress(), 0, "tokenUrl");
             const categoryId = await ogNFT.latteNFTToCategory(0);
             expect(categoryId).to.be.eq(0);
             const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, await alice.getAddress());
             expect(userInfo.fundedBy).to.eq(ogNFT.address);
             expect(userInfo.amount).to.eq(parseEther("1"));
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(masterBarista.address)).to.eq(
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(masterBarista.address)).to.eq(
               parseEther("1")
             );
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
           });
         });
 
         context("when category > 0", () => {
           it("should mint", async () => {
-            const _masterBarista = masterBarista as unknown as MockMasterBarista;
+            const _masterBarista = masterBarista as unknown as MasterBarista;
             // mock this so that mintBatch of category #1 can pass the master barista
             await ogNFT.setCategoryOGOwnerToken(1, ogOwnerToken.address);
             await ogNFT.addCategoryInfo("foo", "bar");
@@ -330,10 +329,10 @@ describe("OGNFT", () => {
             const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, await alice.getAddress());
             expect(userInfo.fundedBy).to.eq(ogNFT.address);
             expect(userInfo.amount).to.eq(parseEther("1"));
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(masterBarista.address)).to.eq(
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(masterBarista.address)).to.eq(
               parseEther("1")
             );
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
           });
         });
       });
@@ -360,7 +359,7 @@ describe("OGNFT", () => {
             });
             // MOCK that master barista has enough LATTE
             await latteToken.transfer(beanBag.address, parseEther("100"));
-            const _masterBarista = masterBarista as unknown as MockMasterBarista;
+            const _masterBarista = masterBarista as unknown as MasterBarista;
             await ogNFT.mint(ogNftOwnerAddress, 0, "tokenUrl");
             const categoryId = await ogNFT.latteNFTToCategory(0);
             expect(categoryId).to.be.eq(0);
@@ -369,10 +368,10 @@ describe("OGNFT", () => {
             expect(userInfo.amount).to.eq(parseEther("11"));
             // owner is expected to get 100 reward
             expect(await latteToken.balanceOf(ogNftOwnerAddress)).to.eq(parseEther("100"));
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(masterBarista.address)).to.eq(
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(masterBarista.address)).to.eq(
               parseEther("1")
             );
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
           });
         });
 
@@ -398,7 +397,7 @@ describe("OGNFT", () => {
             });
             // MOCK that master barista has enough LATTE
             await latteToken.transfer(beanBag.address, parseEther("100"));
-            const _masterBarista = masterBarista as unknown as MockMasterBarista;
+            const _masterBarista = masterBarista as unknown as MasterBarista;
             // mock this so that mintBatch of category #1 can pass the master barista
             await ogNFT.setCategoryOGOwnerToken(1, ogOwnerToken.address);
             await ogNFT.addCategoryInfo("foo", "bar");
@@ -410,10 +409,10 @@ describe("OGNFT", () => {
             expect(userInfo.amount).to.eq(parseEther("11"));
             // owner is expected to get 100 reward
             expect(await latteToken.balanceOf(ogNftOwnerAddress)).to.eq(parseEther("100"));
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(masterBarista.address)).to.eq(
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(masterBarista.address)).to.eq(
               parseEther("1")
             );
-            expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
+            expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
           });
         });
       });
@@ -465,7 +464,7 @@ describe("OGNFT", () => {
     context("when parameters are valid", async () => {
       context("without rewards to be harvested", () => {
         it("should mint batch", async () => {
-          const _masterBarista = masterBarista as unknown as MockMasterBarista;
+          const _masterBarista = masterBarista as unknown as MasterBarista;
           await ogNFT.mintBatch(await alice.getAddress(), 0, "tokenURI", 3);
           expect((await ogNFT.categoryToLatteNFTList(0)).length).to.be.eq(3);
           expect(
@@ -504,7 +503,7 @@ describe("OGNFT", () => {
           });
           // MOCK that master barista has enough LATTE
           await latteToken.transfer(beanBag.address, parseEther("100"));
-          const _masterBarista = masterBarista as unknown as MockMasterBarista;
+          const _masterBarista = masterBarista as unknown as MasterBarista;
           await ogNFT.mintBatch(ogNftOwnerAddress, 0, "tokenURI", 3);
           expect((await ogNFT.categoryToLatteNFTList(0)).length).to.be.eq(3);
           expect(
@@ -561,15 +560,15 @@ describe("OGNFT", () => {
 
         // MOCK that master barista has enough LATTE
         await latteToken.transfer(beanBag.address, parseEther("100"));
-        const _masterBarista = masterBarista as unknown as MockMasterBarista;
+        const _masterBarista = masterBarista as unknown as MasterBarista;
         await ogNFTAsAlice.unstake(0);
         let userInfo = await _masterBarista.userInfo(ogOwnerToken.address, ownerAddress);
         expect(userInfo.fundedBy).to.eq(constants.AddressZero);
         expect(userInfo.amount).to.eq(parseEther("0"));
         // owner is expected to get 100 reward
         expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
-        expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(masterBarista.address)).to.eq(0);
-        expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
+        expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(masterBarista.address)).to.eq(0);
+        expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
 
         await ogNFTAsAlice.approve(ogNFT.address, 0);
         await ogNFTAsAlice.stake(0);
@@ -578,10 +577,8 @@ describe("OGNFT", () => {
         userInfo = await _masterBarista.userInfo(ogOwnerToken.address, ownerAddress);
         expect(userInfo.fundedBy).to.eq(ogNFT.address);
         expect(userInfo.amount).to.eq(parseEther("1"));
-        expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(masterBarista.address)).to.eq(
-          parseEther("1")
-        );
-        expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
+        expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(masterBarista.address)).to.eq(parseEther("1"));
+        expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
       });
     });
 
@@ -606,15 +603,15 @@ describe("OGNFT", () => {
         });
 
         // MOCK that master barista has enough LATTE
-        const _masterBarista = masterBarista as unknown as MockMasterBarista;
+        const _masterBarista = masterBarista as unknown as MasterBarista;
         await ogNFTAsAlice.unstake(0);
         const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, ownerAddress);
         expect(userInfo.fundedBy).to.eq(constants.AddressZero);
         expect(userInfo.amount).to.eq(parseEther("0"));
         // owner is expected to get 100 reward
         expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("0"));
-        expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(masterBarista.address)).to.eq(0);
-        expect(await (ogOwnerToken as unknown as MockOGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
+        expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(masterBarista.address)).to.eq(0);
+        expect(await (ogOwnerToken as unknown as OGOwnerToken).balanceOf(ogNFT.address)).to.eq(0);
       });
     });
   });
@@ -641,43 +638,6 @@ describe("OGNFT", () => {
       it("should setted latte name", async () => {
         expect(await ogNFT.setLatteName(0, "settedName"));
         expect(await ogNFT.latteNames(0)).to.be.eq("settedName");
-      });
-    });
-  });
-
-  describe("#burn()", () => {
-    context("when caller is not owner", async () => {
-      it("should reverted", async () => {
-        await expect(ogNFTAsBob.burn(0)).to.be.revertedWith("LatteNFT::onlyMinter::only MINTER role");
-      });
-    });
-
-    context("when caller used to be minter", async () => {
-      it("should reverted", async () => {
-        await ogNFT.revokeRole(await ogNFT.MINTER_ROLE(), await deployer.getAddress());
-        await expect(ogNFT.burn(0)).to.be.revertedWith("LatteNFT::onlyMinter::only MINTER role");
-      });
-    });
-
-    context("when paused", async () => {
-      it("should reverted", async () => {
-        await ogNFT.mint(await alice.getAddress(), 0, "tokenURI");
-        await ogNFT.pause();
-        await expect(ogNFT.burn(0)).to.be.revertedWith("revert ERC721Pausable: token transfer while paused");
-      });
-    });
-
-    context("when burn", async () => {
-      it("should burn", async () => {
-        await ogNFT.mint(await alice.getAddress(), 0, "tokenURI");
-        expect(await ogNFT.burn(0));
-        expect((await ogNFT.categoryToLatteNFTList(await ogNFT.latteNFTToCategory(0))).length).to.be.eq(0);
-      });
-    });
-
-    context("when burn with does not exits", async () => {
-      it("should reverted", async () => {
-        await expect(ogNFT.burn(0)).to.be.revertedWith("LatteNFT::burn::tokenId not found");
       });
     });
   });

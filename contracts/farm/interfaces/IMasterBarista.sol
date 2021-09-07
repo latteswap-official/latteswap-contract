@@ -57,6 +57,7 @@ interface IMasterBarista {
   function mintExtraReward(
     address _stakeToken,
     address _to,
-    uint256 _amount
+    uint256 _amount,
+    uint256 _lastRewardBlock
   ) external;
 }
