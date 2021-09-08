@@ -30,7 +30,7 @@ async function main() {
       NFT_ADDRESS: config.LatteNFT,
       NFT_CATEGORY_ID: 2,
       AMOUNT: 2,
-      START_BLOCK: 10561280,
+      START_BLOCK: 10726861,
       END_BLOCK: 11315303,
     },
   ];
