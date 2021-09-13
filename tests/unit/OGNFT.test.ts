@@ -681,4 +681,69 @@ describe("OGNFT", () => {
       });
     });
   });
+
+  describe("#harvest()", () => {
+    context("when incorrect category (og owner token for this category not set)", () => {
+      it("should revert", async () => {
+        const ogNftOwnerAddress = await alice.getAddress();
+        const snapshotBlock = await latestBlockNumber();
+        await masterBarista.smodify.put({
+          poolInfo: {
+            [ogOwnerToken.address]: {
+              lastRewardBlock: snapshotBlock,
+              accLattePerShare: parseUnits("10", 12).toString(),
+            },
+          },
+          userInfo: {
+            [ogOwnerToken.address]: {
+              [ogNftOwnerAddress]: {
+                amount: parseEther("10").toString(),
+                fundedBy: ogNFT.address,
+              },
+            },
+          },
+        });
+        // MOCK that master barista has enough LATTE
+        await latteToken.transfer(beanBag.address, parseEther("100"));
+        await expect(ogNFTAsAlice["harvest(uint256)"](50)).to.revertedWith("OGNFT::harvest:: og owner token not set");
+      });
+    });
+    context("when single harvest()", () => {
+      it("should successfully harvest", async () => {
+        const ogNftOwnerAddress = await alice.getAddress();
+        const snapshotBlock = await latestBlockNumber();
+        await masterBarista.smodify.put({
+          poolInfo: {
+            [ogOwnerToken.address]: {
+              lastRewardBlock: snapshotBlock,
+              accLattePerShare: parseUnits("10", 12).toString(),
+            },
+          },
+          userInfo: {
+            [ogOwnerToken.address]: {
+              [ogNftOwnerAddress]: {
+                amount: parseEther("10").toString(),
+                fundedBy: ogNFT.address,
+              },
+            },
+          },
+        });
+        // MOCK that master barista has enough LATTE
+        await latteToken.transfer(beanBag.address, parseEther("100"));
+        const _masterBarista = masterBarista as unknown as MasterBarista;
+        await ogNFTAsAlice["harvest(uint256)"](0);
+        expect((await ogNFT.categoryToLatteNFTList(0)).length).to.be.eq(0);
+        expect(
+          (await ogNFT.categoryToLatteNFTList(0)).reduce((accum: boolean, tokenId: BigNumber, index: number) => {
+            return accum && tokenId.eq(BigNumber.from(index));
+          }, true)
+        ).to.be.true;
+        const userInfo = await _masterBarista.userInfo(ogOwnerToken.address, ogNftOwnerAddress);
+        expect(userInfo.fundedBy).to.eq(ogNFT.address);
+        expect(userInfo.amount).to.eq(parseEther("10"));
+        // owner is expected to get 100 reward
+        expect(await latteToken.balanceOf(ogNftOwnerAddress)).to.eq(parseEther("100"));
+      });
+    });
+  });
 });
