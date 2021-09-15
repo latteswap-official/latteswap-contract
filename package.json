@@ -76,7 +76,7 @@
     
     "script:mainnet:periphery:T000": "hardhat --network mainnet run --no-compile ./scripts/periphery/fund_me_dummies.ts"
   },
-  "version": "1.0.0-rc.13",
+  "version": "1.0.0-rc.14",
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
