@@ -117,7 +117,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       lastRewardBlock: startBlock,
       accLattePerShare: 0,
       accLattePerShareTilBonusEnd: 0,
-      allocBps: 4000
+      allocBps: 0
     });
     totalAllocPoint = 1000;
   }
