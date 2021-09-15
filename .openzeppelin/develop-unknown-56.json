@@ -7092,13 +7092,13 @@
           {
             "contract": "OGNFTOffering",
             "label": "wNativeRelayer",
-            "type": "t_contract(IWNativeRelayer)24193",
+            "type": "t_contract(IWNativeRelayer)24201",
             "src": "contracts/nft/OGNFTOffering.sol:55"
           },
           {
             "contract": "OGNFTOffering",
             "label": "priceModel",
-            "type": "t_contract(IOGPriceModel)23890",
+            "type": "t_contract(IOGPriceModel)23898",
             "src": "contracts/nft/OGNFTOffering.sol:56"
           },
           {
@@ -7116,13 +7116,13 @@
           {
             "contract": "OGNFTOffering",
             "label": "ogNFTMetadata",
-            "type": "t_mapping(t_uint256,t_struct(OGNFTMetadata)22398_storage)",
+            "type": "t_mapping(t_uint256,t_struct(OGNFTMetadata)22406_storage)",
             "src": "contracts/nft/OGNFTOffering.sol:61"
           },
           {
             "contract": "OGNFTOffering",
             "label": "buyLimitMetadata",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22403_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22411_storage))",
             "src": "contracts/nft/OGNFTOffering.sol:62"
           }
         ],
@@ -7133,19 +7133,19 @@
           "t_uint256": {
             "label": "uint256"
           },
-          "t_contract(IWNativeRelayer)24193": {
+          "t_contract(IWNativeRelayer)24201": {
             "label": "contract IWNativeRelayer"
           },
-          "t_contract(IOGPriceModel)23890": {
+          "t_contract(IOGPriceModel)23898": {
             "label": "contract IOGPriceModel"
           },
           "t_mapping(t_uint256,t_address)": {
             "label": "mapping(uint256 => address)"
           },
-          "t_mapping(t_uint256,t_struct(OGNFTMetadata)22398_storage)": {
+          "t_mapping(t_uint256,t_struct(OGNFTMetadata)22406_storage)": {
             "label": "mapping(uint256 => struct OGNFTOffering.OGNFTMetadata)"
           },
-          "t_struct(OGNFTMetadata)22398_storage": {
+          "t_struct(OGNFTMetadata)22406_storage": {
             "label": "struct OGNFTOffering.OGNFTMetadata",
             "members": [
               {
@@ -7180,13 +7180,13 @@
           "t_contract(IERC20Upgradeable)1743": {
             "label": "contract IERC20Upgradeable"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22403_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22411_storage))": {
             "label": "mapping(address => mapping(uint256 => struct OGNFTOffering.OGNFTBuyLimitMetadata))"
           },
-          "t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22403_storage)": {
+          "t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22411_storage)": {
             "label": "mapping(uint256 => struct OGNFTOffering.OGNFTBuyLimitMetadata)"
           },
-          "t_struct(OGNFTBuyLimitMetadata)22403_storage": {
+          "t_struct(OGNFTBuyLimitMetadata)22411_storage": {
             "label": "struct OGNFTOffering.OGNFTBuyLimitMetadata",
             "members": [
               {
@@ -7651,6 +7651,267 @@
           },
           "t_bytes4": {
             "label": "bytes4"
+          }
+        }
+      }
+    },
+    "1fdbebc63d41705e11d64849333c79116ea442e5877f194a0dc71720b2f60b18": {
+      "address": "0x1bd63020BE627bc6F65008301cBe4b1e6BC67951",
+      "txHash": "0xd735fec50100f464a1a702998433329f50d92c19b6c377b12c72692c050bd3f5",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:25"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:30"
+          },
+          {
+            "contract": "ERC721HolderUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721HolderUpgradeable.sol:30"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)39_storage)",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:225"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "ogNFT",
+            "type": "t_address",
+            "src": "contracts/nft/OGNFTOffering.sol:50"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "feeAddr",
+            "type": "t_address",
+            "src": "contracts/nft/OGNFTOffering.sol:51"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "feePercentBps",
+            "type": "t_uint256",
+            "src": "contracts/nft/OGNFTOffering.sol:52"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "buyLimitCount",
+            "type": "t_uint256",
+            "src": "contracts/nft/OGNFTOffering.sol:53"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "buyLimitPeriod",
+            "type": "t_uint256",
+            "src": "contracts/nft/OGNFTOffering.sol:54"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "wNativeRelayer",
+            "type": "t_contract(IWNativeRelayer)24201",
+            "src": "contracts/nft/OGNFTOffering.sol:55"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "priceModel",
+            "type": "t_contract(IOGPriceModel)23898",
+            "src": "contracts/nft/OGNFTOffering.sol:56"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "wNative",
+            "type": "t_address",
+            "src": "contracts/nft/OGNFTOffering.sol:57"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "tokenCategorySellers",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "contracts/nft/OGNFTOffering.sol:58"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "ogNFTMetadata",
+            "type": "t_mapping(t_uint256,t_struct(OGNFTMetadata)22406_storage)",
+            "src": "contracts/nft/OGNFTOffering.sol:61"
+          },
+          {
+            "contract": "OGNFTOffering",
+            "label": "buyLimitMetadata",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22411_storage))",
+            "src": "contracts/nft/OGNFTOffering.sol:62"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_contract(IWNativeRelayer)24201": {
+            "label": "contract IWNativeRelayer"
+          },
+          "t_contract(IOGPriceModel)23898": {
+            "label": "contract IOGPriceModel"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_mapping(t_uint256,t_struct(OGNFTMetadata)22406_storage)": {
+            "label": "mapping(uint256 => struct OGNFTOffering.OGNFTMetadata)"
+          },
+          "t_struct(OGNFTMetadata)22406_storage": {
+            "label": "struct OGNFTOffering.OGNFTMetadata",
+            "members": [
+              {
+                "label": "cap",
+                "type": "t_uint256"
+              },
+              {
+                "label": "maxCap",
+                "type": "t_uint256"
+              },
+              {
+                "label": "startBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "endBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "isBidding",
+                "type": "t_bool"
+              },
+              {
+                "label": "quoteBep20",
+                "type": "t_contract(IERC20Upgradeable)1743"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(IERC20Upgradeable)1743": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22411_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct OGNFTOffering.OGNFTBuyLimitMetadata))"
+          },
+          "t_mapping(t_uint256,t_struct(OGNFTBuyLimitMetadata)22411_storage)": {
+            "label": "mapping(uint256 => struct OGNFTOffering.OGNFTBuyLimitMetadata)"
+          },
+          "t_struct(OGNFTBuyLimitMetadata)22411_storage": {
+            "label": "struct OGNFTOffering.OGNFTBuyLimitMetadata",
+            "members": [
+              {
+                "label": "counter",
+                "type": "t_uint256"
+              },
+              {
+                "label": "cooldownStartBlock",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)39_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_struct(RoleData)39_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_struct(AddressSet)4414_storage"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32"
+              }
+            ]
+          },
+          "t_struct(AddressSet)4414_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)4149_storage"
+              }
+            ]
+          },
+          "t_struct(Set)4149_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)"
+              }
+            ]
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
           }
         }
       }
