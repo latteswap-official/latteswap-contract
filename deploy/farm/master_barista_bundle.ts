@@ -28,11 +28,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const BONUS_LOCK_BPS = "6000";
   const LATTE_PER_BLOCK = ethers.utils.parseEther("1");
   const LATTE_START_BLOCK = "9287828";
+  const TREASURY_ADDRESS = "";
 
   // LATTE token
   const GOVERNOR_ADDRESS = "0x864e90222f99a70aeECa036Ffc7d12cC4b3313B4";
   const LATTE_START_RELEASE_BLOCK = "9287828";
   const LATTE_END_RELEASE_BLOCK = "14470376";
+  const INITIAL_DEPLOYER_LATTE_FEE = ethers.utils.parseEther("2");
 
   const { deployments, getNamedAccounts, network } = hre;
   const { deploy } = deployments;
@@ -76,18 +78,27 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const masterBarista = (await upgrades.deployProxy(MasterBarista, [
       (await deployments.get("LATTE")).address,
       (await deployments.get("BeanBag")).address,
-      GOVERNOR_ADDRESS,
+      TREASURY_ADDRESS,
       LATTE_PER_BLOCK,
       LATTE_START_BLOCK,
     ])) as MasterBarista;
     await masterBarista.deployed();
     console.log(`>> Deployed at ${masterBarista.address}`);
     console.log("✅ Done deploying a MasterBarista");
+    let estimateGas, tx;
+    // transfer latte's ownership to master barista
+    console.log(`>> Execute Transaction to mint an initial fee to deployer`);
+    estimateGas = await latte.estimateGas.mint(deployer, INITIAL_DEPLOYER_LATTE_FEE);
+    tx = await latte.mint(deployer, INITIAL_DEPLOYER_LATTE_FEE, {
+      gasLimit: estimateGas.add(100000),
+    });
+    console.log(`>> returned tx hash: ${tx.hash}`);
+    console.log("✅ Done minting an initial fee to a deployer");
 
     // transfer latte's ownership to master barista
     console.log(`>> Execute Transaction to transfer latte's ownership to master barista`);
-    let estimateGas = await latte.estimateGas.transferOwnership(masterBarista.address);
-    let tx = await latte.transferOwnership(masterBarista.address, {
+    estimateGas = await latte.estimateGas.transferOwnership(masterBarista.address);
+    tx = await latte.transferOwnership(masterBarista.address, {
       gasLimit: estimateGas.add(100000),
     });
     console.log(`>> returned tx hash: ${tx.hash}`);
