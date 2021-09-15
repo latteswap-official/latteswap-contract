@@ -197,7 +197,7 @@ describe("OGNFTOffering", () => {
           await ogOffering.setBuyLimitCount(2);
           // sell phase
           await ogOffering.readyToSellNFT(0, 100, startingBlock.add(4), startingBlock.add(100), wbnb.address);
-          const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 1, 0);
+          const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(100, 97, 0);
           // buy phase
 
           const nonce = await alice.getTransactionCount();
@@ -245,11 +245,60 @@ describe("OGNFTOffering", () => {
           await expect(ogBuyLimit.counter).to.eq(1);
         });
       });
+      context("when cap slope changed", () => {
+        it("should be able to mint a with transfer wNative back to the seller", async () => {
+          const seller = await deployer.getAddress();
+          // sell phase
+          await ogOffering.readyToSellNFT(0, 4, startingBlock.add(2), startingBlock.add(10), wbnb.address);
+
+          // buy phase
+          const balBefore1 = await alice.getBalance();
+          const value1 = await (priceModel as unknown as TripleSlopePriceModel).getPrice(4, 3, 0);
+          const tx1 = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            value: value1,
+          });
+          const gasUsed1 = (await tx1.wait()).gasUsed;
+          const balAfter1 = await alice.getBalance();
+          const totalPaid1 = value1.add((await ethers.provider.getGasPrice()).mul(gasUsed1));
+          expect(await wbnb.balanceOf(await dev.getAddress())).to.eq(value1.div(10));
+          expect(await wbnb.balanceOf(seller)).to.eq(value1.sub(value1.div(10)));
+          expect(balAfter1).to.eq(balBefore1.sub(totalPaid1));
+
+          const balBefore2 = await alice.getBalance();
+          const value2 = await (priceModel as unknown as TripleSlopePriceModel).getPrice(4, 2, 0);
+          const tx2 = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            value: value2,
+          });
+          const gasUsed2 = (await tx2.wait()).gasUsed;
+          const balAfter2 = await alice.getBalance();
+          const totalPaid2 = value2.add((await ethers.provider.getGasPrice()).mul(gasUsed2));
+          expect(await wbnb.balanceOf(await dev.getAddress())).to.eq(value2.add(value1).div(10));
+          expect(await wbnb.balanceOf(seller)).to.eq(value2.sub(value2.div(10)).add(value1.sub(value1.div(10))));
+          expect(balAfter2).to.eq(balBefore2.sub(totalPaid2));
+
+          const balBefore3 = await alice.getBalance();
+          const value3 = await (priceModel as unknown as TripleSlopePriceModel).getPrice(4, 1, 0);
+          const tx3 = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            value: value3,
+          });
+          const gasUsed3 = (await tx3.wait()).gasUsed;
+          const balAfter3 = await alice.getBalance();
+          const totalPaid3 = value3.add((await ethers.provider.getGasPrice()).mul(gasUsed3));
+          expect(await wbnb.balanceOf(await dev.getAddress())).to.eq(value3.add(value2).add(value1).div(10));
+          expect(await wbnb.balanceOf(seller)).to.eq(
+            value3.sub(value3.div(10)).add(value2.sub(value2.div(10)).add(value1.sub(value1.div(10))))
+          );
+          expect(balAfter3).to.eq(balBefore3.sub(totalPaid3));
+          expect(await ogNFT.ownerOf(0)).to.eq(await alice.getAddress());
+          expect(await ogNFT.ownerOf(1)).to.eq(await alice.getAddress());
+          expect(await ogNFT.ownerOf(2)).to.eq(await alice.getAddress());
+        });
+      });
       it("should be able to mint a token with transfer wNative back to the seller", async () => {
         const seller = await deployer.getAddress();
         // sell phase
         await ogOffering.readyToSellNFT(0, 1, startingBlock.add(2), startingBlock.add(10), wbnb.address);
-        const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 1, 0);
+        const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 0, 0);
         // buy phase
         const balBefore = await alice.getBalance();
         const tx = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
@@ -299,7 +348,7 @@ describe("OGNFTOffering", () => {
             startingBlock.add(100),
             stakingTokens[0].address
           );
-          const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 1, 0);
+          const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(100, 97, 0);
           // buy phase
           const stakingTokenAsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
           await stakingTokens[0].mint(await alice.getAddress(), value.mul(3));
@@ -366,7 +415,7 @@ describe("OGNFTOffering", () => {
         await ogOffering.readyToSellNFT(0, 1, startingBlock.add(3), startingBlock.add(10), stakingTokens[0].address);
 
         // buy phase
-        const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 1, 0);
+        const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 0, 0);
         const stakingTokenAsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
         await stakingTokens[0].mint(await alice.getAddress(), value);
         await stakingTokenAsAlice.approve(ogOffering.address, value);

@@ -213,9 +213,9 @@ contract OGNFTOffering is ERC721HolderUpgradeable, OwnableUpgradeable, PausableU
 
   /// @dev internal method for buyNFTTo to avoid stack-too-deep
   function _buyNFTTo(uint256 _categoryId, address _to) internal {
+    _decreaseCap(_categoryId, 1);
     OGNFTMetadata memory metadata = ogNFTMetadata[_categoryId];
     uint256 price = priceModel.getPrice(metadata.maxCap, metadata.cap, _categoryId);
-    _decreaseCap(_categoryId, 1);
     uint256 feeAmount = price.mul(feePercentBps).div(1e4);
     _updateBuyLimit(_categoryId, _to);
     require(buyLimitMetadata[_to][_categoryId].counter <= buyLimitCount, "OGNFTOffering::_buyNFTTo::exceed buy limit");
