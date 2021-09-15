@@ -30,7 +30,7 @@ async function main() {
   const config = getConfig();
   const timelockTransactions: Array<ITimelockResponse> = [];
 
-  for (let STAKING_POOL of STAKING_POOLS) {
+  for (const STAKING_POOL of STAKING_POOLS) {
     console.log(">> Queue Transaction to add a staking token pool through Timelock");
     timelockTransactions.push(
       await TimelockService.queueTransaction(
