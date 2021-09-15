@@ -48,11 +48,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await latteMarket.deployed();
     console.log(`>> Deployed at ${latteMarket.address}`);
     console.log(`>> ✅ Done Deploying LatteMarket`);
-    console.log(
-      `>> Execute Transaction to set support nft of ${latteMarket.address} to ${[config.OGNFT, config.LatteNFT]}`
-    );
-    estimatedGas = await latteMarket.estimateGas.setSupportNFT([config.OGNFT, config.LatteNFT], true);
-    tx = await latteMarket.setSupportNFT([config.OGNFT, config.LatteNFT], true, {
+    console.log(`>> Execute Transaction to set support nft of ${latteMarket.address} to ${[config.LatteNFT]}`);
+    estimatedGas = await latteMarket.estimateGas.setSupportNFT([config.LatteNFT], true);
+    tx = await latteMarket.setSupportNFT([config.LatteNFT], true, {
       gasLimit: estimatedGas.add(100000),
     });
     console.log(`>> returned tx hash: ${tx.hash}`);
@@ -62,15 +60,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`>> Execute Transaction to set minter of a latte nft to ${latteMarket.address}`);
     estimatedGas = await latteNFT.estimateGas.grantRole(await latteNFT.MINTER_ROLE(), latteMarket.address);
     tx = await latteNFT.grantRole(await latteNFT.MINTER_ROLE(), latteMarket.address, {
-      gasLimit: estimatedGas.add(100000),
-    });
-    console.log(`>> returned tx hash: ${tx.hash}`);
-    console.log("✅ Done");
-
-    const ogNFT = OGNFT__factory.connect(config.OGNFT, (await ethers.getSigners())[0]) as OGNFT;
-    console.log(`>> Execute Transaction to set minter of an OG nft to ${latteMarket.address}`);
-    estimatedGas = await ogNFT.estimateGas.grantRole(await ogNFT.MINTER_ROLE(), latteMarket.address);
-    tx = await ogNFT.grantRole(await ogNFT.MINTER_ROLE(), latteMarket.address, {
       gasLimit: estimatedGas.add(100000),
     });
     console.log(`>> returned tx hash: ${tx.hash}`);
