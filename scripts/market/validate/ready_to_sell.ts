@@ -1,7 +1,8 @@
 import { commify, formatEther, parseEther } from "@ethersproject/units";
 import { ethers, network, upgrades } from "hardhat";
-import { LatteMarket, LatteMarket__factory } from "../../typechain";
-import { getConfig, withNetworkFile } from "../../utils";
+import { LatteMarket, LatteMarket__factory } from "../../../typechain";
+import { getConfig, withNetworkFile } from "../../../utils";
+import { expect } from "chai";
 
 interface ISellParam {
   NFT_ADDRESS: string;
@@ -58,39 +59,34 @@ async function main() {
   ];
   const latteMarket = LatteMarket__factory.connect(config.LatteMarket, (await ethers.getSigners())[0]) as LatteMarket;
   for (const PARAM of PARAMS) {
-    console.log(`>> Execute Transaction to sell nft`);
-    console.table({
-      id: `${PARAM.NFT_ADDRESS}-${PARAM.NFT_CATEGORY_ID}`,
-      price: commify(formatEther(PARAM.PRICE)),
-      amount: PARAM.AMOUNT,
-      startBlock: PARAM.START_BLOCK,
-      endBlock: PARAM.END_BLOCK,
-      quoteBEP20Token: PARAM.QUOTE_BEP20_TOKEN,
-    });
-    const estimatedGas = await latteMarket.estimateGas.readyToSellNFT(
-      PARAM.NFT_ADDRESS,
-      PARAM.NFT_CATEGORY_ID,
-      PARAM.PRICE,
-      PARAM.AMOUNT,
-      PARAM.START_BLOCK,
-      PARAM.END_BLOCK,
-      PARAM.QUOTE_BEP20_TOKEN
-    );
-    const tx = await latteMarket.readyToSellNFT(
-      PARAM.NFT_ADDRESS,
-      PARAM.NFT_CATEGORY_ID,
-      PARAM.PRICE,
-      PARAM.AMOUNT,
-      PARAM.START_BLOCK,
-      PARAM.END_BLOCK,
-      PARAM.QUOTE_BEP20_TOKEN,
+    console.log(`>> Execute Transaction to check latte nft metadata`);
+    const metadata = await latteMarket.latteNFTMetadata(PARAM.NFT_ADDRESS, PARAM.NFT_CATEGORY_ID);
+    console.table([
       {
-        gasLimit: estimatedGas.add(100000),
-      }
-    );
-    await tx.wait();
-    console.log(`>> returned tx hash: ${tx.hash}`);
-    console.log("✅ Done");
+        case: "cap should be equal",
+        result: metadata.cap.toNumber() === PARAM.AMOUNT,
+      },
+      {
+        case: "startblock should be equal",
+        result: metadata.startBlock.toNumber() === PARAM.START_BLOCK,
+      },
+      {
+        case: "endblock should be equal",
+        result: metadata.endBlock.toNumber() === PARAM.END_BLOCK,
+      },
+      {
+        case: "isBidding should be false",
+        result: !metadata.isBidding,
+      },
+      {
+        case: "price should be equal",
+        result: metadata.price.toString() === PARAM.PRICE,
+      },
+      {
+        case: "quoteBEP20 should be equal",
+        result: metadata.quoteBep20.toLowerCase() === PARAM.QUOTE_BEP20_TOKEN.toLowerCase(),
+      },
+    ]);
   }
 }
 

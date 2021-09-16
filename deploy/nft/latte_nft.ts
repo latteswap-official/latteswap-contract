@@ -15,7 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   Check all variables below before execute the deployment script
   */
 
-  const BASE_URI = "https://138aec147e7805e81ba51e4757eb7bbf.m.pipedream.net"; // mock json response
+  const BASE_URI = "ipfs://QmU2ehA8Uz64GAaUBjQHyZr7a3n8FMggxptPyzdAdpc1sS"; // mock json response
 
   // Deploy LatteNFT
   console.log(`>> Deploying LatteNFT`);

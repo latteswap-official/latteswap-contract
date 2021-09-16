@@ -1,12 +1,11 @@
 import { commify, formatEther, parseEther } from "@ethersproject/units";
 import { ethers, network, upgrades } from "hardhat";
-import { LatteMarket, LatteMarket__factory } from "../../typechain";
-import { getConfig, withNetworkFile } from "../../utils";
+import { OGNFTOffering, OGNFTOffering__factory } from "../../../typechain";
+import { getConfig, withNetworkFile } from "../../../utils";
+import { expect } from "chai";
 
 interface ISellParam {
-  NFT_ADDRESS: string;
   NFT_CATEGORY_ID: number;
-  PRICE: string;
   AMOUNT: number;
   START_BLOCK: number;
   END_BLOCK: number;
@@ -29,68 +28,56 @@ async function main() {
   const PARAMS: ISellParams = [
     /// Latte booster
     {
-      NFT_ADDRESS: config.LatteNFT,
-      NFT_CATEGORY_ID: 1, // soy milk
-      PRICE: parseEther("3.88").toString(),
+      NFT_CATEGORY_ID: 1, // light roast
+      AMOUNT: 1888,
+      START_BLOCK: 11047888,
+      END_BLOCK: 11472088,
+      QUOTE_BEP20_TOKEN: config.Tokens.WBNB,
+    },
+    {
+      NFT_CATEGORY_ID: 2, // medium roast
       AMOUNT: 888,
       START_BLOCK: 11047888,
       END_BLOCK: 11472088,
       QUOTE_BEP20_TOKEN: config.Tokens.WBNB,
     },
     {
-      NFT_ADDRESS: config.LatteNFT,
-      NFT_CATEGORY_ID: 2, // almond milk
-      PRICE: parseEther("3.88").toString(),
-      AMOUNT: 888,
-      START_BLOCK: 11047888,
-      END_BLOCK: 11472088,
-      QUOTE_BEP20_TOKEN: config.Tokens.WBNB,
-    },
-    {
-      NFT_ADDRESS: config.LatteNFT,
-      NFT_CATEGORY_ID: 3, // whole milk
-      PRICE: parseEther("3.88").toString(),
-      AMOUNT: 888,
+      NFT_CATEGORY_ID: 3, // dark roast
+      AMOUNT: 88,
       START_BLOCK: 11047888,
       END_BLOCK: 11472088,
       QUOTE_BEP20_TOKEN: config.Tokens.WBNB,
     },
   ];
-  const latteMarket = LatteMarket__factory.connect(config.LatteMarket, (await ethers.getSigners())[0]) as LatteMarket;
+  const ogNFTOffering = OGNFTOffering__factory.connect(
+    config.OGNFTOffering,
+    (await ethers.getSigners())[0]
+  ) as OGNFTOffering;
   for (const PARAM of PARAMS) {
-    console.log(`>> Execute Transaction to sell nft`);
-    console.table({
-      id: `${PARAM.NFT_ADDRESS}-${PARAM.NFT_CATEGORY_ID}`,
-      price: commify(formatEther(PARAM.PRICE)),
-      amount: PARAM.AMOUNT,
-      startBlock: PARAM.START_BLOCK,
-      endBlock: PARAM.END_BLOCK,
-      quoteBEP20Token: PARAM.QUOTE_BEP20_TOKEN,
-    });
-    const estimatedGas = await latteMarket.estimateGas.readyToSellNFT(
-      PARAM.NFT_ADDRESS,
-      PARAM.NFT_CATEGORY_ID,
-      PARAM.PRICE,
-      PARAM.AMOUNT,
-      PARAM.START_BLOCK,
-      PARAM.END_BLOCK,
-      PARAM.QUOTE_BEP20_TOKEN
-    );
-    const tx = await latteMarket.readyToSellNFT(
-      PARAM.NFT_ADDRESS,
-      PARAM.NFT_CATEGORY_ID,
-      PARAM.PRICE,
-      PARAM.AMOUNT,
-      PARAM.START_BLOCK,
-      PARAM.END_BLOCK,
-      PARAM.QUOTE_BEP20_TOKEN,
+    console.log(`>> Execute Transaction to check latte nft metadata`);
+    const metadata = await ogNFTOffering.ogNFTMetadata(PARAM.NFT_CATEGORY_ID);
+    console.table([
       {
-        gasLimit: estimatedGas.add(100000),
-      }
-    );
-    await tx.wait();
-    console.log(`>> returned tx hash: ${tx.hash}`);
-    console.log("✅ Done");
+        case: "cap should be equal",
+        result: metadata.cap.toNumber() === PARAM.AMOUNT,
+      },
+      {
+        case: "startblock should be equal",
+        result: metadata.startBlock.toNumber() === PARAM.START_BLOCK,
+      },
+      {
+        case: "endblock should be equal",
+        result: metadata.endBlock.toNumber() === PARAM.END_BLOCK,
+      },
+      {
+        case: "isBidding should be false",
+        result: !metadata.isBidding,
+      },
+      {
+        case: "quoteBEP20 should be equal",
+        result: metadata.quoteBep20.toLowerCase() === PARAM.QUOTE_BEP20_TOKEN.toLowerCase(),
+      },
+    ]);
   }
 }
 

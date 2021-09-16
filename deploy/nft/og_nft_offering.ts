@@ -29,54 +29,55 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const deployer = await (await ethers.getSigners())[0].getAddress();
   const config = getConfig();
-  const FEE_ADDR = deployer;
-  const FEE_BPS = "150";
+  const FEE_ADDR = "0xC29d5eB3d4baBa9b23753B00b8F048ec0431E358"; // og market treasury
+  const SELLER_ADDR = "0xC29d5eB3d4baBa9b23753B00b8F048ec0431E358"; // og market treasury
+  const FEE_BPS = "0";
   const WNATIVE_RELAYER = config.WnativeRelayer;
   const WNATIVE = config.Tokens.WBNB;
   const PRICE_SLOPE = [
     {
-      categoryId: 0,
-      price: parseEther("0.000161"),
-      slope: 10000,
-    },
-    {
-      categoryId: 0,
-      price: parseEther("0.000269"),
-      slope: 5000,
-    },
-    {
-      categoryId: 0,
-      price: parseEther("0.000359"),
-      slope: 2000,
-    },
-    {
       categoryId: 1,
-      price: parseEther("0.000282"),
+      price: parseEther("2.18"),
       slope: 10000,
     },
     {
       categoryId: 1,
-      price: parseEther("0.000493"),
+      price: parseEther("3.28"),
       slope: 5000,
     },
     {
       categoryId: 1,
-      price: parseEther("0.000669"),
+      price: parseEther("4.28"),
       slope: 2000,
     },
     {
       categoryId: 2,
-      price: parseEther("0.002486"),
+      price: parseEther("3.38"),
       slope: 10000,
     },
     {
       categoryId: 2,
-      price: parseEther("0.004616"),
+      price: parseEther("5.08"),
       slope: 5000,
     },
     {
       categoryId: 2,
-      price: parseEther("0.006392"),
+      price: parseEther("6.88"),
+      slope: 2000,
+    },
+    {
+      categoryId: 3,
+      price: parseEther("29.88"),
+      slope: 10000,
+    },
+    {
+      categoryId: 3,
+      price: parseEther("44.78"),
+      slope: 5000,
+    },
+    {
+      categoryId: 3,
+      price: parseEther("58.88"),
       slope: 2000,
     },
   ];
@@ -111,6 +112,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await ogNftOffering.deployed();
     console.log(`>> Deployed at ${ogNftOffering.address}`);
     console.log(`>> ✅ Done Deploying OGNFTOffering`);
+
+    console.log(`>> Execute Transaction to set governance role to ${SELLER_ADDR}`);
+    estimatedGas = await ogNftOffering.estimateGas.grantRole(await ogNftOffering.GOVERNANCE_ROLE(), SELLER_ADDR);
+    tx = await ogNftOffering.grantRole(await ogNftOffering.GOVERNANCE_ROLE(), SELLER_ADDR, {
+      gasLimit: estimatedGas.add(100000),
+    });
+    await tx.wait();
+    console.log(`>> returned tx hash: ${tx.hash}`);
+    console.log("✅ Done");
 
     const ogNFT = OGNFT__factory.connect(config.OGNFT, (await ethers.getSigners())[0]) as OGNFT;
     console.log(`>> Execute Transaction to set minter of an OG nft to ${ogNftOffering.address}`);

@@ -21,25 +21,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-
-  // Master Barista
-  const BONUS_MULTIPLIER = 8;
-  const BONUS_END_BLOCK = "11878376";
-  const BONUS_LOCK_BPS = "6000";
-  const LATTE_PER_BLOCK = ethers.utils.parseEther("1");
-  const LATTE_START_BLOCK = "9287828";
-  const TREASURY_ADDRESS = "";
-
-  // LATTE token
-  const GOVERNOR_ADDRESS = "0x864e90222f99a70aeECa036Ffc7d12cC4b3313B4";
-  const LATTE_START_RELEASE_BLOCK = "9287828";
-  const LATTE_END_RELEASE_BLOCK = "14470376";
-  const INITIAL_DEPLOYER_LATTE_FEE = ethers.utils.parseEther("2");
-
   const { deployments, getNamedAccounts, network } = hre;
   const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();
+  // Master Barista
+  const BONUS_MULTIPLIER = 8;
+  const BONUS_END_BLOCK = "11472088";
+  const BONUS_LOCK_BPS = "6000";
+  const LATTE_PER_BLOCK = ethers.utils.parseEther("10");
+  const LATTE_START_BLOCK = "11068888";
+  const TREASURY_ADDRESS = "0xE86b7924d09aF2a2dB62471667191B1De307E17f";
+
+  // LATTE token
+  const GOVERNOR_ADDRESS = deployer;
+  const LATTE_START_RELEASE_BLOCK = "13948888";
+  const LATTE_END_RELEASE_BLOCK = "19132888";
+  const INITIAL_DEPLOYER_LATTE_FEE = ethers.utils.parseEther("2");
+
   await withNetworkFile(async () => {
     /// DEPLOY LATTE
     await deploy("LATTE", {

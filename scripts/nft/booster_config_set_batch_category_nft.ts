@@ -26,21 +26,21 @@ async function main() {
   const PARAMS: ISetBatchCategoryNftParams = [
     {
       nftAddress: config.LatteNFT,
-      nftCategoryId: 0,
-      maxEnergy: parseEther("10000").toString(),
-      boostBps: "100",
-    },
-    {
-      nftAddress: config.LatteNFT,
       nftCategoryId: 1,
-      maxEnergy: parseEther("10000").toString(),
-      boostBps: "100",
+      maxEnergy: parseEther("8888").toString(),
+      boostBps: "5000",
     },
     {
       nftAddress: config.LatteNFT,
       nftCategoryId: 2,
-      maxEnergy: parseEther("10000").toString(),
-      boostBps: "100",
+      maxEnergy: parseEther("8888").toString(),
+      boostBps: "3500",
+    },
+    {
+      nftAddress: config.LatteNFT,
+      nftCategoryId: 3,
+      maxEnergy: parseEther("8888").toString(),
+      boostBps: "2500",
     },
   ];
 

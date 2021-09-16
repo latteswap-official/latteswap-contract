@@ -26,17 +26,17 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const CATEGORIES: IOwnerTokenParams = [
-    // {
-    //   CATEGORY_ID: 0,
-    //   POOL_ALLOC_BPS: 300,
-    // },
-    // {
-    //   CATEGORY_ID: 1,
-    //   POOL_ALLOC_BPS: 300,
-    // },
+    {
+      CATEGORY_ID: 1,
+      POOL_ALLOC_BPS: 500,
+    },
     {
       CATEGORY_ID: 2,
-      POOL_ALLOC_BPS: 325,
+      POOL_ALLOC_BPS: 500,
+    },
+    {
+      CATEGORY_ID: 3,
+      POOL_ALLOC_BPS: 500,
     },
   ];
 
@@ -53,8 +53,8 @@ async function main() {
       )[0]
     )) as OGOwnerToken__factory;
     const ogOwnerToken = (await upgrades.deployProxy(OGOwnerToken, [
-      `og_owner_cat${CATEGORY.CATEGORY_ID}`,
-      `og_owner_cat${CATEGORY.CATEGORY_ID}`,
+      `OG_OWNER_CATEGORY_${CATEGORY.CATEGORY_ID}`,
+      `OG_OWNER_CATEGORY_${CATEGORY.CATEGORY_ID}`,
       config.Timelock,
     ])) as OGOwnerToken;
     await ogOwnerToken.deployed();
@@ -78,6 +78,7 @@ async function main() {
     tx = await ogNFT.setCategoryOGOwnerToken(CATEGORY.CATEGORY_ID, ogOwnerToken.address, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
 

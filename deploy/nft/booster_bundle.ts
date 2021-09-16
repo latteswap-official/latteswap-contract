@@ -56,6 +56,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     tx = await boosterConfig.setCallerAllowance(booster.address, true, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> Done Adding a Booster as a BoosterConfig's Caller Allowance with tx hash ${tx.hash}`);
     console.log(`>> ✅ Done Adding a Booster as a BoosterConfig's Caller Allowance`);
 
@@ -68,6 +69,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     tx = await wNativeRelayer.setCallerOk([booster.address], true, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
   });

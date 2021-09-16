@@ -21,16 +21,20 @@ async function main() {
   */
   const CATEGORIES: ICategories = [
     {
+      NAME: "DEFAULT CATEGORY",
+      URI: "",
+    },
+    {
       NAME: "Light Roast",
-      URI: "/lightroast.json",
+      URI: "lightroast.json",
     },
     {
       NAME: "Medium Roast",
-      URI: "/mediumroast.json",
+      URI: "mediumroast.json",
     },
     {
       NAME: "Dark Roast",
-      URI: "/darkroast.json",
+      URI: "darkroast.json",
     },
   ];
 

@@ -16,7 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   */
 
   const config = getConfig();
-  const BASE_URI = "ipfs://QmU2ehA8Uz64GAaUBjQHyZr7a3n8FMggxptPyzdAdpc1sS";
+  const BASE_URI = "ipfs://QmU2ehA8Uz64GAaUBjQHyZr7a3n8FMggxptPyzdAdpc1sS/";
   const LATTE_TOKEN = config.Tokens.LATTE;
   const MASTER_BARISTA = config.MasterBarista;
 
@@ -24,9 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`>> Deploying OGNFT`);
   await withNetworkFile(async () => {
     const OGNFT = (await ethers.getContractFactory("OGNFT", (await ethers.getSigners())[0])) as OGNFT__factory;
-    const ogNFT = (await upgrades.deployProxy(OGNFT, [BASE_URI, LATTE_TOKEN, MASTER_BARISTA], {
-      initializer: "initialize(string,address,address)",
-    })) as OGNFT;
+    const ogNFT = (await upgrades.deployProxy(OGNFT, [BASE_URI, LATTE_TOKEN, MASTER_BARISTA])) as OGNFT;
     await ogNFT.deployed();
     console.log(`>> Deployed at ${ogNFT.address}`);
     console.log(`>> ✅ Done Deploying OGNFT`);

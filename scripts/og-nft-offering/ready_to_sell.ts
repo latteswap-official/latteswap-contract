@@ -26,24 +26,24 @@ async function main() {
   const config = getConfig();
   const PARAMS: ISellParams = [
     {
-      NFT_CATEGORY_ID: 0, // light roast
+      NFT_CATEGORY_ID: 1, // light roast
       AMOUNT: 1888,
-      START_BLOCK: 10728977,
-      END_BLOCK: 11315303,
+      START_BLOCK: 11047888,
+      END_BLOCK: 11472088,
       QUOTE_BEP20_TOKEN: config.Tokens.WBNB,
     },
     {
-      NFT_CATEGORY_ID: 1, // medium roast
+      NFT_CATEGORY_ID: 2, // medium roast
       AMOUNT: 888,
-      START_BLOCK: 10728977,
-      END_BLOCK: 11315303,
+      START_BLOCK: 11047888,
+      END_BLOCK: 11472088,
       QUOTE_BEP20_TOKEN: config.Tokens.WBNB,
     },
     {
-      NFT_CATEGORY_ID: 2, // dark roast
+      NFT_CATEGORY_ID: 3, // dark roast
       AMOUNT: 88,
-      START_BLOCK: 10728977,
-      END_BLOCK: 11315303,
+      START_BLOCK: 11047888,
+      END_BLOCK: 11472088,
       QUOTE_BEP20_TOKEN: config.Tokens.WBNB,
     },
   ];

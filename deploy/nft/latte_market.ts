@@ -25,8 +25,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   */
 
   const config = getConfig();
-  const FEE_ADDR = await (await ethers.getSigners())[0].getAddress();
-  const FEE_BPS = "150";
+  const FEE_ADDR = "0x1E70d4B0F723D660E99B9a404fca1548717034aD"; // latte market treasury
+  const SELLER_ADDR = "0x1E70d4B0F723D660E99B9a404fca1548717034aD"; // latte market treasury
+  const FEE_BPS = "0";
   const WNATIVE_RELAYER = config.WnativeRelayer;
   const WNATIVE = config.Tokens.WBNB;
   // Deploy LatteMarket
@@ -48,11 +49,22 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await latteMarket.deployed();
     console.log(`>> Deployed at ${latteMarket.address}`);
     console.log(`>> ✅ Done Deploying LatteMarket`);
+
     console.log(`>> Execute Transaction to set support nft of ${latteMarket.address} to ${[config.LatteNFT]}`);
     estimatedGas = await latteMarket.estimateGas.setSupportNFT([config.LatteNFT], true);
     tx = await latteMarket.setSupportNFT([config.LatteNFT], true, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
+    console.log(`>> returned tx hash: ${tx.hash}`);
+    console.log("✅ Done");
+
+    console.log(`>> Execute Transaction to set governance role to ${SELLER_ADDR}`);
+    estimatedGas = await latteMarket.estimateGas.grantRole(await latteMarket.GOVERNANCE_ROLE(), SELLER_ADDR);
+    tx = await latteMarket.grantRole(await latteMarket.GOVERNANCE_ROLE(), SELLER_ADDR, {
+      gasLimit: estimatedGas.add(100000),
+    });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
 
@@ -62,6 +74,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     tx = await latteNFT.grantRole(await latteNFT.MINTER_ROLE(), latteMarket.address, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
 
@@ -74,6 +87,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     tx = await wNativeRelayer.setCallerOk([latteMarket.address], true, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
   });

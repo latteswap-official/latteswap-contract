@@ -21,8 +21,20 @@ async function main() {
   */
   const CATEGORIES: ICategories = [
     {
+      NAME: "DEFAULT CATEGORY",
+      URI: "",
+    },
+    {
+      NAME: "Soy Milk",
+      URI: "/soymilk.json",
+    },
+    {
       NAME: "Almond Milk",
       URI: "/almondmilk.json",
+    },
+    {
+      NAME: "Whole Milk",
+      URI: "/wholemilk.json",
     },
   ];
 
@@ -34,6 +46,7 @@ async function main() {
     const tx = await latteNFT.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
   }
