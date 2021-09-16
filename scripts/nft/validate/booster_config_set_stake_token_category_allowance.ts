@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
-import { BoosterConfig, BoosterConfig__factory } from "../../typechain";
-import { getConfig, withNetworkFile } from "../../utils";
+import { BoosterConfig, BoosterConfig__factory } from "../../../typechain";
+import { getConfig, withNetworkFile } from "../../../utils";
 
 interface ISetStakingTokenBoosterAllowanceParam {
   stakingToken: string;
@@ -432,19 +432,28 @@ async function main() {
     (await ethers.getSigners())[0]
   ) as BoosterConfig;
 
-  let tx, estimatedGas;
   for (const STAKING_POOL of STAKING_POOLS) {
     console.log(
-      `>> Execute BoosterConfig Transaction to setStakingTokenCategoryAllowance ${STAKING_POOL.stakingToken}`
+      `>> Execute BoosterConfig Transaction to check StakingTokenCategoryAllowance ${STAKING_POOL.stakingToken}`
     );
-    console.table(STAKING_POOL.allowance);
-    estimatedGas = await boosterConfig.estimateGas.setStakingTokenCategoryAllowance(STAKING_POOL);
-    tx = await boosterConfig.setStakingTokenCategoryAllowance(STAKING_POOL, {
-      gasLimit: estimatedGas.add(100000),
-    });
-    await tx.wait();
-    console.log(`>> returned add a staking token pool tx hash: ${tx.hash}`);
-    console.log("✅ Done");
+
+    const results = await Promise.all(
+      STAKING_POOL.allowance.map(async (allowance) => {
+        const allowed = await boosterConfig.categoryNftAllowanceConfig(
+          STAKING_POOL.stakingToken,
+          allowance.nftAddress,
+          allowance.nftCategoryId
+        );
+        return {
+          case: `${STAKING_POOL.stakingToken} - ${allowance.nftAddress} - ${allowance.nftCategoryId}`,
+          expected: allowance.allowance,
+          actual: allowed,
+          matched: allowed === allowance.allowance,
+        };
+      })
+    );
+
+    console.table(results);
   }
 }
 

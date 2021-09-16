@@ -20,7 +20,7 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const latteMarketAddr = "0x986018cbEf38760a137425B00cC4DA27c6F0dB2a";
+  const latteMarketAddr = "0x288f26D5Ed901e290D713Db86142302AF8266b31";
   const wnativeRelayerAddr = config.WnativeRelayer;
   const latteNFTAddr = config.LatteNFT;
   const feeAddr = "0x1E70d4B0F723D660E99B9a404fca1548717034aD"; // latte market treasury

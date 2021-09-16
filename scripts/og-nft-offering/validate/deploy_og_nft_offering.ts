@@ -20,7 +20,7 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const ogNFTOfferingAddr = "0x0EA1fE8a079337d573D426dBDB91BCA5079Cc5E2";
+  const ogNFTOfferingAddr = "0xa4FD125A4384faf310c1e8F7b3cE87e8b423B100";
   const wnativeRelayerAddr = config.WnativeRelayer;
   const ogNFTAddr = config.OGNFT;
   const feeAddr = "0xC29d5eB3d4baBa9b23753B00b8F048ec0431E358"; // og market treasury

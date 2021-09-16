@@ -26,8 +26,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const config = getConfig();
   const FEE_ADDR = "0x1E70d4B0F723D660E99B9a404fca1548717034aD"; // latte market treasury
-  const SELLER_ADDR = "0x1E70d4B0F723D660E99B9a404fca1548717034aD"; // latte market treasury
   const FEE_BPS = "0";
+  const SELLER_ADDR = "0x1E70d4B0F723D660E99B9a404fca1548717034aD";
   const WNATIVE_RELAYER = config.WnativeRelayer;
   const WNATIVE = config.Tokens.WBNB;
   // Deploy LatteMarket
