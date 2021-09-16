@@ -115,7 +115,7 @@ describe("Booster", () => {
         });
         // set booster nft allowance to be false / revert case
         await boosterConfig.smodify.put({
-          _boosterNftAllowance: {
+          boosterNftAllowanceConfig: {
             [stakingTokens[0].address]: {
               [latteNft.address]: {
                 1: false,
@@ -140,7 +140,7 @@ describe("Booster", () => {
         });
         // set booster nft allowance to be false / revert case
         await boosterConfig.smodify.put({
-          _boosterNftAllowance: {
+          boosterNftAllowanceConfig: {
             [stakingTokens[0].address]: {
               [nftToken.address]: {
                 1: true,
@@ -173,7 +173,7 @@ describe("Booster", () => {
             });
             // set booster nft allowance to be false / revert case
             await boosterConfig.smodify.put({
-              _boosterNftAllowance: {
+              boosterNftAllowanceConfig: {
                 [stakingTokens[0].address]: {
                   [nftToken.address]: {
                     1: true,
@@ -207,7 +207,7 @@ describe("Booster", () => {
             });
             // set booster nft allowance to be false / revert case
             await boosterConfig.smodify.put({
-              _boosterNftAllowance: {
+              boosterNftAllowanceConfig: {
                 [stakingTokens[0].address]: {
                   [nftToken.address]: {
                     1: true,
@@ -246,7 +246,7 @@ describe("Booster", () => {
           });
           // set booster nft allowance to be false / revert case
           await boosterConfig.smodify.put({
-            _boosterNftAllowance: {
+            boosterNftAllowanceConfig: {
               [stakingTokens[0].address]: {
                 [nftToken.address]: {
                   1: true,
@@ -283,7 +283,7 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [stakingTokens[0].address]: true,
               },
-              _boosterNftAllowance: {
+              boosterNftAllowanceConfig: {
                 [stakingTokens[0].address]: {
                   [nftToken.address]: {
                     1: true,
@@ -291,7 +291,7 @@ describe("Booster", () => {
                   },
                 },
               },
-              _boosterEnergyInfo: {
+              boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     currentEnergy: parseEther("10").toString(),
@@ -378,7 +378,7 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [stakingTokens[0].address]: true,
               },
-              _boosterNftAllowance: {
+              boosterNftAllowanceConfig: {
                 [stakingTokens[0].address]: {
                   [nftToken.address]: {
                     1: true,
@@ -389,7 +389,7 @@ describe("Booster", () => {
               callerAllowance: {
                 [booster.address]: true,
               },
-              _boosterEnergyInfo: {
+              boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     updatedAt: 1,
@@ -500,7 +500,7 @@ describe("Booster", () => {
         });
         // set booster nft allowance to be false / revert case
         await boosterConfig.smodify.put({
-          _boosterNftAllowance: {
+          boosterNftAllowanceConfig: {
             [stakingTokens[0].address]: {
               [nftToken.address]: {
                 1: true,
@@ -546,14 +546,14 @@ describe("Booster", () => {
             stakeTokenAllowance: {
               [stakingTokens[0].address]: true,
             },
-            _boosterNftAllowance: {
+            boosterNftAllowanceConfig: {
               [stakingTokens[0].address]: {
                 [nftToken.address]: {
                   1: true,
                 },
               },
             },
-            _boosterEnergyInfo: {
+            boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: parseEther("10").toString(),
@@ -640,14 +640,14 @@ describe("Booster", () => {
             stakeTokenAllowance: {
               [stakingTokens[0].address]: true,
             },
-            _boosterNftAllowance: {
+            boosterNftAllowanceConfig: {
               [stakingTokens[0].address]: {
                 [nftToken.address]: {
                   1: true,
                 },
               },
             },
-            _boosterEnergyInfo: {
+            boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: "0",
@@ -737,7 +737,7 @@ describe("Booster", () => {
             [stakingTokens[0].address]: true,
             [stakingTokens[1].address]: true,
           },
-          _boosterNftAllowance: {
+          boosterNftAllowanceConfig: {
             [stakingTokens[0].address]: {
               [nftToken.address]: {
                 1: true,
@@ -749,7 +749,7 @@ describe("Booster", () => {
               },
             },
           },
-          _boosterEnergyInfo: {
+          boosterEnergyInfo: {
             [nftToken.address]: {
               1: {
                 currentEnergy: parseEther("10").toString(),
@@ -880,14 +880,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [stakingTokens[0].address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [stakingTokens[0].address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
@@ -965,14 +965,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [stakingTokens[0].address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [stakingTokens[0].address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
@@ -1061,14 +1061,14 @@ describe("Booster", () => {
             stakeTokenAllowance: {
               [stakingTokens[0].address]: true,
             },
-            _boosterNftAllowance: {
+            boosterNftAllowanceConfig: {
               [stakingTokens[0].address]: {
                 [nftToken.address]: {
                   1: true,
                 },
               },
             },
-            _boosterEnergyInfo: {
+            boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: parseEther("10").toString(),
@@ -1170,14 +1170,14 @@ describe("Booster", () => {
             stakeTokenAllowance: {
               [latteToken.address]: true,
             },
-            _boosterNftAllowance: {
+            boosterNftAllowanceConfig: {
               [latteToken.address]: {
                 [nftToken.address]: {
                   1: true,
                 },
               },
             },
-            _boosterEnergyInfo: {
+            boosterEnergyInfo: {
               [nftToken.address]: {
                 1: {
                   currentEnergy: parseEther("10").toString(),
@@ -1358,7 +1358,7 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [wbnb.address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [wbnb.address]: {
                     [nftToken.address]: {
                       1: true,
@@ -1366,7 +1366,7 @@ describe("Booster", () => {
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
@@ -1454,7 +1454,7 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [wbnb.address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [wbnb.address]: {
                     [nftToken.address]: {
                       1: true,
@@ -1462,7 +1462,7 @@ describe("Booster", () => {
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
@@ -1652,7 +1652,7 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [stakingTokens[0].address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [stakingTokens[0].address]: {
                     [nftToken.address]: {
                       1: true,
@@ -1660,7 +1660,7 @@ describe("Booster", () => {
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
@@ -1749,7 +1749,7 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [stakingTokens[0].address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [stakingTokens[0].address]: {
                     [nftToken.address]: {
                       1: true,
@@ -1757,7 +1757,7 @@ describe("Booster", () => {
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
@@ -1895,7 +1895,7 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [latteToken.address]: true,
               },
-              _boosterNftAllowance: {
+              boosterNftAllowanceConfig: {
                 [latteToken.address]: {
                   [nftToken.address]: {
                     1: true,
@@ -1903,7 +1903,7 @@ describe("Booster", () => {
                   },
                 },
               },
-              _boosterEnergyInfo: {
+              boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     currentEnergy: parseEther("10").toString(),
@@ -1986,7 +1986,7 @@ describe("Booster", () => {
               stakeTokenAllowance: {
                 [latteToken.address]: true,
               },
-              _boosterNftAllowance: {
+              boosterNftAllowanceConfig: {
                 [latteToken.address]: {
                   [nftToken.address]: {
                     1: true,
@@ -1994,7 +1994,7 @@ describe("Booster", () => {
                   },
                 },
               },
-              _boosterEnergyInfo: {
+              boosterEnergyInfo: {
                 [nftToken.address]: {
                   1: {
                     currentEnergy: "0",
@@ -2188,14 +2188,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [wbnb.address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [wbnb.address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
@@ -2287,14 +2287,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [wbnb.address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [wbnb.address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
@@ -2389,14 +2389,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [wbnb.address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [wbnb.address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
@@ -2486,14 +2486,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [wbnb.address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [wbnb.address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
@@ -2646,14 +2646,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [stakingTokens[0].address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [stakingTokens[0].address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: parseEther("10").toString(),
@@ -2748,14 +2748,14 @@ describe("Booster", () => {
                 stakeTokenAllowance: {
                   [stakingTokens[0].address]: true,
                 },
-                _boosterNftAllowance: {
+                boosterNftAllowanceConfig: {
                   [stakingTokens[0].address]: {
                     [nftToken.address]: {
                       1: true,
                     },
                   },
                 },
-                _boosterEnergyInfo: {
+                boosterEnergyInfo: {
                   [nftToken.address]: {
                     1: {
                       currentEnergy: "0",
@@ -2854,14 +2854,14 @@ describe("Booster", () => {
         stakeTokenAllowance: {
           [stakingTokens[0].address]: true,
         },
-        _boosterNftAllowance: {
+        boosterNftAllowanceConfig: {
           [stakingTokens[0].address]: {
             [nftToken.address]: {
               1: true,
             },
           },
         },
-        _boosterEnergyInfo: {
+        boosterEnergyInfo: {
           [nftToken.address]: {
             1: {
               currentEnergy: parseEther("10").toString(),
