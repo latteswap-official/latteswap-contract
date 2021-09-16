@@ -65,12 +65,14 @@ export async function masterBaristaUnitTestFixture(
     LATTE_PER_BLOCK,
     LATTE_START_BLOCK,
   ])) as MasterBarista;
-  await masterBarista.deployed();
+
+  await masterBarista.setPool(latteToken.address, 1);
+  await masterBarista.setPoolAllocBps(latteToken.address, 4000);
 
   await latteToken.transferOwnership(masterBarista.address);
   await beanBag.transferOwnership(masterBarista.address);
 
-  const stakingTokens = new Array();
+  const stakingTokens = [];
   for (let i = 0; i < 4; i++) {
     const SimpleToken = (await ethers.getContractFactory("SimpleToken", deployer)) as SimpleToken__factory;
     const simpleToken = await SimpleToken.deploy(`STOKEN${i}`, `STOKEN${i}`);
@@ -133,10 +135,13 @@ export async function masterBaristaE2ETestFixture(
   ])) as MasterBarista;
   await masterBarista.deployed();
 
+  await masterBarista.setPool(latteToken.address, 1);
+  await masterBarista.setPoolAllocBps(latteToken.address, 4000);
+
   await latteToken.transferOwnership(masterBarista.address);
   await beanBag.transferOwnership(masterBarista.address);
 
-  const stakingTokens = new Array();
+  const stakingTokens = [];
   for (let i = 0; i < 4; i++) {
     const SimpleToken = (await ethers.getContractFactory("SimpleToken", deployer)) as SimpleToken__factory;
     const simpleToken = await SimpleToken.deploy(`STOKEN${i}`, `STOKEN${i}`);
