@@ -89,7 +89,7 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@latteswap/latteswap-contract-config": "^0.0.1-rc.22",
+    "@latteswap/latteswap-contract-config": "^0.0.1-rc.24",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",

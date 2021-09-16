@@ -20,10 +20,10 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const CATEGORIES: ICategories = [
-    {
-      NAME: "DEFAULT CATEGORY",
-      URI: "",
-    },
+    // {
+    //   NAME: "BIN",
+    //   URI: "",
+    // },
     {
       NAME: "Light Roast",
       URI: "lightroast.json",
@@ -46,6 +46,7 @@ async function main() {
     const tx = await ogNFT.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
   }

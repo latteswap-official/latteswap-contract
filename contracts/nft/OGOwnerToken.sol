@@ -9,7 +9,7 @@ import "./interfaces/IOGOwnerToken.sol";
 
 contract OGOwnerToken is IOGOwnerToken, ERC20Upgradeable, OwnableUpgradeable {
   /// @dev just reserve for future use
-  address timelock;
+  address public timelock;
 
   mapping(address => bool) public okHolders;
 
