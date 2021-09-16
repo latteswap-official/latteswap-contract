@@ -113,13 +113,13 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     // add LATTE->LATTE pool
     pools.add(address(_latte));
     poolInfo[address(_latte)] = PoolInfo({
-      allocPoint: 1000,
+      allocPoint: 0,
       lastRewardBlock: startBlock,
       accLattePerShare: 0,
       accLattePerShareTilBonusEnd: 0,
       allocBps: 0
     });
-    totalAllocPoint = 1000;
+    totalAllocPoint = 0;
   }
 
   /// @dev only permitted funder can continue the execution
