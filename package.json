@@ -50,6 +50,9 @@
     "script:mainnet:farm:001": "hardhat --network mainnet run --no-compile ./scripts/farm/set_latte_per_block_to_master_barista.ts",
     "script:mainnet:farm:002": "hardhat --network mainnet run --no-compile ./scripts/farm/master_barista_set_pool.ts",
     "script:mainnet:farm:003": "hardhat --network mainnet run --no-compile ./scripts/farm/set_pool_alloc_bps.ts",
+    "script:mainnet:farm:timelock:000": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_pool_to_master_barista.ts",
+    "script:mainnet:farm:timelock:001": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_bps_to_master_barista.ts",
+    "script:mainnet:farm:timelock:002": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_point_to_master_barista.ts",
     "script:mainnet:farm:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
     "script:mainnet:farm:validate:000": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
 
