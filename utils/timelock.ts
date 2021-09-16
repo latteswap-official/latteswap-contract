@@ -37,7 +37,7 @@ export async function queueTransaction(
     return p;
   });
 
-  const executionTx = `await timelock.executionTransaction('${target}', '${value}', '${signature}', ethers.utils.defaultAbiCoder.encode([${paramTypesStr}], [${paramsStr}]), '${eta}')`;
+  const executionTx = `await timelock.executeTransaction('${target}', '${value}', '${signature}', ethers.utils.defaultAbiCoder.encode([${paramTypesStr}], [${paramsStr}]), '${eta}')`;
   console.log(`>> Done.`);
   return {
     info: info,
