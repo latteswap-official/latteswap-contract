@@ -69,7 +69,7 @@ contract LatteNFT is ILatteNFT, ERC721PausableUpgradeable, OwnableUpgradeable, A
   }
 
   function initialize(string memory _baseURI) public initializer {
-    ERC721Upgradeable.__ERC721_init("LATTE NFT", "LATTE");
+    ERC721Upgradeable.__ERC721_init("LATTE NFT", "LNFT");
     ERC721PausableUpgradeable.__ERC721Pausable_init();
     OwnableUpgradeable.__Ownable_init();
     AccessControlUpgradeable.__AccessControl_init();

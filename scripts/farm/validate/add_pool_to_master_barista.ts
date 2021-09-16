@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
-import { MasterBarista, MasterBarista__factory } from "../../typechain";
-import { withNetworkFile, getConfig } from "../../utils";
+import { MasterBarista, MasterBarista__factory } from "../../../typechain";
+import { withNetworkFile, getConfig } from "../../../utils";
 
 interface IStakingPool {
   STAKING_TOKEN_ADDRESS: string;
@@ -103,23 +103,30 @@ async function main() {
     },
   ];
 
+  const masterBarista = MasterBarista__factory.connect(
+    config.MasterBarista,
+    (await ethers.getSigners())[0]
+  ) as MasterBarista;
   for (const STAKING_POOL of STAKING_POOLS) {
-    const masterBarista = MasterBarista__factory.connect(
-      config.MasterBarista,
-      (await ethers.getSigners())[0]
-    ) as MasterBarista;
-
-    console.log(`>> Execute Transaction to add a staking token pool ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`);
-    const estimatedGas = await masterBarista.estimateGas.addPool(
-      STAKING_POOL.STAKING_TOKEN_ADDRESS,
-      STAKING_POOL.ALLOC_POINT
-    );
-    const tx = await masterBarista.addPool(STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_POINT, {
-      gasLimit: estimatedGas.add(100000),
-    });
-    await tx.wait();
-    console.log(`>> returned tx hash: ${tx.hash}`);
-    console.log("✅ Done");
+    const poolInfo = await masterBarista.poolInfo(STAKING_POOL.STAKING_TOKEN_ADDRESS);
+    console.table([
+      {
+        case: "allocPoint should be the same",
+        result: STAKING_POOL.ALLOC_POINT === poolInfo.allocPoint.toString(),
+      },
+      {
+        case: "acc latte per share should be 0",
+        result: poolInfo.accLattePerShare.toString() === "0",
+      },
+      {
+        case: "acc latte per share should be 0",
+        result: poolInfo.accLattePerShareTilBonusEnd.toString() === "0",
+      },
+      {
+        case: "acc latte per share should be 0",
+        result: poolInfo.allocBps.toString() === "0",
+      },
+    ]);
   }
 }
 

@@ -1,13 +1,13 @@
 import { ethers, network } from "hardhat";
-import { LatteNFT, LatteNFT__factory } from "../../typechain";
-import { getConfig, withNetworkFile } from "../../utils";
+import { MasterBarista, MasterBarista__factory } from "../../typechain";
+import { withNetworkFile, getConfig } from "../../utils";
 
-interface ICategory {
-  NAME: string;
-  URI: string;
+interface IStakingPool {
+  STAKING_TOKEN_ADDRESS: string;
+  ALLOC_BPS: string;
 }
 
-type ICategories = Array<ICategory>;
+type IStakingPools = Array<IStakingPool>;
 
 async function main() {
   /*
@@ -19,31 +19,29 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-  const CATEGORIES: ICategories = [
+  const config = getConfig();
+  const STAKING_POOLS: IStakingPools = [
     {
-      NAME: "BIN",
-      URI: "",
-    },
-    {
-      NAME: "Soy Milk",
-      URI: "soymilk.json",
-    },
-    {
-      NAME: "Almond Milk",
-      URI: "almondmilk.json",
-    },
-    {
-      NAME: "Whole Milk",
-      URI: "wholemilk.json",
+      STAKING_TOKEN_ADDRESS: "0xf1bE8ecC990cBcb90e166b71E368299f0116d421", // ibALPACA
+      ALLOC_BPS: "100",
     },
   ];
 
-  const config = getConfig();
-  const latteNFT = LatteNFT__factory.connect(config.LatteNFT, (await ethers.getSigners())[0]) as LatteNFT;
-  for (const CATEGORY of CATEGORIES) {
-    console.log(`>> Execute Transaction to add category info ${CATEGORY.NAME} with URI ${CATEGORY.URI}`);
-    const estimatedGas = await latteNFT.estimateGas.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI);
-    const tx = await latteNFT.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI, {
+  for (const STAKING_POOL of STAKING_POOLS) {
+    const masterBarista = MasterBarista__factory.connect(
+      config.MasterBarista,
+      (await ethers.getSigners())[0]
+    ) as MasterBarista;
+
+    console.log(
+      `>> Execute Transaction to set alloc bps for a staking token pool ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`
+    );
+    console.table(STAKING_POOL);
+    const estimatedGas = await masterBarista.estimateGas.setPoolAllocBps(
+      STAKING_POOL.STAKING_TOKEN_ADDRESS,
+      STAKING_POOL.ALLOC_BPS
+    );
+    const tx = await masterBarista.setPoolAllocBps(STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_BPS, {
       gasLimit: estimatedGas.add(100000),
     });
     await tx.wait();

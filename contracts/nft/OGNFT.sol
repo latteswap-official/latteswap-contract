@@ -84,7 +84,7 @@ contract OGNFT is
     IERC20Upgradeable _latte,
     IMasterBarista _masterBarista
   ) external initializer {
-    ERC721Upgradeable.__ERC721_init("OG NFT", "OG");
+    ERC721Upgradeable.__ERC721_init("OG NFT", "LOG");
     ERC721PausableUpgradeable.__ERC721Pausable_init();
     OwnableUpgradeable.__Ownable_init();
     AccessControlUpgradeable.__AccessControl_init();

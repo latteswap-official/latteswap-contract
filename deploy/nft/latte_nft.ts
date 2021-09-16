@@ -15,7 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   Check all variables below before execute the deployment script
   */
 
-  const BASE_URI = "ipfs://QmU2ehA8Uz64GAaUBjQHyZr7a3n8FMggxptPyzdAdpc1sS"; // mock json response
+  const BASE_URI = "ipfs://QmdmpNCN5HGb9tCiU8AmE6eiVYQKgqMJ1SeD488zPyXLVu/";
 
   // Deploy LatteNFT
   console.log(`>> Deploying LatteNFT`);

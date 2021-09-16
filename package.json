@@ -49,7 +49,9 @@
     "script:mainnet:farm:000": "hardhat --network mainnet run --no-compile ./scripts/farm/add_pool_to_master_barista.ts",
     "script:mainnet:farm:001": "hardhat --network mainnet run --no-compile ./scripts/farm/set_latte_per_block_to_master_barista.ts",
     "script:mainnet:farm:002": "hardhat --network mainnet run --no-compile ./scripts/farm/master_barista_set_pool.ts",
+    "script:mainnet:farm:003": "hardhat --network mainnet run --no-compile ./scripts/farm/set_pool_alloc_bps.ts",
     "script:mainnet:farm:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
+    "script:mainnet:farm:validate:000": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
 
     "script:mainnet:nft:000": "hardhat --network mainnet run --no-compile ./scripts/nft/latte_nft_add_category.ts",
     "script:mainnet:nft:001": "hardhat --network mainnet run --no-compile ./scripts/nft/latte_nft_batch_mint.ts",
@@ -87,7 +89,7 @@
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@latteswap/latteswap-contract-config": "^0.0.1-rc.15",
+    "@latteswap/latteswap-contract-config": "^0.0.1-rc.22",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
