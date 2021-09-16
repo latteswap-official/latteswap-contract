@@ -18,16 +18,50 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-
+  const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "",
-      ALLOC_POINT: "",
-      EXACT_ETA: "",
+      STAKING_TOKEN_ADDRESS: config.Tokens.BUSD,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.WBNB,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.ETH,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.BTCB,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.CAKE,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.XVS,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.EPS,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: config.Tokens.BELT,
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1632279600",
     },
   ];
 
-  const config = getConfig();
   const timelockTransactions: Array<ITimelockResponse> = [];
 
   for (const STAKING_POOL of STAKING_POOLS) {

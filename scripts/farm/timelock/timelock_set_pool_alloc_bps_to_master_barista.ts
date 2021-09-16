@@ -21,9 +21,9 @@ async function main() {
 
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "",
-      ALLOC_BPS: "",
-      EXACT_ETA: "",
+      STAKING_TOKEN_ADDRESS: "0x8D78C2ff1fB4FBA08c7691Dfeac7bB425a91c81A",
+      ALLOC_BPS: "1500",
+      EXACT_ETA: "1632123000",
     },
   ];
 
