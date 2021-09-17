@@ -75,6 +75,7 @@ export async function executeTransaction(
     ethers.utils.defaultAbiCoder.encode(paramTypes, params),
     eta
   );
+  await executeTx.wait();
   console.log(`>> Done.`);
 
   return {
