@@ -1,5 +1,5 @@
 import { ITimelockResponse, withNetworkFile } from "../../utils";
-import TimelockTransactions from "../results/mock.json";
+import TimelockTransactions from "../results/develop/1631858047_set-staking-token-bps.json";
 import { FileService, TimelockService } from "../../utils";
 
 async function main() {

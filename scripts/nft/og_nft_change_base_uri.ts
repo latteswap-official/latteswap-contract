@@ -12,7 +12,7 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-  const BASE_URI = "https://latteswap-nft-dev.s3.ap-southeast-1.amazonaws.com";
+  const BASE_URI = "ipfs://QmbU6iWqDKHn1zLJxTbiUznZzWDAFBQZEnxNGE3ruF4Hqr";
 
   const config = getConfig();
   const ogNFT = OGNFT__factory.connect(config.OGNFT, (await ethers.getSigners())[0]) as OGNFT;
