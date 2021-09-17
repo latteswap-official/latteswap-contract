@@ -67,6 +67,7 @@
     "script:mainnet:nft:008": "hardhat --network mainnet run --no-compile ./scripts/nft/booster_config_set_batch_category_nft.ts",
     "script:mainnet:nft:009": "hardhat --network mainnet run --no-compile ./scripts/nft/og_set_og_owner_token.ts",
     "script:mainnet:nft:010": "hardhat --network mainnet run --no-compile ./scripts/nft/booster_config_set_stake_token_category_allowance.ts",
+    "script:mainnet:nft:011": "hardhat --network mainnet run --no-compile ./scripts/nft/og_nft_change_base_uri.ts",
     "script:mainnet:nft:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster.ts",
     "script:mainnet:nft:upgrade:001": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster_config.ts",
     "script:mainnet:nft:upgrade:002": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_latte_nft.ts",
