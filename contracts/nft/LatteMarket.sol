@@ -166,7 +166,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
   }
 
   /// @dev set LATTE NFT metadata consisted of cap, startBlock, and endBlock
-  function setLatteNFTMetadata(LatteNFTMetadataParam[] calldata _params) external onlyOwner {
+  function setLatteNFTMetadata(LatteNFTMetadataParam[] calldata _params) external onlyGovernance {
     for (uint256 i = 0; i < _params.length; i++) {
       require(isNFTSupported[_params[i].nftAddress], "LatteMarket::setLatteNFTMetadata::unsupported nft");
       _setLatteNFTMetadata(_params[i]);
@@ -243,9 +243,16 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
   }
 
   /// @dev use to decrease a total cap by 1, will get reverted if no more to be decreased
-  function _decreaseCap(address _nftAddress, uint256 _categoryId) internal {
-    require(latteNFTMetadata[_nftAddress][_categoryId].cap > 0, "LatteMarket::_decreaseCap::maximum mint cap reached");
-    latteNFTMetadata[_nftAddress][_categoryId].cap = latteNFTMetadata[_nftAddress][_categoryId].cap.sub(1);
+  function _decreaseCap(
+    address _nftAddress,
+    uint256 _categoryId,
+    uint256 _size
+  ) internal {
+    require(
+      latteNFTMetadata[_nftAddress][_categoryId].cap >= _size,
+      "LatteMarket::_decreaseCap::maximum mint cap reached"
+    );
+    latteNFTMetadata[_nftAddress][_categoryId].cap = latteNFTMetadata[_nftAddress][_categoryId].cap.sub(_size);
   }
 
   /// @notice buyNFT based on its category id
@@ -277,7 +284,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     address _to,
     uint256 _size
   ) internal {
-    _decreaseCap(_nftAddress, _categoryId);
+    _decreaseCap(_nftAddress, _categoryId, _size);
     LatteNFTMetadata memory metadata = latteNFTMetadata[_nftAddress][_categoryId];
     uint256 totalPrice = metadata.price.mul(_size);
     uint256 feeAmount = totalPrice.mul(feePercentBps).div(1e4);
@@ -363,7 +370,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     uint256 _startBlock,
     uint256 _endBlock,
     IERC20Upgradeable _quoteToken
-  ) external whenNotPaused onlySupportedNFT(_nftAddress) onlyGovernance {
+  ) external whenNotPaused onlySupportedNFT(_nftAddress) onlyNonBiddingNFT(_nftAddress, _categoryId) onlyGovernance {
     latteNFTMetadata[_nftAddress][_categoryId].isBidding = true;
     _readyToSellNFTTo(
       _nftAddress,
@@ -409,6 +416,10 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     uint256 _endBlock,
     IERC20Upgradeable _quoteToken
   ) internal {
+    require(
+      latteNFTMetadata[_nftAddress][_categoryId].startBlock == 0,
+      "LatteMarket::_readyToSellNFTTo::duplicated entry"
+    );
     tokenCategorySellers[_nftAddress][_categoryId] = _to;
     _setLatteNFTMetadata(
       LatteNFTMetadataParam({
@@ -446,14 +457,11 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     onlyGovernance
     onlyBiddingNFT(_nftAddress, _categoryId)
   {
-    BidEntry memory toBeReturned = tokenBid[_nftAddress][_categoryId];
-    IERC20Upgradeable returnedQuoteBep20 = latteNFTMetadata[_nftAddress][_categoryId].quoteBep20;
+    BidEntry memory bidEntry = tokenBid[_nftAddress][_categoryId];
+    require(bidEntry.bidder == address(0), "LatteMarket::cancelBiddingNFT::auction already has a bidder");
     _delBidByCompositeId(_nftAddress, _categoryId);
     _cancelSellNFT(_nftAddress, _categoryId);
-    if (toBeReturned.bidder != address(0)) {
-      _safeUnwrap(returnedQuoteBep20, toBeReturned.bidder, toBeReturned.price);
-    }
-    emit CancelBidNFT(toBeReturned.bidder, _nftAddress, _categoryId);
+    emit CancelBidNFT(bidEntry.bidder, _nftAddress, _categoryId);
   }
 
   /// @dev internal function for cancelling a selling token
@@ -560,7 +568,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
       "LatteMarket::_concludeAuction::Unable to conclude auction now, bad block number"
     );
     address _seller = tokenCategorySellers[_nftAddress][_categoryId];
-    _decreaseCap(_nftAddress, _categoryId);
+    _decreaseCap(_nftAddress, _categoryId, 1);
     BidEntry memory bidEntry = tokenBid[_nftAddress][_categoryId];
     require(bidEntry.price != 0, "LatteMarket::_concludeAuction::Bidder does not exist");
     uint256 price = bidEntry.price;

@@ -37,7 +37,7 @@ contract OGNFT is LatteNFT, ReentrancyGuardUpgradeable, IMasterBaristaCallback {
     string memory _baseURI,
     IERC20Upgradeable _latte,
     IMasterBarista _masterBarista
-  ) public initializer {
+  ) external initializer {
     LatteNFT.initialize(_baseURI);
 
     masterBarista = _masterBarista;
@@ -134,17 +134,18 @@ contract OGNFT is LatteNFT, ReentrancyGuardUpgradeable, IMasterBaristaCallback {
   }
 
   /// @notice function for harvesting the reward
-  /// @param _tokenId a tokenId
-  function harvest(uint256 _tokenId) external whenNotPaused withOGOwnerToken(_tokenId) nonReentrant {
-    _harvestFromMasterBarista(_msgSender(), latteNFTToCategory[_tokenId]);
+  /// @param _categoryId a categoryId linked to an og owner token pool to be harvested
+  function harvest(uint256 _categoryId) external whenNotPaused nonReentrant {
+    require(address(ogOwnerToken[_categoryId]) != address(0), "OGNFT::harvest:: og owner token not set");
+    _harvestFromMasterBarista(_msgSender(), _categoryId);
   }
 
   /// @notice function for harvesting rewards in specified staking tokens
-  /// @param _tokenIds a set of tokenId to be harvested
-  function harvest(uint256[] calldata _tokenIds) external whenNotPaused nonReentrant {
-    for (uint256 i = 0; i < _tokenIds.length; i++) {
-      require(address(ogOwnerToken[_tokenIds[i]]) != address(0), "OGNFT::harvest:: og owner token not set");
-      _harvestFromMasterBarista(_msgSender(), latteNFTToCategory[_tokenIds[i]]);
+  /// @param _categoryIds a set of tokenId to be harvested
+  function harvest(uint256[] calldata _categoryIds) external whenNotPaused nonReentrant {
+    for (uint256 i = 0; i < _categoryIds.length; i++) {
+      require(address(ogOwnerToken[_categoryIds[i]]) != address(0), "OGNFT::harvest:: og owner token not set");
+      _harvestFromMasterBarista(_msgSender(), _categoryIds[i]);
     }
   }
 
@@ -165,7 +166,8 @@ contract OGNFT is LatteNFT, ReentrancyGuardUpgradeable, IMasterBaristaCallback {
   function masterBaristaCall(
     address, /*stakeToken*/
     address, /*userAddr*/
-    uint256 /*reward*/
+    uint256, /*reward*/
+    uint256 /*lastRewardBlock*/
   ) external override {
     return;
   }

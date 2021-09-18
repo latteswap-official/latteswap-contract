@@ -18,6 +18,8 @@ contract OGOwnerToken is IOGOwnerToken, ERC20Upgradeable, OwnableUpgradeable {
     _;
   }
 
+  event SetOkHolders(address indexed holder, bool isOk);
+
   function initialize(
     string calldata _name,
     string calldata _symbol,
@@ -28,18 +30,19 @@ contract OGOwnerToken is IOGOwnerToken, ERC20Upgradeable, OwnableUpgradeable {
     timelock = _timelock;
   }
 
-  function setOkHolders(address[] memory _okHolders, bool _isOk) public override onlyOwner {
+  function setOkHolders(address[] memory _okHolders, bool _isOk) external override onlyOwner {
     for (uint256 idx = 0; idx < _okHolders.length; idx++) {
       okHolders[_okHolders[idx]] = _isOk;
+      emit SetOkHolders(_okHolders[idx], _isOk);
     }
   }
 
-  function mint(address to, uint256 amount) public override onlyOwner {
+  function mint(address to, uint256 amount) external override onlyOwner {
     require(okHolders[to], "OGOwnerToken::mint:: unapproved holder");
     _mint(to, amount);
   }
 
-  function burn(address from, uint256 amount) public override onlyOwner {
+  function burn(address from, uint256 amount) external override onlyOwner {
     require(okHolders[from], "OGOwnerToken::burn:: unapproved holder");
     _burn(from, amount);
   }

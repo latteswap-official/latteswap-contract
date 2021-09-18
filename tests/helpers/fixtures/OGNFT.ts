@@ -12,8 +12,7 @@ import {
   MockWBNB,
   WNativeRelayer,
   OGOwnerToken,
-  MockMasterBarista,
-  MockOGOwnerToken,
+  MasterBarista,
 } from "../../../typechain";
 import { ethers, upgrades } from "hardhat";
 import { smoddit, ModifiableContract } from "@eth-optimism/smock";
@@ -46,8 +45,9 @@ export async function ogNFTUnitTestFixture(): Promise<IOGNFTUnitTestFixtureDTO> 
   const BeanBag = (await ethers.getContractFactory("BeanBag", deployer)) as BeanBag__factory;
   const beanBag = await BeanBag.deploy(latteToken.address);
   await beanBag.deployed();
-  const MasterBarista = await smoddit("MockMasterBarista", deployer);
-  const masterBarista: ModifiableContract = await MasterBarista.deploy(
+  const MasterBarista = await smoddit("MasterBarista", deployer);
+  const masterBarista: ModifiableContract = await MasterBarista.deploy();
+  await (masterBarista as unknown as MasterBarista).initialize(
     latteToken.address,
     beanBag.address,
     await dev.getAddress(),
@@ -58,7 +58,7 @@ export async function ogNFTUnitTestFixture(): Promise<IOGNFTUnitTestFixtureDTO> 
   await beanBag.transferOwnership(masterBarista.address);
 
   // Deploy mocked stake tokens
-  const stakingTokens = new Array();
+  const stakingTokens = [];
   for (let i = 0; i < 4; i++) {
     const SimpleToken = (await ethers.getContractFactory("SimpleToken", deployer)) as SimpleToken__factory;
     const simpleToken = (await SimpleToken.deploy(`STOKEN${i}`, `STOKEN${i}`)) as SimpleToken;
@@ -73,9 +73,9 @@ export async function ogNFTUnitTestFixture(): Promise<IOGNFTUnitTestFixtureDTO> 
   const wNativeRelayer = await WNativeRelayer.deploy(wbnb.address);
   await await wNativeRelayer.deployed();
   // Deploy OG Owner Token
-  const OGOwnerToken = await smoddit("MockOGOwnerToken", deployer);
-  const ogOwnerToken = await OGOwnerToken.deploy("OGOWNERTOKEN", "OGOWNERTOKEN", constants.AddressZero);
-  await ogOwnerToken.deployed();
+  const OGOwnerToken = await smoddit("OGOwnerToken", deployer);
+  const ogOwnerToken: ModifiableContract = await OGOwnerToken.deploy();
+  await (ogOwnerToken as unknown as OGOwnerToken).initialize("OGOWNERTOKEN", "OGOWNERTOKEN", constants.AddressZero);
   // Deploy OGNFT
   const OGNFT = (await ethers.getContractFactory("OGNFT", deployer)) as OGNFT__factory;
   const ogNFT = (await upgrades.deployProxy(OGNFT, ["baseURI", latteToken.address, masterBarista.address], {
@@ -84,8 +84,8 @@ export async function ogNFTUnitTestFixture(): Promise<IOGNFTUnitTestFixtureDTO> 
   await ogNFT.deployed();
   await ogNFT.setCategoryOGOwnerToken(0, ogOwnerToken.address);
 
-  await (ogOwnerToken as unknown as MockOGOwnerToken).setOkHolders([ogNFT.address, masterBarista.address], true);
-  await (ogOwnerToken as unknown as MockOGOwnerToken).transferOwnership(ogNFT.address);
+  await (ogOwnerToken as unknown as OGOwnerToken).setOkHolders([ogNFT.address, masterBarista.address], true);
+  await (ogOwnerToken as unknown as OGOwnerToken).transferOwnership(ogNFT.address);
 
   await masterBarista.smodify.put({
     stakeTokenCallerAllowancePool: {
@@ -93,11 +93,8 @@ export async function ogNFTUnitTestFixture(): Promise<IOGNFTUnitTestFixtureDTO> 
     },
   });
 
-  await (masterBarista as unknown as MockMasterBarista).addStakeTokenCallerContract(
-    ogOwnerToken.address,
-    ogNFT.address
-  );
-  await (masterBarista as unknown as MockMasterBarista).addPool(ogOwnerToken.address, "1000");
+  await (masterBarista as unknown as MasterBarista).addStakeTokenCallerContract(ogOwnerToken.address, ogNFT.address);
+  await (masterBarista as unknown as MasterBarista).addPool(ogOwnerToken.address, "1000");
 
   return {
     ogNFT,

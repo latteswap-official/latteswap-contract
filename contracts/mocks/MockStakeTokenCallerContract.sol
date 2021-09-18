@@ -88,7 +88,8 @@ contract MockStakeTokenCallerContract is IMasterBaristaCallback {
   function masterBaristaCall(
     address, /*stakeToken*/
     address, /*userAddr*/
-    uint256 /*unboostedReward*/
+    uint256, /*reward*/
+    uint256 /*lastRewardBlock*/
   ) external override {
     emit OnBeforeLock();
   }

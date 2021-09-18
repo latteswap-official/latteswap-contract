@@ -217,7 +217,7 @@ describe("LatteNFT", () => {
         await latteNFT.mint(await eve.getAddress(), 0, "tokenURI");
         await latteNFT.addCategoryInfo("foo", "bar");
         expect(await latteNFT.updateTokenCategory(0, 1));
-        let tokenCategory = await latteNFT.latteNFTToCategory(0);
+        const tokenCategory = await latteNFT.latteNFTToCategory(0);
         expect(tokenCategory).to.be.eq(1);
       });
     });
@@ -269,7 +269,7 @@ describe("LatteNFT", () => {
       context("when category 0", () => {
         it("should mint", async () => {
           expect(await latteNFT.mint(await eve.getAddress(), 0, "tokenUrl"));
-          let categoryId = await latteNFT.latteNFTToCategory(0);
+          const categoryId = await latteNFT.latteNFTToCategory(0);
           expect(categoryId).to.be.eq(0);
         });
       });
@@ -278,7 +278,7 @@ describe("LatteNFT", () => {
         it("should mint", async () => {
           await latteNFT.addCategoryInfo("foo", "bar");
           expect(await latteNFT.mint(await eve.getAddress(), 1, "tokenUrl"));
-          let categoryId = await latteNFT.latteNFTToCategory(0);
+          const categoryId = await latteNFT.latteNFTToCategory(0);
           expect(categoryId).to.be.eq(1);
         });
       });
@@ -366,43 +366,6 @@ describe("LatteNFT", () => {
       it("should setted latte name", async () => {
         expect(await latteNFT.setLatteName(0, "settedName"));
         expect(await latteNFT.latteNames(0)).to.be.eq("settedName");
-      });
-    });
-  });
-
-  describe("#burn()", () => {
-    context("when caller is not owner", async () => {
-      it("should reverted", async () => {
-        await expect(latteNFTAsBob.burn(0)).to.be.revertedWith("LatteNFT::onlyMinter::only MINTER role");
-      });
-    });
-
-    context("when caller used to be minter", async () => {
-      it("should reverted", async () => {
-        await latteNFT.revokeRole(await latteNFT.MINTER_ROLE(), await deployer.getAddress());
-        await expect(latteNFT.burn(0)).to.be.revertedWith("LatteNFT::onlyMinter::only MINTER role");
-      });
-    });
-
-    context("when paused", async () => {
-      it("should reverted", async () => {
-        await latteNFT.mint(await eve.getAddress(), 0, "tokenURI");
-        await latteNFT.pause();
-        await expect(latteNFT.burn(0)).to.be.revertedWith("revert ERC721Pausable: token transfer while paused");
-      });
-    });
-
-    context("when burn", async () => {
-      it("should burn", async () => {
-        await latteNFT.mint(await eve.getAddress(), 0, "tokenURI");
-        expect(await latteNFT.burn(0));
-        expect((await latteNFT.categoryToLatteNFTList(await latteNFT.latteNFTToCategory(0))).length).to.be.eq(0);
-      });
-    });
-
-    context("when burn with does not exits", async () => {
-      it("should reverted", async () => {
-        await expect(latteNFT.burn(0)).to.be.revertedWith("LatteNFT::burn::tokenId not found");
       });
     });
   });

@@ -59,8 +59,8 @@ export async function boosterUnitTestFixture(
 
   // Deploy mocked MasterBarista
   const MasterBarista = await smoddit("MasterBarista", deployer);
-  const mockMasterBarista: ModifiableContract = await MasterBarista.deploy();
-  await (mockMasterBarista as unknown as MasterBarista).initialize(
+  const masterBarista: ModifiableContract = await MasterBarista.deploy();
+  await (masterBarista as unknown as MasterBarista).initialize(
     latteToken.address,
     beanBag.address,
     await dev.getAddress(),
@@ -68,8 +68,8 @@ export async function boosterUnitTestFixture(
     LATTE_START_BLOCK
   );
 
-  await latteToken.transferOwnership(mockMasterBarista.address);
-  await beanBag.transferOwnership(mockMasterBarista.address);
+  await latteToken.transferOwnership(masterBarista.address);
+  await beanBag.transferOwnership(masterBarista.address);
 
   // Deploy mocked stake tokens
   const stakingTokens = [];
@@ -110,7 +110,7 @@ export async function boosterUnitTestFixture(
   const Booster = (await ethers.getContractFactory("Booster", deployer)) as Booster__factory;
   const booster = (await upgrades.deployProxy(Booster, [
     latteToken.address,
-    mockMasterBarista.address,
+    masterBarista.address,
     mockBoosterConfig.address,
     wNativeRelayer.address,
     wbnb.address,
@@ -127,7 +127,7 @@ export async function boosterUnitTestFixture(
     LATTE_PER_BLOCK,
     LATTE_START_BLOCK,
     booster,
-    masterBarista: mockMasterBarista,
+    masterBarista: masterBarista,
     boosterConfig: mockBoosterConfig,
     stakingTokens,
     latteToken,

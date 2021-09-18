@@ -9,29 +9,31 @@ import {
   WNativeRelayer__factory,
   WNativeRelayer,
   WBNB,
-  LatteMarket__factory,
-  LatteMarket,
   LatteNFT,
 } from "../../../typechain";
 import { ModifiableContract, smoddit } from "@eth-optimism/smock";
 import { latestBlockNumber } from "../time";
+import { OGNFTOffering__factory } from "../../../typechain/factories/OGNFTOffering__factory";
+import { OGNFTOffering } from "../../../typechain/OGNFTOffering";
+import { parseEther } from "@ethersproject/units";
 
-export interface ILatteMarketUnitTestFixtureDTO {
+export interface IOgOfferingUnitTestFixtureDTO {
   FEE_ADDR: string;
   FEE_BPS: number;
   stakingTokens: Array<SimpleToken>;
   wbnb: MockWBNB;
   wNativeRelayer: WNativeRelayer;
-  latteNFT: ModifiableContract;
-  latteMarket: LatteMarket;
+  ogNFT: ModifiableContract;
+  ogOffering: OGNFTOffering;
   startingBlock: BigNumber;
+  priceModel: ModifiableContract;
   signatureFn: (signer: Signer, msg?: string) => Promise<string>;
 }
 
-export async function latteMarketUnitTestFixture(
+export async function ogOfferingUnitTestFixture(
   maybeWallets?: Wallet[],
   maybeProvider?: MockProvider
-): Promise<ILatteMarketUnitTestFixtureDTO> {
+): Promise<IOgOfferingUnitTestFixtureDTO> {
   const [deployer, bob, alice, dev] = await ethers.getSigners();
   const FEE_ADDR = await dev.getAddress();
   const FEE_BPS = 1000;
@@ -58,16 +60,40 @@ export async function latteMarketUnitTestFixture(
   const wNativeRelayer = await WNativeRelayer.deploy(wbnb.address);
   await await wNativeRelayer.deployed();
 
-  const LatteMarket = (await ethers.getContractFactory("LatteMarket", deployer)) as LatteMarket__factory;
-  const latteMarket = (await upgrades.deployProxy(LatteMarket, [
+  const TripleSlopeModel = await smoddit("TripleSlopePriceModel", deployer);
+  const priceModel = await TripleSlopeModel.deploy([
+    {
+      categoryId: 0,
+      price: parseEther("1.61"),
+      slope: 10000,
+    },
+    {
+      categoryId: 0,
+      price: parseEther("2.69"),
+      slope: 5000,
+    },
+    {
+      categoryId: 0,
+      price: parseEther("3.59"),
+      slope: 2000,
+    },
+  ]);
+  await priceModel.deployed();
+
+  const OGNFTOffering = (await ethers.getContractFactory("OGNFTOffering", deployer)) as OGNFTOffering__factory;
+  const ogOffering = (await upgrades.deployProxy(OGNFTOffering, [
+    latteNFT.address,
     FEE_ADDR,
     FEE_BPS,
     wNativeRelayer.address,
     wbnb.address,
-  ])) as LatteMarket;
-  await latteMarket.deployed();
+    priceModel.address,
+  ])) as OGNFTOffering;
+  await ogOffering.deployed();
 
-  await wNativeRelayer.setCallerOk([latteMarket.address], true);
+  await (latteNFT as unknown as LatteNFT).grantRole(await latteNFT.MINTER_ROLE(), ogOffering.address);
+
+  await wNativeRelayer.setCallerOk([ogOffering.address], true);
 
   const signatureFn = async (signer: Signer, msg = "I am an EOA"): Promise<string> => {
     return await signer.signMessage(ethers.utils.arrayify(ethers.utils.keccak256(ethers.utils.toUtf8Bytes(msg))));
@@ -80,8 +106,9 @@ export async function latteMarketUnitTestFixture(
     signatureFn,
     wbnb,
     wNativeRelayer,
-    latteNFT,
-    latteMarket,
+    ogNFT: latteNFT,
+    ogOffering,
     startingBlock,
-  } as ILatteMarketUnitTestFixtureDTO;
+    priceModel,
+  } as IOgOfferingUnitTestFixtureDTO;
 }
