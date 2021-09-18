@@ -64,7 +64,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();
-  withNetworkFile(async () => {
+  await withNetworkFile(async () => {
     for (let i = 0; i < MOCK_TOKENS.length; i++) {
       await deploy("SimpleToken", {
         from: deployer,

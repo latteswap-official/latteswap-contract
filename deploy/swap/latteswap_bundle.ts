@@ -9,10 +9,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!process.env.DEPLOYMENT_ENV) throw new Error("unspecified deployment env :(");
   const config = getConfig();
   const WBNB_ADDRESS = config.Tokens.WBNB;
-  const FEETO = "";
+  const FEETO = "0xCE5b06BE9EdDA82401c6289a4648c4591390C69a";
 
   const { deployer } = await getNamedAccounts();
-  withNetworkFile(async () => {
+  await withNetworkFile(async () => {
     await deploy("LatteSwapFactory", {
       from: deployer,
       args: [deployer],

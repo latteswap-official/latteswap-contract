@@ -12,3 +12,5 @@
 /yarn-error.log
 
 .openzeppelin/unknown-31337.json
+/scripts/results/*
+.openzeppelin/prod-rehearsal-1-unknown-56.json

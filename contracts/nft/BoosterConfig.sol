@@ -70,11 +70,11 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     CategoryAllowance[] allowance;
   }
 
-  mapping(address => mapping(uint256 => BoosterEnergyInfo)) internal _boosterEnergyInfo;
-  mapping(address => mapping(uint256 => CategoryEnergyInfo)) internal _categoryEnergyInfo;
+  mapping(address => mapping(uint256 => BoosterEnergyInfo)) public boosterEnergyInfo;
+  mapping(address => mapping(uint256 => CategoryEnergyInfo)) public categoryEnergyInfo;
 
-  mapping(address => mapping(address => mapping(uint256 => bool))) internal _boosterNftAllowance;
-  mapping(address => mapping(address => mapping(uint256 => bool))) internal _categoryNftAllowance;
+  mapping(address => mapping(address => mapping(uint256 => bool))) public boosterNftAllowanceConfig;
+  mapping(address => mapping(address => mapping(uint256 => bool))) public categoryNftAllowanceConfig;
 
   mapping(address => bool) public override stakeTokenAllowance;
 
@@ -137,12 +137,12 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
       uint256 boostBps
     )
   {
-    BoosterEnergyInfo memory boosterInfo = _boosterEnergyInfo[_nftAddress][_nftTokenId];
+    BoosterEnergyInfo memory boosterInfo = boosterEnergyInfo[_nftAddress][_nftTokenId];
     // if there is no preset booster energy info, use preset in category info
     // presume that it's not a preminted nft
     if (boosterInfo.updatedAt == 0) {
       uint256 categoryId = ILatteNFT(_nftAddress).latteNFTToCategory(_nftTokenId);
-      CategoryEnergyInfo memory categoryInfo = _categoryEnergyInfo[_nftAddress][categoryId];
+      CategoryEnergyInfo memory categoryInfo = categoryEnergyInfo[_nftAddress][categoryId];
       return (categoryInfo.maxEnergy, categoryInfo.maxEnergy, categoryInfo.boostBps);
     }
     // if there is an updatedAt, it's a preminted nft
@@ -160,11 +160,11 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
     uint256 _energyToBeConsumed
   ) external override onlyCaller {
     require(_nftAddress != address(0), "BoosterConfig::consumeEnergy::_nftAddress must not be address(0)");
-    BoosterEnergyInfo storage energy = _boosterEnergyInfo[_nftAddress][_nftTokenId];
+    BoosterEnergyInfo storage energy = boosterEnergyInfo[_nftAddress][_nftTokenId];
 
     if (energy.updatedAt == 0) {
       uint256 categoryId = ILatteNFT(_nftAddress).latteNFTToCategory(_nftTokenId);
-      CategoryEnergyInfo memory categoryEnergy = _categoryEnergyInfo[_nftAddress][categoryId];
+      CategoryEnergyInfo memory categoryEnergy = categoryEnergyInfo[_nftAddress][categoryId];
       require(categoryEnergy.updatedAt != 0, "BoosterConfig::consumeEnergy:: invalid nft to be updated");
       energy.maxEnergy = categoryEnergy.maxEnergy;
       energy.boostBps = categoryEnergy.boostBps;
@@ -216,7 +216,7 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
   /// @dev An internal function for setting booster NFT energy info
   /// @param _param a BoosterNFTParams {nftAddress, nftTokenId, maxEnergy, boostBps}
   function _setBoosterNFTEnergyInfo(BoosterNFTParams calldata _param) internal {
-    _boosterEnergyInfo[_param.nftAddress][_param.nftTokenId] = BoosterEnergyInfo({
+    boosterEnergyInfo[_param.nftAddress][_param.nftTokenId] = BoosterEnergyInfo({
       maxEnergy: _param.maxEnergy,
       currentEnergy: _param.maxEnergy,
       boostBps: _param.boostBps,
@@ -249,7 +249,7 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
   /// @dev An internal function for setting category NFT energy info, used for nft with non-preminted
   /// @param _param a CategoryNFTParams {nftAddress, nftCategoryId, maxEnergy, boostBps}
   function _setCategoryNFTEnergyInfo(CategoryNFTParams calldata _param) internal {
-    _categoryEnergyInfo[_param.nftAddress][_param.nftCategoryId] = CategoryEnergyInfo({
+    categoryEnergyInfo[_param.nftAddress][_param.nftCategoryId] = CategoryEnergyInfo({
       maxEnergy: _param.maxEnergy,
       boostBps: _param.boostBps,
       updatedAt: block.timestamp
@@ -266,7 +266,7 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
         stakeTokenAllowance[_param.stakingToken],
         "BoosterConfig::setStakingTokenCategoryAllowance:: bad staking token"
       );
-      _categoryNftAllowance[_param.stakingToken][_param.allowance[i].nftAddress][
+      categoryNftAllowanceConfig[_param.stakingToken][_param.allowance[i].nftAddress][
         _param.allowance[i].nftCategoryId
       ] = _param.allowance[i].allowance;
 
@@ -287,9 +287,9 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
         stakeTokenAllowance[_param.stakingToken],
         "BoosterConfig::setStakingTokenBoosterAllowance:: bad staking token"
       );
-      _boosterNftAllowance[_param.stakingToken][_param.allowance[i].nftAddress][_param.allowance[i].nftTokenId] = _param
-        .allowance[i]
-        .allowance;
+      boosterNftAllowanceConfig[_param.stakingToken][_param.allowance[i].nftAddress][
+        _param.allowance[i].nftTokenId
+      ] = _param.allowance[i].allowance;
 
       emit SetBoosterNFTAllowance(
         _param.stakingToken,
@@ -301,15 +301,15 @@ contract BoosterConfig is IBoosterConfig, OwnableUpgradeable, ReentrancyGuardUpg
   }
 
   /// @notice use for checking whether or not this nft supports an input stakeToken
-  /// @dev if not support when checking with token, need to try checking with category level (_categoryNftAllowance) as well since there should not be _boosterNftAllowance in non-preminted nft
+  /// @dev if not support when checking with token, need to try checking with category level (categoryNftAllowanceConfig) as well since there should not be boosterNftAllowanceConfig in non-preminted nft
   function boosterNftAllowance(
     address _stakeToken,
     address _nftAddress,
     uint256 _nftTokenId
   ) external view override returns (bool) {
-    if (!_boosterNftAllowance[_stakeToken][_nftAddress][_nftTokenId]) {
+    if (!boosterNftAllowanceConfig[_stakeToken][_nftAddress][_nftTokenId]) {
       uint256 categoryId = ILatteNFT(_nftAddress).latteNFTToCategory(_nftTokenId);
-      return _categoryNftAllowance[_stakeToken][_nftAddress][categoryId];
+      return categoryNftAllowanceConfig[_stakeToken][_nftAddress][categoryId];
     }
     return true;
   }

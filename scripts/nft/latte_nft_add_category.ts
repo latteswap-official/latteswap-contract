@@ -21,23 +21,32 @@ async function main() {
   */
   const CATEGORIES: ICategories = [
     {
-      NAME: "Soy Milk",
-      URI: "/soymilk.json",
+      NAME: "BIN",
+      URI: "",
     },
     {
-      NAME: "Milk Tea",
-      URI: "/milktea.json",
+      NAME: "Soy Milk",
+      URI: "soymilk.json",
+    },
+    {
+      NAME: "Almond Milk",
+      URI: "almondmilk.json",
+    },
+    {
+      NAME: "Whole Milk",
+      URI: "wholemilk.json",
     },
   ];
 
   const config = getConfig();
   const latteNFT = LatteNFT__factory.connect(config.LatteNFT, (await ethers.getSigners())[0]) as LatteNFT;
-  for (let CATEGORY of CATEGORIES) {
+  for (const CATEGORY of CATEGORIES) {
     console.log(`>> Execute Transaction to add category info ${CATEGORY.NAME} with URI ${CATEGORY.URI}`);
     const estimatedGas = await latteNFT.estimateGas.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI);
     const tx = await latteNFT.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
   }

@@ -115,7 +115,7 @@ describe("OGNFT", () => {
   describe("#categoryURI()", () => {
     context("when category is yet to be existed", () => {
       it("should revert", async () => {
-        await expect(ogNFT.categoryURI(99)).to.revertedWith("LatteNFT::onlyExistingCategoryId::categoryId not existed");
+        await expect(ogNFT.categoryURI(99)).to.revertedWith("OGNFT::onlyExistingCategoryId::categoryId not existed");
       });
     });
     context("when there is no baseURI", () => {
@@ -143,7 +143,7 @@ describe("OGNFT", () => {
   describe("#tokenURI()", () => {
     context("when category is yet to be existed", () => {
       it("should revert", async () => {
-        await expect(ogNFT.tokenURI(99)).to.revertedWith("LatteNFT::tokenURI:: token not existed");
+        await expect(ogNFT.tokenURI(99)).to.revertedWith("OGNFT::tokenURI:: token not existed");
       });
     });
     context("when there is no baseURI", () => {
@@ -181,7 +181,7 @@ describe("OGNFT", () => {
     context("when caller is not owner", async () => {
       it("should reverted", async () => {
         await expect(ogNFTAsBob.addCategoryInfo("NewCatagoryInfo", "/foo/bar")).to.be.revertedWith(
-          "LatteNFT::onlyGovernance::only GOVERNANCE role"
+          "OGNFT::onlyGovernance::only GOVERNANCE role"
         );
       });
     });
@@ -199,14 +199,14 @@ describe("OGNFT", () => {
     context("when category is yet to be existed", () => {
       it("should revert", async () => {
         await expect(ogNFT.updateCategoryInfo(99, "updatedCategoryName", "/foo/bar")).to.be.revertedWith(
-          "LatteNFT::onlyExistingCategoryId::categoryId not existed"
+          "OGNFT::onlyExistingCategoryId::categoryId not existed"
         );
       });
     });
     context("when caller is not owner", async () => {
       it("should reverted", async () => {
         await expect(ogNFTAsBob.updateCategoryInfo(0, "updatedCategoryName", "/foo/bar")).to.be.revertedWith(
-          "LatteNFT::onlyGovernance::only GOVERNANCE role"
+          "OGNFT::onlyGovernance::only GOVERNANCE role"
         );
       });
     });
@@ -234,14 +234,14 @@ describe("OGNFT", () => {
     context("when category is yet to be existed", () => {
       it("should revert", async () => {
         await expect(ogNFT.updateTokenCategory(0, 99)).to.be.revertedWith(
-          "LatteNFT::onlyExistingCategoryId::categoryId not existed"
+          "OGNFT::onlyExistingCategoryId::categoryId not existed"
         );
       });
     });
     context("when caller is not owner", async () => {
       it("should reverted", async () => {
         await expect(ogNFTAsBob.updateTokenCategory(0, 0)).to.be.revertedWith(
-          "LatteNFT::onlyGovernance::only GOVERNANCE role"
+          "OGNFT::onlyGovernance::only GOVERNANCE role"
         );
       });
     });
@@ -269,14 +269,14 @@ describe("OGNFT", () => {
     context("when category is yet to be existed", () => {
       it("should revert", async () => {
         await expect(ogNFT.mint(await alice.getAddress(), 99, "tokenUrl")).to.be.revertedWith(
-          "LatteNFT::onlyExistingCategoryId::categoryId not existed"
+          "OGNFT::onlyExistingCategoryId::categoryId not existed"
         );
       });
     });
     context("when caller is not owner", async () => {
       it("should reverted", async () => {
         await expect(ogNFTAsBob.mint(await alice.getAddress(), 1, "tokenUrl")).to.be.revertedWith(
-          "LatteNFT::onlyMinter::only MINTER role"
+          "OGNFT::onlyMinter::only MINTER role"
         );
       });
     });
@@ -285,7 +285,7 @@ describe("OGNFT", () => {
       it("should reverted", async () => {
         await ogNFT.revokeRole(await ogNFT.MINTER_ROLE(), await deployer.getAddress());
         await expect(ogNFT.mint(await alice.getAddress(), 1, "tokenUrl")).to.be.revertedWith(
-          "LatteNFT::onlyMinter::only MINTER role"
+          "OGNFT::onlyMinter::only MINTER role"
         );
       });
     });
@@ -423,14 +423,14 @@ describe("OGNFT", () => {
     context("when category is yet to be existed", () => {
       it("should revert", async () => {
         await expect(ogNFT.mintBatch(await alice.getAddress(), 99, "tokenURI", 100)).to.be.revertedWith(
-          "LatteNFT::onlyExistingCategoryId::categoryId not existed"
+          "OGNFT::onlyExistingCategoryId::categoryId not existed"
         );
       });
     });
     context("when caller is not owner", async () => {
       it("should reverted", async () => {
         await expect(ogNFTAsBob.mintBatch(await alice.getAddress(), 0, "tokenURI", 100)).to.be.revertedWith(
-          "LatteNFT::onlyMinter::only MINTER role"
+          "OGNFT::onlyMinter::only MINTER role"
         );
       });
     });
@@ -439,7 +439,7 @@ describe("OGNFT", () => {
       it("should reverted", async () => {
         await ogNFT.revokeRole(await ogNFT.MINTER_ROLE(), await deployer.getAddress());
         await expect(ogNFT.mintBatch(await alice.getAddress(), 0, "tokenURI", 100)).to.be.revertedWith(
-          "LatteNFT::onlyMinter::only MINTER role"
+          "OGNFT::onlyMinter::only MINTER role"
         );
       });
     });
@@ -456,7 +456,7 @@ describe("OGNFT", () => {
     context("when size is zero", async () => {
       it("should reverted", async () => {
         await expect(ogNFT.mintBatch(await alice.getAddress(), 0, "tokenURI", 0)).to.be.revertedWith(
-          "LatteNFT::mintBatch::size must be granter than zero"
+          "OGNFT::mintBatch::size must be granter than zero"
         );
       });
     });
@@ -620,7 +620,7 @@ describe("OGNFT", () => {
     context("when caller is not a governance", async () => {
       it("should reverted", async () => {
         await expect(ogNFTAsBob.setLatteName(0, "settedName")).to.be.revertedWith(
-          "LatteNFT::onlyGovernance::only GOVERNANCE role"
+          "OGNFT::onlyGovernance::only GOVERNANCE role"
         );
       });
     });
@@ -629,7 +629,7 @@ describe("OGNFT", () => {
       it("should reverted", async () => {
         await ogNFT.revokeRole(await ogNFT.GOVERNANCE_ROLE(), await deployer.getAddress());
         await expect(ogNFT.setLatteName(0, "settedName")).to.be.revertedWith(
-          "LatteNFT::onlyGovernance::only GOVERNANCE role"
+          "OGNFT::onlyGovernance::only GOVERNANCE role"
         );
       });
     });
@@ -676,8 +676,8 @@ describe("OGNFT", () => {
     context("when the own is not a governance", () => {
       it("should not be able to unpause or pause", async () => {
         await ogNFT.renounceRole(await ogNFT.GOVERNANCE_ROLE(), await deployer.getAddress());
-        await expect(ogNFT.pause()).to.revertedWith("LatteNFT::onlyGovernance::only GOVERNANCE role");
-        await expect(ogNFT.unpause()).to.revertedWith("LatteNFT::onlyGovernance::only GOVERNANCE role");
+        await expect(ogNFT.pause()).to.revertedWith("OGNFT::onlyGovernance::only GOVERNANCE role");
+        await expect(ogNFT.unpause()).to.revertedWith("OGNFT::onlyGovernance::only GOVERNANCE role");
       });
     });
   });

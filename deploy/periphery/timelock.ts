@@ -12,19 +12,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-
-  const ADMIN_ADDRESS = "0x212C2a2891227f39B48D655C5ecA0b1377daFF90";
-  const DELAY_IN_DAYS = 1;
-
   const { deployments, getNamedAccounts } = hre;
+  const { deployer } = await getNamedAccounts();
+  const ADMIN_ADDRESS = deployer;
+  const DELAY_IN_SEC = "21600";
+
   const { deploy } = deployments;
 
-  const { deployer } = await getNamedAccounts();
-
-  withNetworkFile(async () => {
+  await withNetworkFile(async () => {
     await deploy("Timelock", {
       from: deployer,
-      args: [ADMIN_ADDRESS, DELAY_IN_DAYS * 24 * 60 * 60],
+      args: [ADMIN_ADDRESS, DELAY_IN_SEC],
       log: true,
       deterministicDeployment: false,
     });

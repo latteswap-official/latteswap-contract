@@ -26,15 +26,21 @@ async function main() {
   const PARAMS: ISetBatchBoosterNftParams = [
     {
       nftAddress: config.LatteNFT,
-      nftTokenId: 0,
-      maxEnergy: parseEther("10000").toString(),
-      boostBps: "100",
+      nftTokenId: 13,
+      maxEnergy: parseEther("100").toString(),
+      boostBps: "10000",
     },
     {
       nftAddress: config.LatteNFT,
-      nftTokenId: 1,
-      maxEnergy: parseEther("10000").toString(),
-      boostBps: "100",
+      nftTokenId: 14,
+      maxEnergy: parseEther("100").toString(),
+      boostBps: "10000",
+    },
+    {
+      nftAddress: config.LatteNFT,
+      nftTokenId: 15,
+      maxEnergy: parseEther("100").toString(),
+      boostBps: "10000",
     },
   ];
 
@@ -43,14 +49,13 @@ async function main() {
     (await ethers.getSigners())[0]
   ) as BoosterConfig;
 
-  let tx, estimatedGas;
   console.log(
     `>> Execute BoosterConfig Transaction to setBatchBoosterNFTEnergyInfo ${PARAMS.map((param) => {
       return `${param.nftAddress}-${param.nftTokenId}`;
     })}`
   );
-  estimatedGas = await boosterConfig.estimateGas.setBatchBoosterNFTEnergyInfo(PARAMS);
-  tx = await boosterConfig.setBatchBoosterNFTEnergyInfo(PARAMS, {
+  const estimatedGas = await boosterConfig.estimateGas.setBatchBoosterNFTEnergyInfo(PARAMS);
+  const tx = await boosterConfig.setBatchBoosterNFTEnergyInfo(PARAMS, {
     gasLimit: estimatedGas.add(100000),
   });
   console.log(`>> returned add a staking token pool tx hash: ${tx.hash}`);

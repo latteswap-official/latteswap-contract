@@ -24,15 +24,15 @@ async function main() {
   const PARAMS: IMintBatchParams = [
     {
       TO: "0x06A7322cDDCBe5b714b712688331015790240547",
-      CATEGORY_ID: "1",
-      SIZE: 1,
+      CATEGORY_ID: "0",
+      SIZE: 2,
       TOKEN_URI: "",
     },
   ];
 
   const config = getConfig();
   const latteNFT = LatteNFT__factory.connect(config.LatteNFT, (await ethers.getSigners())[0]) as LatteNFT;
-  for (let PARAM of PARAMS) {
+  for (const PARAM of PARAMS) {
     console.log(
       `>> Execute Transaction to batch mint ${PARAM.CATEGORY_ID} to ${PARAM.TO} size ${PARAM.SIZE} with tokenURI ${PARAM.TOKEN_URI}`
     );
@@ -40,6 +40,7 @@ async function main() {
     const tx = await latteNFT.mintBatch(PARAM.TO, PARAM.CATEGORY_ID, PARAM.TOKEN_URI, PARAM.SIZE, {
       gasLimit: estimatedGas.add(100000),
     });
+    await tx.wait();
     console.log(`>> returned tx hash: ${tx.hash}`);
     console.log("✅ Done");
   }

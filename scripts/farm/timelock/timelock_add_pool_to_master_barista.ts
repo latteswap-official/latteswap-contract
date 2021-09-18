@@ -21,25 +21,25 @@ async function main() {
 
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "",
-      ALLOC_POINT: "",
-      EXACT_ETA: "",
+      STAKING_TOKEN_ADDRESS: "0xf1bE8ecC990cBcb90e166b71E368299f0116d421",
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1631857626",
     },
   ];
 
   const config = getConfig();
   const timelockTransactions: Array<ITimelockResponse> = [];
 
-  for (let STAKING_POOL of STAKING_POOLS) {
+  for (const STAKING_POOL of STAKING_POOLS) {
     console.log(">> Queue Transaction to add a staking token pool through Timelock");
     timelockTransactions.push(
       await TimelockService.queueTransaction(
         `adding staking token pool ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`,
         config.MasterBarista,
         "0",
-        "addPool(uint256,address)",
-        ["uint256", "address"],
-        [STAKING_POOL.ALLOC_POINT, STAKING_POOL.STAKING_TOKEN_ADDRESS],
+        "addPool(address,uint256)",
+        ["address", "uint256"],
+        [STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_POINT],
         STAKING_POOL.EXACT_ETA
       )
     );
