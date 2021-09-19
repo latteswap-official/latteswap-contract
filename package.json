@@ -40,6 +40,7 @@
     "script:mainnet:ownership:001": "hardhat --network mainnet run --no-compile ./scripts/ownership/transfer_ownership_of_latte_bean_to_master_barista.ts",
 
     "script:mainnet:timelock:000": "hardhat --network mainnet run --no-compile ./scripts/timelock/timelock_execution.ts",
+    "script:mainnet:timelock:timelock000": "hardhat --network mainnet run --no-compile ./scripts/timelock/timelock/change_delay.ts",
 
     "script:mainnet:swap:000": "hardhat --network mainnet run --no-compile ./scripts/swap/add_liquidity.ts",
     "script:mainnet:swap:001": "hardhat --network mainnet run --no-compile ./scripts/swap/get_deterministic_lp_address.ts",
