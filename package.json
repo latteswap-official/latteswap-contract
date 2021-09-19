@@ -71,6 +71,7 @@
     "script:mainnet:nft:011": "hardhat --network mainnet run --no-compile ./scripts/nft/og_nft_change_base_uri.ts",
     "script:mainnet:nft:timelock:000": "hardhat --network mainnet run --no-compile ./scripts/nft/timelock/timelock_set_stake_token_to_be_boosted.ts",
     "script:mainnet:nft:timelock:001": "hardhat --network mainnet run --no-compile ./scripts/nft/timelock/timelock_booster_config_set_stake_token_category_allowance.ts",
+    "script:mainnet:nft:timelock:002": "hardhat --network mainnet run --no-compile ./scripts/nft/timelock/upgrade_booster.ts",
     "script:mainnet:nft:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster.ts",
     "script:mainnet:nft:upgrade:001": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_booster_config.ts",
     "script:mainnet:nft:upgrade:002": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_latte_nft.ts",
@@ -85,11 +86,13 @@
     "script:mainnet:market:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/market/upgrade/upgrade_latte_market.ts",
     "script:mainnet:market:validate:000": "hardhat --network mainnet run --no-compile ./scripts/market/validate/deploy_latte_market.ts",
     "script:mainnet:market:validate:001": "hardhat --network mainnet run --no-compile ./scripts/market/validate/ready_to_sell.ts",
+    "script:mainnet:market:timelock:000": "hardhat --network mainnet run --no-compile ./scripts/market/timelock/upgrade.ts",
 
     "script:mainnet:ogNftOffering:000": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/ready_to_sell.ts",
     "script:mainnet:ogNftOffering:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/upgrade/upgrade_og_nft_offering.ts",
     "script:mainnet:ogNftOffering:validate:000": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/validate/deploy_og_nft_offering.ts",
     "script:mainnet:ogNftOffering:validate:001": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/validate/ready_to_sell.ts",
+    "script:mainnet:ogNftOffering:timelock:000": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/upgrade.ts",
     
     "script:mainnet:periphery:T000": "hardhat --network mainnet run --no-compile ./scripts/periphery/fund_me_dummies.ts"
   },
