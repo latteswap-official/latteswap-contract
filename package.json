@@ -93,6 +93,7 @@
     "script:mainnet:ogNftOffering:validate:000": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/validate/deploy_og_nft_offering.ts",
     "script:mainnet:ogNftOffering:validate:001": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/validate/ready_to_sell.ts",
     "script:mainnet:ogNftOffering:timelock:000": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/upgrade.ts",
+    "script:mainnet:ogNftOffering:timelock:001": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/timelock_set_buy_limit_count.ts",
     
     "script:mainnet:periphery:T000": "hardhat --network mainnet run --no-compile ./scripts/periphery/fund_me_dummies.ts"
   },
