@@ -235,7 +235,7 @@ describe("LatteMarket", () => {
   describe("#buyNFT", () => {
     context("when buying a non-support nft", () => {
       it("should revert", async () => {
-        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0)).to.revertedWith(
           "LatteMarket::onlySupportedNFT::unsupported nft"
         );
       });
@@ -255,7 +255,7 @@ describe("LatteMarket", () => {
         );
 
         // buying phase
-        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0)).to.revertedWith(
           "LatteMarket::withinBlockRange:: invalid block number"
         );
       });
@@ -273,26 +273,8 @@ describe("LatteMarket", () => {
           startingBlock.add(10),
           stakingTokens[0].address
         );
-        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0)).to.revertedWith(
           "LatteMarket::onlyNonBiddingNFT::only selling token can be used here"
-        );
-      });
-    });
-
-    context("when invalid signature", () => {
-      it("should revert", async () => {
-        await latteMarket.setSupportNFT([latteNFT.address], true);
-        await latteMarket.readyToSellNFT(
-          latteNFT.address,
-          0,
-          parseEther("10"),
-          1,
-          startingBlock.add(3),
-          startingBlock.add(10),
-          stakingTokens[0].address
-        );
-        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsDeployer)).to.revertedWith(
-          "LatteMarket::permit::INVALID_SIGNATURE"
         );
       });
     });
@@ -309,7 +291,7 @@ describe("LatteMarket", () => {
           startingBlock.add(10),
           stakingTokens[0].address
         );
-        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0)).to.revertedWith(
           "LatteMarket::_decreaseCap::maximum mint cap reached"
         );
       });
@@ -337,7 +319,7 @@ describe("LatteMarket", () => {
 
             // buy phase
             await expect(
-              latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice, {
+              latteMarketAsAlice.buyNFT(latteNFT.address, 0, {
                 value: parseEther("11"),
               })
             ).to.revertedWith("latteMarket::_safeWrap:: value != msg.value");
@@ -364,7 +346,7 @@ describe("LatteMarket", () => {
 
         // buy phase
         const balBefore = await alice.getBalance();
-        const tx = await latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice, {
+        const tx = await latteMarketAsAlice.buyNFT(latteNFT.address, 0, {
           value: parseEther("10"),
         });
         const receipt = await tx.wait();
@@ -398,7 +380,7 @@ describe("LatteMarket", () => {
 
           // buy phase
           await expect(
-            latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice, {
+            latteMarketAsAlice.buyNFT(latteNFT.address, 0, {
               value: parseEther("10"),
             })
           ).to.revertedWith("latteMarket::_safeWrap:: baseToken is not wNative");
@@ -434,7 +416,7 @@ describe("LatteMarket", () => {
           expect(metadata.price).to.eq(parseEther("0"));
 
           // buy phase
-          await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice)).to.revertedWith(
+          await expect(latteMarketAsAlice.buyNFT(latteNFT.address, 0)).to.revertedWith(
             "LatteMarket::withinBlockRange:: invalid block number"
           );
         });
@@ -460,7 +442,7 @@ describe("LatteMarket", () => {
         const stakingTokenAsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
         await stakingTokens[0].mint(await alice.getAddress(), parseEther("10"));
         await stakingTokenAsAlice.approve(latteMarket.address, parseEther("10"));
-        await latteMarketAsAlice.buyNFT(latteNFT.address, 0, signatureAsAlice);
+        await latteMarketAsAlice.buyNFT(latteNFT.address, 0);
         expect(await stakingTokens[0].balanceOf(await dev.getAddress())).to.eq(parseEther("1"));
         expect(await stakingTokens[0].balanceOf(seller)).to.eq(parseEther("9"));
         expect(await _latteNFT.ownerOf(0)).to.eq(await alice.getAddress());
@@ -472,7 +454,7 @@ describe("LatteMarket", () => {
   describe("#buyBatchNFT", () => {
     context("when buying a non-support nft", () => {
       it("should revert", async () => {
-        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2)).to.revertedWith(
           "LatteMarket::onlySupportedNFT::unsupported nft"
         );
       });
@@ -492,7 +474,7 @@ describe("LatteMarket", () => {
         );
 
         // buying phase
-        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2)).to.revertedWith(
           "LatteMarket::buyBatchNFT:: invalid block number"
         );
       });
@@ -510,26 +492,8 @@ describe("LatteMarket", () => {
           startingBlock.add(10),
           stakingTokens[0].address
         );
-        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2)).to.revertedWith(
           "LatteMarket::onlyNonBiddingNFT::only selling token can be used here"
-        );
-      });
-    });
-
-    context("when invalid signature", () => {
-      it("should revert", async () => {
-        await latteMarket.setSupportNFT([latteNFT.address], true);
-        await latteMarket.readyToSellNFT(
-          latteNFT.address,
-          0,
-          parseEther("10"),
-          1,
-          startingBlock.add(3),
-          startingBlock.add(10),
-          stakingTokens[0].address
-        );
-        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsDeployer)).to.revertedWith(
-          "LatteMarket::permit::INVALID_SIGNATURE"
         );
       });
     });
@@ -546,7 +510,7 @@ describe("LatteMarket", () => {
           startingBlock.add(10),
           stakingTokens[0].address
         );
-        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2)).to.revertedWith(
           "LatteMarket::_decreaseCap::maximum mint cap reached"
         );
       });
@@ -574,7 +538,7 @@ describe("LatteMarket", () => {
 
             // buy phase
             await expect(
-              latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice, {
+              latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, {
                 value: parseEther("11"),
               })
             ).to.revertedWith("latteMarket::_safeWrap:: value != msg.value");
@@ -600,7 +564,7 @@ describe("LatteMarket", () => {
 
         // buy phase
         const balBefore = await alice.getBalance();
-        const tx = await latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice, {
+        const tx = await latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, {
           value: parseEther("20"),
         });
         const receipt = await tx.wait();
@@ -635,7 +599,7 @@ describe("LatteMarket", () => {
 
           // buy phase
           await expect(
-            latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice, {
+            latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, {
               value: parseEther("10"),
             })
           ).to.revertedWith("latteMarket::_safeWrap:: baseToken is not wNative");
@@ -672,7 +636,7 @@ describe("LatteMarket", () => {
           expect(metadata.price).to.eq(parseEther("0"));
 
           // buy phase
-          await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice)).to.revertedWith(
+          await expect(latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2)).to.revertedWith(
             "LatteMarket::buyBatchNFT:: invalid block number"
           );
         });
@@ -698,7 +662,7 @@ describe("LatteMarket", () => {
         const stakingTokenAsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
         await stakingTokens[0].mint(await alice.getAddress(), parseEther("20"));
         await stakingTokenAsAlice.approve(latteMarket.address, parseEther("20"));
-        await latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2, signatureAsAlice);
+        await latteMarketAsAlice.buyBatchNFT(latteNFT.address, 0, 2);
         expect(await stakingTokens[0].balanceOf(await dev.getAddress())).to.eq(parseEther("2"));
         expect(await stakingTokens[0].balanceOf(seller)).to.eq(parseEther("18"));
         expect(await _latteNFT.ownerOf(0)).to.eq(await alice.getAddress());
@@ -873,7 +837,7 @@ describe("LatteMarket", () => {
   describe("#bidNFT()", () => {
     context("when bidding a non-support nft", () => {
       it("should revert", async () => {
-        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"), signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"))).to.revertedWith(
           "LatteMarket::onlySupportedNFT::unsupported nft"
         );
       });
@@ -893,7 +857,7 @@ describe("LatteMarket", () => {
         );
 
         // buying phase
-        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"), signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"))).to.revertedWith(
           "LatteMarket::withinBlockRange:: invalid block number"
         );
       });
@@ -911,7 +875,7 @@ describe("LatteMarket", () => {
           startingBlock.add(10),
           stakingTokens[0].address
         );
-        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"), signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"))).to.revertedWith(
           "LatteMarket::onlyBiddingNFT::only bidding token can be used here"
         );
       });
@@ -928,7 +892,7 @@ describe("LatteMarket", () => {
           startingBlock.add(10),
           stakingTokens[0].address
         );
-        await expect(latteMarket.bidNFT(latteNFT.address, 0, parseEther("1"), signatureAsDeployer)).to.revertedWith(
+        await expect(latteMarket.bidNFT(latteNFT.address, 0, parseEther("1"))).to.revertedWith(
           "LatteMarket::_bidNFT::Owner cannot bid"
         );
       });
@@ -945,7 +909,7 @@ describe("LatteMarket", () => {
           startingBlock.add(10),
           stakingTokens[0].address
         );
-        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"), signatureAsAlice)).to.revertedWith(
+        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("1"))).to.revertedWith(
           "LatteMarket::_bidNFT::price cannot be lower than or equal to the starting bid"
         );
       });
@@ -970,7 +934,7 @@ describe("LatteMarket", () => {
             );
 
             // bid phase
-            await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsAlice, {
+            await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"), {
               value: parseEther("12"),
             });
             const bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
@@ -978,7 +942,7 @@ describe("LatteMarket", () => {
             expect(bid.price).to.eq(parseEther("12"));
 
             await expect(
-              latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsBob, {
+              latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("11"), {
                 value: parseEther("11"),
               })
             ).to.revertedWith("LatteMarket::_bidNFT::price cannot be lower than or equal to the latest bid");
@@ -1005,7 +969,7 @@ describe("LatteMarket", () => {
 
               // bid phase
               let aliceBalBefore = await alice.getBalance();
-              let aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
+              let aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), {
                 value: parseEther("11"),
               });
               let aliceReceipt = await aliceTx.wait();
@@ -1019,7 +983,7 @@ describe("LatteMarket", () => {
               );
 
               aliceBalBefore = await alice.getBalance();
-              aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsAlice, {
+              aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"), {
                 value: parseEther("12"),
               });
               aliceReceipt = await aliceTx.wait();
@@ -1056,7 +1020,7 @@ describe("LatteMarket", () => {
 
             // bid phase
             const aliceBalBefore = await alice.getBalance();
-            const aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
+            const aliceTx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), {
               value: parseEther("11"),
             });
             const aliceReceipt = await aliceTx.wait();
@@ -1070,7 +1034,7 @@ describe("LatteMarket", () => {
             );
 
             const bobBalBefore = await bob.getBalance();
-            const bobTx = await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsBob, {
+            const bobTx = await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"), {
               value: parseEther("12"),
             });
             const bobReceipt = await bobTx.wait();
@@ -1104,7 +1068,7 @@ describe("LatteMarket", () => {
 
         // bid phase
         const balBefore = await alice.getBalance();
-        const tx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
+        const tx = await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), {
           value: parseEther("11"),
         });
         const receipt = await tx.wait();
@@ -1144,13 +1108,13 @@ describe("LatteMarket", () => {
             );
 
             // bid phase
-            await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsAlice);
+            await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"));
             const bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
             expect(bid.bidder).to.eq(await alice.getAddress());
             expect(bid.price).to.eq(parseEther("12"));
 
             await expect(
-              latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsBob, {
+              latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("11"), {
                 value: parseEther("11"),
               })
             ).to.revertedWith("LatteMarket::_bidNFT::price cannot be lower than or equal to the latest bid");
@@ -1183,7 +1147,7 @@ describe("LatteMarket", () => {
               );
 
               // bid phase
-              await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
+              await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"));
               let bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
               expect(bid.bidder).to.eq(await alice.getAddress());
               expect(bid.price).to.eq(parseEther("11"));
@@ -1194,7 +1158,7 @@ describe("LatteMarket", () => {
                 parseEther("1")
               );
 
-              await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsAlice);
+              await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("12"));
               bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
               expect(bid.bidder).to.eq(await alice.getAddress());
               expect(bid.price).to.eq(parseEther("12"));
@@ -1233,7 +1197,7 @@ describe("LatteMarket", () => {
             );
 
             // bid phase
-            await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
+            await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"));
             let bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
             expect(bid.bidder).to.eq(await alice.getAddress());
             expect(bid.price).to.eq(parseEther("11"));
@@ -1244,7 +1208,7 @@ describe("LatteMarket", () => {
               parseEther("1")
             );
 
-            await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"), signatureAsBob);
+            await latteMarketAsBob.bidNFT(latteNFT.address, 0, parseEther("12"));
             bid = await latteMarketAsBob.getBid(latteNFT.address, 0);
             expect(bid.bidder).to.eq(await bob.getAddress());
             expect(bid.price).to.eq(parseEther("12"));
@@ -1277,7 +1241,7 @@ describe("LatteMarket", () => {
         );
 
         // bid phase
-        await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
+        await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"));
         const bid = await latteMarketAsAlice.getBid(latteNFT.address, 0);
         expect(bid.bidder).to.eq(await alice.getAddress());
         expect(bid.price).to.eq(parseEther("11"));
@@ -1387,7 +1351,7 @@ describe("LatteMarket", () => {
         );
 
         // bid phase
-        await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
+        await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), {
           value: parseEther("11"),
         });
 
@@ -1421,7 +1385,7 @@ describe("LatteMarket", () => {
             parseEther("11")
           );
           // bid phase
-          await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice);
+          await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"));
           expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(parseEther("89"));
           await expect(latteMarket.cancelBiddingNFT(latteNFT.address, 0)).to.revertedWith(
             "LatteMarket::cancelBiddingNFT::auction already has a bidder"
@@ -1470,9 +1434,9 @@ describe("LatteMarket", () => {
           parseEther("11")
         );
         // bid phase
-        await expect(
-          latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice)
-        ).to.revertedWith("LatteMarket::withinBlockRange:: invalid block number");
+        await expect(latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"))).to.revertedWith(
+          "LatteMarket::withinBlockRange:: invalid block number"
+        );
       });
     });
 
@@ -1493,7 +1457,7 @@ describe("LatteMarket", () => {
       );
 
       // bid phase
-      await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), signatureAsAlice, {
+      await latteMarketAsAlice.bidNFT(latteNFT.address, 0, parseEther("11"), {
         value: parseEther("11"),
       });
 
