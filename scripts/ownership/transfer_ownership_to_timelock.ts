@@ -14,10 +14,10 @@ async function main() {
   */
 
   const TO_BE_TRANSFERED: Array<string> = [
-    "0xEb85Af63fb38eFa97AccaAe2c66F4b3636a435E9", // Master Barista
-    "0xCe16028373F210c42f366aDB78819c02611d2b79", // Booster Config
-    "0x4e2B5591Eb8378314a8042D422F36D3F6E150756", // Latte Market
-    "0x360946e5d90eb6Be5931D88A152E43146415da5E", // OG NFT Offering
+    "0xdeAaFFD54d11B3dfa50E7A4b178E045ab750e4eA", // Booster Config
+    "0xbCeE0d15a4402C9Cc894D52cc5E9982F60C463d6", // Master Barista
+    "0x288f26D5Ed901e290D713Db86142302AF8266b31", // Latte Market
+    "0xa4FD125A4384faf310c1e8F7b3cE87e8b423B100", // OGNFTOffering
   ];
 
   const config = getConfig();
