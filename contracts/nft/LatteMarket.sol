@@ -149,6 +149,12 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     _;
   }
 
+  /// @dev Require that the caller must be an EOA account to avoid flash loans.
+  modifier onlyEOA() {
+    require(msg.sender == tx.origin, "LatteMarket::onlyEOA:: not eoa");
+    _;
+  }
+
   modifier onlyBiddingNFT(address _nftAddress, uint256 _categoryId) {
     require(
       latteNFTMetadata[_nftAddress][_categoryId].isBidding,
@@ -197,19 +203,14 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
   /// @notice buyNFT based on its category id
   /// @param _nftAddress - nft address
   /// @param _categoryId - category id for each nft address
-  /// @param _sig - signed signature using message sign
-  function buyNFT(
-    address _nftAddress,
-    uint256 _categoryId,
-    bytes calldata _sig
-  )
+  function buyNFT(address _nftAddress, uint256 _categoryId)
     external
     payable
     whenNotPaused
     onlySupportedNFT(_nftAddress)
     withinBlockRange(_nftAddress, _categoryId)
     onlyNonBiddingNFT(_nftAddress, _categoryId)
-    permit(_sig)
+    onlyEOA
   {
     _buyNFTTo(_nftAddress, _categoryId, _msgSender(), 1);
   }
@@ -218,20 +219,11 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
   /// @param _nftAddress - nft address
   /// @param _categoryId - category id for each nft address
   /// @param _size - amount to buy
-  /// @param _sig - signed signature using message sign
   function buyBatchNFT(
     address _nftAddress,
     uint256 _categoryId,
-    uint256 _size,
-    bytes calldata _sig
-  )
-    external
-    payable
-    whenNotPaused
-    onlySupportedNFT(_nftAddress)
-    onlyNonBiddingNFT(_nftAddress, _categoryId)
-    permit(_sig)
-  {
+    uint256 _size
+  ) external payable whenNotPaused onlySupportedNFT(_nftAddress) onlyNonBiddingNFT(_nftAddress, _categoryId) onlyEOA {
     LatteNFTMetadata memory metadata = latteNFTMetadata[_nftAddress][_categoryId];
     /// re-use a storage usage by using the same metadata to validate
     /// multiple modifiers can cause stack too deep exception
@@ -259,12 +251,10 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
   /// @param _nftAddress - nft address
   /// @param _categoryId - category id for each nft address
   /// @param _to whom this will be bought to
-  /// @param _sig - signed signature using message sign
   function buyNFTTo(
     address _nftAddress,
     uint256 _categoryId,
-    address _to,
-    bytes calldata _sig
+    address _to
   )
     external
     payable
@@ -272,7 +262,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     onlySupportedNFT(_nftAddress)
     withinBlockRange(_nftAddress, _categoryId)
     onlyNonBiddingNFT(_nftAddress, _categoryId)
-    permit(_sig)
+    onlyEOA
   {
     _buyNFTTo(_nftAddress, _categoryId, _to, 1);
   }
@@ -498,12 +488,10 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
   /// @param _nftAddress - nft address
   /// @param _categoryId - category id
   /// @param _price - bidding price
-  /// @param _sig - signature
   function bidNFT(
     address _nftAddress,
     uint256 _categoryId,
-    uint256 _price,
-    bytes calldata _sig
+    uint256 _price
   )
     external
     payable
@@ -511,7 +499,7 @@ contract LatteMarket is ERC721HolderUpgradeable, OwnableUpgradeable, PausableUpg
     onlySupportedNFT(_nftAddress)
     withinBlockRange(_nftAddress, _categoryId)
     onlyBiddingNFT(_nftAddress, _categoryId)
-    permit(_sig)
+    onlyEOA
   {
     _bidNFT(_nftAddress, _categoryId, _price);
   }

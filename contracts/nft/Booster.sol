@@ -141,6 +141,12 @@ contract Booster is
     _;
   }
 
+  /// @dev Require that the caller must be an EOA account to avoid flash loans.
+  modifier onlyEOA() {
+    require(msg.sender == tx.origin, "Booster::onlyEOA:: not eoa");
+    _;
+  }
+
   /**
    * @notice Triggers stopped state
    * @dev Only possible when contract not paused.
@@ -193,15 +199,14 @@ contract Booster is
   function stakeNFT(
     address _stakeToken,
     address _nftAddress,
-    uint256 _nftTokenId,
-    bytes calldata _sig
+    uint256 _nftTokenId
   )
     external
     whenNotPaused
     isStakeTokenOK(_stakeToken)
     isBoosterNftOK(_stakeToken, _nftAddress, _nftTokenId)
     nonReentrant
-    permit(_sig)
+    onlyEOA
   {
     _stakeNFT(_stakeToken, _nftAddress, _nftTokenId);
   }
@@ -232,13 +237,7 @@ contract Booster is
   /// @notice function for unstaking a current nft
   /// @dev This one is a preparation for nft staking info, if nft address and nft token id are the same with existing record, it will be reverted
   /// @param _stakeToken a specified stake token address
-  function unstakeNFT(address _stakeToken, bytes calldata _sig)
-    external
-    whenNotPaused
-    isStakeTokenOK(_stakeToken)
-    nonReentrant
-    permit(_sig)
-  {
+  function unstakeNFT(address _stakeToken) external whenNotPaused isStakeTokenOK(_stakeToken) nonReentrant onlyEOA {
     _unstakeNFT(_stakeToken);
   }
 

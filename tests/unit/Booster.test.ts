@@ -94,9 +94,9 @@ describe("Booster", () => {
             [stakingTokens[0].address]: false,
           },
         });
-        await expect(
-          booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsDeployer)
-        ).to.be.revertedWith("Booster::isStakeTokenOK::bad stake token");
+        await expect(booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1)).to.be.revertedWith(
+          "Booster::isStakeTokenOK::bad stake token"
+        );
       });
     });
 
@@ -124,34 +124,9 @@ describe("Booster", () => {
           },
         });
 
-        await expect(
-          booster.stakeNFT(stakingTokens[0].address, latteNft.address, 1, signatureAsDeployer)
-        ).to.be.revertedWith("Booster::isBoosterNftOK::bad nft");
-      });
-    });
-
-    context("when invalid signature", () => {
-      it("should revert", async () => {
-        // set stake token allowance to be true
-        await boosterConfig.smodify.put({
-          stakeTokenAllowance: {
-            [stakingTokens[0].address]: true,
-          },
-        });
-        // set booster nft allowance to be false / revert case
-        await boosterConfig.smodify.put({
-          boosterNftAllowanceConfig: {
-            [stakingTokens[0].address]: {
-              [nftToken.address]: {
-                1: true,
-              },
-            },
-          },
-        });
-
-        await expect(
-          booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice)
-        ).to.be.revertedWith("Booster::permit::INVALID_SIGNATURE");
+        await expect(booster.stakeNFT(stakingTokens[0].address, latteNft.address, 1)).to.be.revertedWith(
+          "Booster::isBoosterNftOK::bad nft"
+        );
       });
     });
 
@@ -181,12 +156,12 @@ describe("Booster", () => {
                 },
               },
             });
-            await booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsDeployer);
+            await booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
             // owner of a booster contract should be changed
             expect(await (nftToken as unknown as MockERC721).ownerOf(1)).to.eq(booster.address);
-            await expect(
-              booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsDeployer)
-            ).to.be.revertedWith("Booster::stakeNFT:: nft already staked");
+            await expect(booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1)).to.be.revertedWith(
+              "Booster::stakeNFT:: nft already staked"
+            );
           });
         });
 
@@ -220,12 +195,12 @@ describe("Booster", () => {
                 },
               },
             });
-            await booster.stakeNFT(stakingTokens[1].address, nftToken.address, 1, signatureAsDeployer);
+            await booster.stakeNFT(stakingTokens[1].address, nftToken.address, 1);
             // owner of a booster contract should be changed
             expect(await (nftToken as unknown as MockERC721).ownerOf(1)).to.eq(booster.address);
-            await expect(
-              booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsDeployer)
-            ).to.be.revertedWith("ERC721: transfer of token that is not own");
+            await expect(booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1)).to.be.revertedWith(
+              "ERC721: transfer of token that is not own"
+            );
           });
         });
       });
@@ -254,7 +229,7 @@ describe("Booster", () => {
               },
             },
           });
-          await booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsDeployer);
+          await booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
           // owner of a booster contract should be changed
           expect(await (nftToken as unknown as MockERC721).ownerOf(1)).to.eq(booster.address);
           // should expect some storage changes in a booster
@@ -305,7 +280,7 @@ describe("Booster", () => {
               },
             });
             // stake for the first time, its' energy will be used to amplify
-            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
             // should expect some storage changes in a booster
             expect(
               (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -341,7 +316,7 @@ describe("Booster", () => {
 
             // MOCK that master barista has enough LATTE
             await latteToken.transfer(beanBag.address, parseEther("100"));
-            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 2, signatureAsAlice);
+            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 2);
             // owner is expected to get 100 reward + 10 extra rewards from staking an nft
             expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100").add(parseEther("10")));
             // dev is expected to get 15% of 10 extra reward, thus making the dev able to collect 1.5
@@ -398,7 +373,7 @@ describe("Booster", () => {
               },
             });
             // stake for the first time, its' energy will be used to amplify
-            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
             // should expect some storage changes in a booster
             expect(
               (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -434,7 +409,7 @@ describe("Booster", () => {
 
             // MOCK that master barista has enough LATTE
             await latteToken.transfer(beanBag.address, parseEther("100"));
-            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 2, signatureAsAlice);
+            await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 2);
             // owner is expected to get 100 reward
             expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
             expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
@@ -463,23 +438,8 @@ describe("Booster", () => {
           },
         });
 
-        await expect(booster.unstakeNFT(stakingTokens[0].address, signatureAsDeployer)).to.be.revertedWith(
+        await expect(booster.unstakeNFT(stakingTokens[0].address)).to.be.revertedWith(
           "Booster::isStakeTokenOK::bad stake token"
-        );
-      });
-    });
-
-    context("when invalid signature", () => {
-      it("should revert", async () => {
-        // set stake token allowance to be true
-        await boosterConfig.smodify.put({
-          stakeTokenAllowance: {
-            [stakingTokens[0].address]: true,
-          },
-        });
-
-        await expect(booster.unstakeNFT(stakingTokens[0].address, signatureAsAlice)).to.be.revertedWith(
-          "Booster::permit::INVALID_SIGNATURE"
         );
       });
     });
@@ -508,7 +468,7 @@ describe("Booster", () => {
             },
           },
         });
-        await booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsDeployer);
+        await booster.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
         // owner of a booster contract should be changed
         expect(await (nftToken as unknown as MockERC721).ownerOf(1)).to.eq(booster.address);
         // should expect some storage changes in a booster
@@ -517,7 +477,7 @@ describe("Booster", () => {
         );
         expect((await booster.userStakingNFT(stakingTokens[0].address, deployerAddr)).nftTokenId).to.eq(1);
 
-        await booster.unstakeNFT(stakingTokens[0].address, signatureAsDeployer);
+        await booster.unstakeNFT(stakingTokens[0].address);
         // owner of a booster contract should be changed
         expect(await (nftToken as unknown as MockERC721).ownerOf(1)).to.eq(deployerAddr);
         // should expect some storage changes in a booster
@@ -567,7 +527,7 @@ describe("Booster", () => {
             },
           });
           // stake for the first time, its' energy will be used to amplify
-          await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+          await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
           // should expect some storage changes in a booster
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
             nftToken.address.toLowerCase()
@@ -603,7 +563,7 @@ describe("Booster", () => {
 
           // MOCK that master barista has enough LATTE
           await latteToken.transfer(beanBag.address, parseEther("100"));
-          await boosterAsAlice.unstakeNFT(stakingTokens[0].address, signatureAsAlice);
+          await boosterAsAlice.unstakeNFT(stakingTokens[0].address);
           // owner is expected to get 100 reward + 10 extra rewards from staking an nft
           expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100").add(parseEther("10")));
           // dev is expected to get 15% of 10 extra reward, thus making the dev able to collect 1.5
@@ -661,7 +621,7 @@ describe("Booster", () => {
             },
           });
           // stake for the first time, its' energy will be used to amplify
-          await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+          await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
           // should expect some storage changes in a booster
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
             nftToken.address.toLowerCase()
@@ -697,7 +657,7 @@ describe("Booster", () => {
 
           // MOCK that master barista has enough LATTE
           await latteToken.transfer(beanBag.address, parseEther("100"));
-          await boosterAsAlice.unstakeNFT(stakingTokens[0].address, signatureAsAlice);
+          await boosterAsAlice.unstakeNFT(stakingTokens[0].address);
           // owner is expected to get 100 reward
           expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
           expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
@@ -768,8 +728,8 @@ describe("Booster", () => {
           },
         });
         // stake for the first time, its' energy will be used to amplify
-        await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
-        await boosterAsAlice.stakeNFT(stakingTokens[1].address, nftToken.address, 2, signatureAsAlice);
+        await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
+        await boosterAsAlice.stakeNFT(stakingTokens[1].address, nftToken.address, 2);
         // should expect some storage changes in a booster
         expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
           nftToken.address.toLowerCase()
@@ -901,7 +861,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect(
                 (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -986,7 +946,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect(
                 (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -1082,7 +1042,7 @@ describe("Booster", () => {
             },
           });
           // stake for the first time, its' energy will be used to amplify
-          await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+          await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
           // should expect some storage changes in a booster
           expect((await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
             nftToken.address.toLowerCase()
@@ -1191,7 +1151,7 @@ describe("Booster", () => {
             },
           });
           // stake for the first time, its' energy will be used to amplify
-          await boosterAsAlice.stakeNFT(latteToken.address, nftToken.address, 1, signatureAsAlice);
+          await boosterAsAlice.stakeNFT(latteToken.address, nftToken.address, 1);
           // should expect some storage changes in a booster
           expect((await booster.userStakingNFT(latteToken.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
             nftToken.address.toLowerCase()
@@ -1380,7 +1340,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
                 nftToken.address.toLowerCase()
@@ -1476,7 +1436,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
                 nftToken.address.toLowerCase()
@@ -1674,7 +1634,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect(
                 (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -1771,7 +1731,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect(
                 (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -1917,7 +1877,7 @@ describe("Booster", () => {
               },
             });
             // stake for the first time, its' energy will be used to amplify
-            await boosterAsAlice.stakeNFT(latteToken.address, nftToken.address, 1, signatureAsAlice);
+            await boosterAsAlice.stakeNFT(latteToken.address, nftToken.address, 1);
             // should expect some storage changes in a booster
             expect((await booster.userStakingNFT(latteToken.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
               nftToken.address.toLowerCase()
@@ -2008,7 +1968,7 @@ describe("Booster", () => {
               },
             });
             // stake for the first time, its' energy will be used to amplify
-            await boosterAsAlice.stakeNFT(latteToken.address, nftToken.address, 1, signatureAsAlice);
+            await boosterAsAlice.stakeNFT(latteToken.address, nftToken.address, 1);
             // should expect some storage changes in a booster
             expect((await booster.userStakingNFT(latteToken.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
               nftToken.address.toLowerCase()
@@ -2209,7 +2169,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
                 nftToken.address.toLowerCase()
@@ -2308,7 +2268,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
                 nftToken.address.toLowerCase()
@@ -2410,7 +2370,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
                 nftToken.address.toLowerCase()
@@ -2507,7 +2467,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(wbnb.address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect((await booster.userStakingNFT(wbnb.address, ownerAddress)).nftAddress.toLowerCase()).to.eq(
                 nftToken.address.toLowerCase()
@@ -2667,7 +2627,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect(
                 (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()
@@ -2769,7 +2729,7 @@ describe("Booster", () => {
                 },
               });
               // stake for the first time, its' energy will be used to amplify
-              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1, signatureAsAlice);
+              await boosterAsAlice.stakeNFT(stakingTokens[0].address, nftToken.address, 1);
               // should expect some storage changes in a booster
               expect(
                 (await booster.userStakingNFT(stakingTokens[0].address, ownerAddress)).nftAddress.toLowerCase()

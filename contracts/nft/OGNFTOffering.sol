@@ -139,6 +139,12 @@ contract OGNFTOffering is ERC721HolderUpgradeable, OwnableUpgradeable, PausableU
     _;
   }
 
+  /// @dev Require that the caller must be an EOA account to avoid flash loans.
+  modifier onlyEOA() {
+    require(msg.sender == tx.origin, "OGNFTOffering::onlyEOA:: not eoa");
+    _;
+  }
+
   /// @notice set price model for getting a price
   function setPriceModel(IOGPriceModel _priceModel) external onlyOwner {
     require(address(_priceModel) != address(0), "OGNFTOffering::permit::price model cannot be address(0)");
@@ -194,14 +200,7 @@ contract OGNFTOffering is ERC721HolderUpgradeable, OwnableUpgradeable, PausableU
 
   /// @notice buyNFT based on its category id
   /// @param _categoryId - category id for each nft address
-  /// @param _sig - signed signature using message sign
-  function buyNFT(uint256 _categoryId, bytes calldata _sig)
-    external
-    payable
-    whenNotPaused
-    withinBlockRange(_categoryId)
-    permit(_sig)
-  {
+  function buyNFT(uint256 _categoryId) external payable whenNotPaused withinBlockRange(_categoryId) onlyEOA {
     _buyNFTTo(_categoryId, _msgSender());
   }
 

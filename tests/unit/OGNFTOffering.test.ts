@@ -149,17 +149,8 @@ describe("OGNFTOffering", () => {
         );
 
         // buying phase
-        await expect(ogOfferingAsAlice.buyNFT(0, signatureAsAlice)).to.revertedWith(
+        await expect(ogOfferingAsAlice.buyNFT(0)).to.revertedWith(
           "OGNFTOffering::withinBlockRange:: invalid block number"
-        );
-      });
-    });
-
-    context("when invalid signature", () => {
-      it("should revert", async () => {
-        await ogOffering.readyToSellNFT(0, 1, startingBlock.add(2), startingBlock.add(10), stakingTokens[0].address);
-        await expect(ogOfferingAsAlice.buyNFT(0, signatureAsDeployer)).to.revertedWith(
-          "OGNFTOffering::permit::INVALID_SIGNATURE"
         );
       });
     });
@@ -167,7 +158,7 @@ describe("OGNFTOffering", () => {
     context("when reaching a maximum cap", () => {
       it("should revert", async () => {
         await ogOffering.readyToSellNFT(0, 0, startingBlock.add(2), startingBlock.add(10), stakingTokens[0].address);
-        await expect(ogOfferingAsAlice.buyNFT(0, signatureAsAlice)).to.revertedWith(
+        await expect(ogOfferingAsAlice.buyNFT(0)).to.revertedWith(
           "OGNFTOffering::_decreaseCap::maximum mint cap reached"
         );
       });
@@ -182,7 +173,7 @@ describe("OGNFTOffering", () => {
 
             // buy phase
             await expect(
-              ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+              ogOfferingAsAlice.buyNFT(0, {
                 value: parseEther("11"),
               })
             ).to.revertedWith("OGNFTOffering::_safeWrap:: value != msg.value");
@@ -202,11 +193,11 @@ describe("OGNFTOffering", () => {
 
           const nonce = await alice.getTransactionCount();
           await Promise.all([
-            ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            ogOfferingAsAlice.buyNFT(0, {
               value: value,
               nonce: nonce,
             }),
-            ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            ogOfferingAsAlice.buyNFT(0, {
               value: value,
               nonce: nonce + 1,
             }),
@@ -218,7 +209,7 @@ describe("OGNFTOffering", () => {
           await expect(ogBuyLimit.counter).to.eq(2);
           // shouldn't buy because limit count is 2
           await expect(
-            ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            ogOfferingAsAlice.buyNFT(0, {
               value: value,
             })
           ).to.revertedWith("OGNFTOffering::_buyNFTTo::exceed buy limit");
@@ -226,7 +217,7 @@ describe("OGNFTOffering", () => {
           await advanceBlockTo(startingBlock.add(24).toNumber());
           const balBefore = await alice.getBalance();
           // should be able to buy again
-          const tx = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+          const tx = await ogOfferingAsAlice.buyNFT(0, {
             value: value,
           });
           const receipt = await tx.wait();
@@ -254,7 +245,7 @@ describe("OGNFTOffering", () => {
           // buy phase
           const balBefore1 = await alice.getBalance();
           const value1 = await (priceModel as unknown as TripleSlopePriceModel).getPrice(4, 3, 0);
-          const tx1 = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+          const tx1 = await ogOfferingAsAlice.buyNFT(0, {
             value: value1,
           });
           const gasUsed1 = (await tx1.wait()).gasUsed;
@@ -266,7 +257,7 @@ describe("OGNFTOffering", () => {
 
           const balBefore2 = await alice.getBalance();
           const value2 = await (priceModel as unknown as TripleSlopePriceModel).getPrice(4, 2, 0);
-          const tx2 = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+          const tx2 = await ogOfferingAsAlice.buyNFT(0, {
             value: value2,
           });
           const gasUsed2 = (await tx2.wait()).gasUsed;
@@ -278,7 +269,7 @@ describe("OGNFTOffering", () => {
 
           const balBefore3 = await alice.getBalance();
           const value3 = await (priceModel as unknown as TripleSlopePriceModel).getPrice(4, 1, 0);
-          const tx3 = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+          const tx3 = await ogOfferingAsAlice.buyNFT(0, {
             value: value3,
           });
           const gasUsed3 = (await tx3.wait()).gasUsed;
@@ -301,7 +292,7 @@ describe("OGNFTOffering", () => {
         const value = await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 0, 0);
         // buy phase
         const balBefore = await alice.getBalance();
-        const tx = await ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+        const tx = await ogOfferingAsAlice.buyNFT(0, {
           value: value,
         });
         const receipt = await tx.wait();
@@ -312,7 +303,7 @@ describe("OGNFTOffering", () => {
         expect(balAfter).to.eq(balBefore.sub(value.add((await ethers.provider.getGasPrice()).mul(gasUsed))));
         expect(await ogNFT.ownerOf(0)).to.eq(await alice.getAddress());
         // should be failed since cap is limited
-        await expect(ogOfferingAsAlice.buyNFT(0, signatureAsAlice)).to.revertedWith(
+        await expect(ogOfferingAsAlice.buyNFT(0)).to.revertedWith(
           "OGNFTOffering::_decreaseCap::maximum mint cap reached"
         );
       });
@@ -327,7 +318,7 @@ describe("OGNFTOffering", () => {
 
           // buy phase
           await expect(
-            ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            ogOfferingAsAlice.buyNFT(0, {
               value: await (priceModel as unknown as TripleSlopePriceModel).getPrice(1, 1, 0),
             })
           ).to.revertedWith("OGNFTOffering::_safeWrap:: baseToken is not wNative");
@@ -355,10 +346,10 @@ describe("OGNFTOffering", () => {
           await stakingTokenAsAlice.approve(ogOffering.address, value.mul(3));
           const nonce = await alice.getTransactionCount();
           await Promise.all([
-            ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            ogOfferingAsAlice.buyNFT(0, {
               nonce: nonce,
             }),
-            ogOfferingAsAlice.buyNFT(0, signatureAsAlice, {
+            ogOfferingAsAlice.buyNFT(0, {
               nonce: nonce + 1,
             }),
           ]);
@@ -368,13 +359,11 @@ describe("OGNFTOffering", () => {
           await expect(ogBuyLimit.cooldownStartBlock).to.eq(startingBlock.add(6));
           await expect(ogBuyLimit.counter).to.eq(2);
           // shouldn't buy because limit count is 2
-          await expect(ogOfferingAsAlice.buyNFT(0, signatureAsAlice)).to.revertedWith(
-            "OGNFTOffering::_buyNFTTo::exceed buy limit"
-          );
+          await expect(ogOfferingAsAlice.buyNFT(0)).to.revertedWith("OGNFTOffering::_buyNFTTo::exceed buy limit");
 
           await advanceBlockTo(startingBlock.add(26).toNumber());
           // should be able to buy again
-          await ogOfferingAsAlice.buyNFT(0, signatureAsAlice);
+          await ogOfferingAsAlice.buyNFT(0);
           expect(await stakingTokens[0].balanceOf(await dev.getAddress())).to.eq(value.mul(3).div(10));
           expect(await stakingTokens[0].balanceOf(seller)).to.eq(value.mul(3).sub(value.mul(3).div(10)));
           expect(await ogNFT.ownerOf(0)).to.eq(await alice.getAddress());
@@ -404,7 +393,7 @@ describe("OGNFTOffering", () => {
           expect(metadata.endBlock).to.eq(0);
 
           // buy phase
-          await expect(ogOfferingAsAlice.buyNFT(0, signatureAsAlice)).to.revertedWith(
+          await expect(ogOfferingAsAlice.buyNFT(0)).to.revertedWith(
             "OGNFTOffering::withinBlockRange:: invalid block number"
           );
         });
@@ -419,7 +408,7 @@ describe("OGNFTOffering", () => {
         const stakingTokenAsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
         await stakingTokens[0].mint(await alice.getAddress(), value);
         await stakingTokenAsAlice.approve(ogOffering.address, value);
-        await ogOfferingAsAlice.buyNFT(0, signatureAsAlice);
+        await ogOfferingAsAlice.buyNFT(0);
         expect(await stakingTokens[0].balanceOf(await dev.getAddress())).to.eq(value.div(10));
         expect(await stakingTokens[0].balanceOf(seller)).to.eq(value.sub(value.div(10)));
         expect(await ogNFT.ownerOf(0)).to.eq(await alice.getAddress());
