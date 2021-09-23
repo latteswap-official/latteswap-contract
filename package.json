@@ -1,6 +1,8 @@
 {
   "name": "@latteswap/latteswap-contract",
   "scripts": {
+    "prepublish": "yarn build",
+    "build": "tsc",
     "compile": "hardhat typechain --config hardhat.config.ts",
     "remove:sol-log": "hardhat remove-logs",
     "prettier-format:default": "prettier --config .prettierrc 'deploy/**/*.ts' 'utils/**/*.ts' 'scripts/**/*.ts' 'tests/**/*.ts' --write",
@@ -100,7 +102,7 @@
     "script:mainnet:ogNftOffering:timelock:setBuyLimitCount": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/timelock_set_buy_limit_count.ts",
     "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts"
   },
-  "version": "1.1.1",
+  "version": "1.2.1",
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
@@ -145,6 +147,7 @@
   "files": [
     "typechain",
     "artifacts",
-    "contracts"
+    "contracts",
+    "compiled-typechain"
   ]
 }
