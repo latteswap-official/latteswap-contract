@@ -85,6 +85,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   event RemoveStakeTokenCallerContract(address indexed stakeToken, address indexed caller);
   event MintExtraReward(address indexed sender, address indexed stakeToken, address indexed to, uint256 amount);
   event SetLattePerBlock(uint256 prevLattePerBlock, uint256 currentLattePerBlock);
+  event Harvest(address indexed caller, address indexed beneficiary, address indexed stakeToken, uint256 amount);
 
   /// @dev Initializer to create LatteMasterBarista instance + add pool(0)
   /// @param _latte The address of LATTE
@@ -646,6 +647,8 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       _masterBaristaCallee(_msgSender(), _stakeToken, _for, pending, _lastRewardBlock);
     }
     latte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
+
+    emit Harvest(_msgSender(), _for, _stakeToken, pending);
   }
 
   /// @dev Observer function for those contract implementing onBeforeLock, execute an onBeforelock statement
