@@ -260,7 +260,7 @@ describe("LatteNFT", () => {
       it("should reverted", async () => {
         await latteNFT.pause();
         await expect(latteNFT.mint(await eve.getAddress(), 0, "tokenUrl")).to.be.revertedWith(
-          "revert ERC721Pausable: token transfer while paused"
+          "ERC721Pausable: token transfer while paused"
         );
       });
     });
@@ -314,7 +314,7 @@ describe("LatteNFT", () => {
       it("should reverted", async () => {
         await latteNFT.pause();
         await expect(latteNFT.mintBatch(await eve.getAddress(), 0, "tokenURI", 100)).to.be.revertedWith(
-          "revert ERC721Pausable: token transfer while paused"
+          "ERC721Pausable: token transfer while paused"
         );
       });
     });
@@ -374,7 +374,7 @@ describe("LatteNFT", () => {
     context("when paused", async () => {
       it("should reverted", async () => {
         await latteNFT.pause();
-        await expect(latteNFT.pause()).to.be.revertedWith("revert Pausable: paused");
+        await expect(latteNFT.pause()).to.be.revertedWith("Pausable: paused");
       });
     });
     context("when not paused", async () => {
@@ -397,7 +397,7 @@ describe("LatteNFT", () => {
 
       context("when not paused", async () => {
         it("should reverted", async () => {
-          await expect(latteNFT.unpause()).to.be.revertedWith("revert Pausable: not paused");
+          await expect(latteNFT.unpause()).to.be.revertedWith("Pausable: not paused");
         });
       });
     });
