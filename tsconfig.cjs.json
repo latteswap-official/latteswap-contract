@@ -10,15 +10,13 @@
     "module": "commonjs",
     "lib": ["es6", "es2017", "dom"],
     "target": "es5",
-    "types": ["@types/node", "@types/chai", "@types/mocha", "truffle-typings"],
-    "typeRoots": ["./node_modules/@types", "./types"]
+    "types": ["@types/node", "@types/chai", "@types/mocha"],
+    "typeRoots": ["./node_modules/@types", "./types", "./typechain"],
+    "outDir": "compiled-typechain",
+    "declaration": true
   },
   "include": [
-    "**/*.ts"
+    "./typechain/**/*"
   ],
-  "exclude": ["node_modules", "build", "cache", "artifacts"],
-  "files": [
-    // "types/chai-bignumber.d.ts", "typechain/index.d.ts"
-    "typechain/index.d.ts"
-  ]
+  "exclude": ["node_modules", "build", "cache", "artifacts"]
 }
