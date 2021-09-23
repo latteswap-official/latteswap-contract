@@ -50,6 +50,7 @@
     "script:mainnet:farm:timelock:000": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_pool_to_master_barista.ts",
     "script:mainnet:farm:timelock:001": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_bps_to_master_barista.ts",
     "script:mainnet:farm:timelock:002": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_point_to_master_barista.ts",
+    "script:mainnet:farm:timelock:003": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_upgrade_master_barista.ts",
     "script:mainnet:farm:upgrade:000": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
     "script:mainnet:farm:validate:000": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
     "script:mainnet:nft:000": "hardhat --network mainnet run --no-compile ./scripts/nft/latte_nft_add_category.ts",
