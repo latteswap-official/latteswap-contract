@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 import "./interfaces/ILatteSwapFactory.sol";
 import "./interfaces/ILatteSwapPair.sol";
 import "./interfaces/ILatteSwapRouter.sol";
-import './interfaces/IWBNB.sol';
+import "./interfaces/IWBNB.sol";
 
 import "./libraries/LatteSwapMath.sol";
 import "./libraries/SafeToken.sol";
@@ -20,16 +20,17 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
 
   ILatteSwapFactory public factory;
   ILatteSwapRouter public router;
-  address public WBNB;
+  address public wbnb;
 
-  /// @dev Create a new add two-side optimal strategy instance.
+  /// @dev Create a new optimal deposit instance
   /// @param _router The Router smart contract.
-  function initialize(ILatteSwapRouter _router, address _WBNB) external initializer {
+  /// @param _wbnb The address of WBNB token
+  function initialize(ILatteSwapRouter _router, address _wbnb) external initializer {
     ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
 
     factory = ILatteSwapFactory(_router.factory());
     router = _router;
-    WBNB = _WBNB;
+    wbnb = _wbnb;
   }
 
   /// @dev Compute swap amount to optimal deposit
@@ -63,10 +64,10 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     uint256 resA,
     uint256 resB
   ) internal pure returns (uint256) {
-    require(amtA.mul(resB) >= amtB.mul(resA), "Reversed");
+    require(amtA.mul(resB) >= amtB.mul(resA), "LatteSwapOptimalDeposit::_calSwapAmount:: input must be reversed");
 
-    uint256 a = 998;
-    uint256 b = uint256(1998).mul(resA);
+    uint256 a = 9975;
+    uint256 b = uint256(19975).mul(resA);
     uint256 _c = (amtA.mul(resB)).sub(amtB.mul(resA));
     uint256 c = _c.mul(1000).div(amtB.add(resB)).mul(resA);
 
@@ -78,16 +79,31 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
 
     return numerator.div(denominator);
   }
-  
+
+  /// @dev Add liquidity helper
+  /// @param tokenA address of tokenA desired to deposit
+  /// @param tokenB address of tokenB desired to deposit
+  /// @param amtA amount of tokenA desired to deposit
+  /// @param amtB amonut of tokenB desired to deposit
+  /// @param minLiquidity minimum lp token expected to receive
+  /// @param to address to receive lp token
+  /// @param deadline deadline of the deposit transaction
   function _optimalAddLiquidity(
-      address tokenA,
-      address tokenB,
-      uint amtA,
-      uint amtB,
-      uint minLiquidity,
-      address to,
-      uint deadline
-  ) internal returns (uint amountA, uint amountB, uint liquidity){
+    address tokenA,
+    address tokenB,
+    uint256 amtA,
+    uint256 amtB,
+    uint256 minLiquidity,
+    address to,
+    uint256 deadline
+  )
+    internal
+    returns (
+      uint256 amountA,
+      uint256 amountB,
+      uint256 liquidity
+    )
+  {
     // 1. Find out what token pair we are dealing with.
     ILatteSwapPair lpToken = ILatteSwapPair(factory.getPair(tokenA, tokenB));
     // 2. Approve router to do their stuffs
@@ -99,12 +115,7 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     {
       (uint256 r0, uint256 r1, ) = lpToken.getReserves();
       (uint256 tokenAReserve, uint256 tokenBReserve) = lpToken.token0() == tokenA ? (r0, r1) : (r1, r0);
-      (swapAmt, isReversed) = calSwapAmount(
-        amtA,
-        amtB,
-        tokenAReserve,
-        tokenBReserve
-      );
+      (swapAmt, isReversed) = calSwapAmount(amtA, amtB, tokenAReserve, tokenBReserve);
     }
     // 4. Convert between tokenA and tokenB
     address[] memory path = new address[](2);
@@ -122,55 +133,81 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
       to,
       deadline
     );
-    require(liquidity >= minLiquidity, "LatteSwapOptimalDeposit::execute:: insufficient LP tokens received");
+    require(
+      liquidity >= minLiquidity,
+      "LatteSwapOptimalDeposit::_optimalAddLiquidity:: insufficient LP tokens received"
+    );
     require(
       lpToken.transfer(msg.sender, lpToken.balanceOf(address(this))),
-      "LatteSwapOptimalDeposit::execute:: failed to transfer LP token to msg.sender"
+      "LatteSwapOptimalDeposit::_optimalAddLiquidity:: failed to transfer LP token to msg.sender"
     );
     // 7. Reset approve to 0 for safety reason
     tokenA.safeApprove(address(router), 0);
     tokenB.safeApprove(address(router), 0);
   }
 
+  /// @dev Optimal swap then add liquidity to the token pair
+  /// @param tokenA address of tokenA desired to deposit
+  /// @param tokenB address of tokenB desired to deposit
+  /// @param amtA amount of tokenA desired to deposit
+  /// @param amtB amonut of tokenB desired to deposit
+  /// @param minLiquidity minimum lp token expected to receive
+  /// @param to address to receive lp token
+  /// @param deadline deadline of the deposit transaction
   function optimalAddLiquidity(
-      address tokenA,
-      address tokenB,
-      uint amtA,
-      uint amtB,
-      uint minLiquidity,
-      address to,
-      uint deadline
-  ) external nonReentrant returns (uint amountA, uint amountB, uint liquidity){
-    (amountA, amountB, liquidity) = _optimalAddLiquidity(
-      tokenA, 
-      tokenB, 
-      amtA, 
-      amtB, 
-      minLiquidity, 
-      to, 
-      deadline
-    );
+    address tokenA,
+    address tokenB,
+    uint256 amtA,
+    uint256 amtB,
+    uint256 minLiquidity,
+    address to,
+    uint256 deadline
+  )
+    external
+    nonReentrant
+    returns (
+      uint256 amountA,
+      uint256 amountB,
+      uint256 liquidity
+    )
+  {
+    (amountA, amountB, liquidity) = _optimalAddLiquidity(tokenA, tokenB, amtA, amtB, minLiquidity, to, deadline);
   }
-  
+
+  /// @dev Optimal swap then add liquidity to the BNB pair
+  /// @param token address of token desired to deposit
+  /// @param amount amount of token desired to deposit
+  /// @param minLiquidity minimum lp token expected to receive
+  /// @param to address to receive lp token
+  /// @param deadline deadline of the deposit transaction
   function optimalAddLiquidityBNB(
     address token,
-    uint amount,
-    uint minLiquidity,
+    uint256 amount,
+    uint256 minLiquidity,
     address to,
-    uint deadline
-  ) external payable nonReentrant returns (uint amountToken, uint amountBNB, uint liquidity){
+    uint256 deadline
+  )
+    external
+    payable
+    nonReentrant
+    returns (
+      uint256 amountToken,
+      uint256 amountBNB,
+      uint256 liquidity
+    )
+  {
     // 1. Wrap BNB
     if (msg.value != 0) {
       IWBNB(WBNB).deposit{ value: msg.value }();
     }
     // 2. optimal add liquidity using WBNB
     (amountToken, amountBNB, liquidity) = _optimalAddLiquidity(
-      token, 
-      WBNB, 
-      amount, 
-      msg.value, 
-      minLiquidity, 
-      to, 
+      token,
+      WBNB,
+      amount,
+      msg.value,
+      minLiquidity,
+      to,
       deadline
     );
   }
