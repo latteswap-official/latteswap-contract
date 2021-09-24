@@ -2,14 +2,14 @@ import { ethers, network } from "hardhat";
 import { DripBar, DripBar__factory } from "../../typechain";
 import { withNetworkFile, getConfig } from "../../utils";
 
-interface IAddGrazingRangeRewardInfoParam {
+interface IAddDripBarRewardInfoParam {
   PHASE_NAME: string;
   CAMPAIGN_ID: string;
   ENDBLOCK: string;
   REWARD_PER_BLOCK: string;
 }
 
-type IAddGrazingRangeRewardInfoParamList = Array<IAddGrazingRangeRewardInfoParam>;
+type IAddDripBarRewardInfoParamList = Array<IAddDripBarRewardInfoParam>;
 
 async function main() {
   /*
@@ -22,7 +22,7 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const REWARDINFO: IAddGrazingRangeRewardInfoParamList = [
+  const REWARDINFO: IAddDripBarRewardInfoParamList = [
     {
       PHASE_NAME: "WEEK_1",
       CAMPAIGN_ID: "0",

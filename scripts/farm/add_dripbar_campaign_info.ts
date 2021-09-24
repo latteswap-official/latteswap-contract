@@ -2,14 +2,14 @@ import { ethers, network } from "hardhat";
 import { DripBar, DripBar__factory } from "../../typechain";
 import { withNetworkFile, getConfig } from "../../utils";
 
-interface IAddGrazingRangeCampaignParam {
+interface IAddDripBarCampaignParam {
   NAME: string;
   STAKING_TOKEN: string;
   REWARD_TOKEN: string;
   START_BLOCK: string;
 }
 
-type IAddGrazingRangeCampaignParamList = Array<IAddGrazingRangeCampaignParam>;
+type IAddDripBarCampaignParamList = Array<IAddDripBarCampaignParam>;
 
 async function main() {
   /*
@@ -22,7 +22,7 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const CAMPAIGNS: IAddGrazingRangeCampaignParamList = [
+  const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
       NAME: "Mock Token #1",
       STAKING_TOKEN: "0xcD855F77f939B626dBe3dAdB6bE7aab961fC8977",
@@ -33,7 +33,7 @@ async function main() {
 
   for (let i = 0; i < CAMPAIGNS.length; i++) {
     const campaign = CAMPAIGNS[i];
-    console.log(`>> Execute Transaction to add ${campaign.NAME} to Grazing Range`);
+    console.log(`>> Execute Transaction to add ${campaign.NAME} to Dripbar`);
     const dripbar = DripBar__factory.connect(
       "0xe26067221a286EC1D3A914E192641513883A4b36",
       (await ethers.getSigners())[0]
