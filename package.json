@@ -102,7 +102,7 @@
     "script:mainnet:ogNftOffering:timelock:setBuyLimitCount": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/timelock_set_buy_limit_count.ts",
     "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts"
   },
-  "version": "1.2.2",
+  "version": "1.3.2-rc.0",
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
