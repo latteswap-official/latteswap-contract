@@ -294,7 +294,7 @@ describe("OGNFT", () => {
       it("should reverted", async () => {
         await ogNFT.pause();
         await expect(ogNFT.mint(await alice.getAddress(), 0, "tokenUrl")).to.be.revertedWith(
-          "revert ERC721Pausable: token transfer while paused"
+          "ERC721Pausable: token transfer while paused"
         );
       });
     });
@@ -448,7 +448,7 @@ describe("OGNFT", () => {
       it("should reverted", async () => {
         await ogNFT.pause();
         await expect(ogNFT.mintBatch(await alice.getAddress(), 0, "tokenURI", 100)).to.be.revertedWith(
-          "revert ERC721Pausable: token transfer while paused"
+          "ERC721Pausable: token transfer while paused"
         );
       });
     });
@@ -646,7 +646,7 @@ describe("OGNFT", () => {
     context("when paused", async () => {
       it("should reverted", async () => {
         await ogNFT.pause();
-        await expect(ogNFT.pause()).to.be.revertedWith("revert Pausable: paused");
+        await expect(ogNFT.pause()).to.be.revertedWith("Pausable: paused");
       });
     });
     context("when not paused", async () => {
@@ -669,7 +669,7 @@ describe("OGNFT", () => {
 
       context("when not paused", async () => {
         it("should reverted", async () => {
-          await expect(ogNFT.unpause()).to.be.revertedWith("revert Pausable: not paused");
+          await expect(ogNFT.unpause()).to.be.revertedWith("Pausable: not paused");
         });
       });
     });

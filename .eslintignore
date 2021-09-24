@@ -3,3 +3,4 @@ dist/
 artifacts/
 deployments/
 typechain/
+package.json
