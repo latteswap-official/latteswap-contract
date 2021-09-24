@@ -144,6 +144,11 @@
       "address": "0x8b1687BEEf626b99a11303c324c6131BEcdf2245",
       "txHash": "0x6deb5cf3b3cada5528fa1ead698041ed375bf06ebd822103f2f60ba098dbeb4f",
       "kind": "transparent"
+    },
+    {
+      "address": "0xe26067221a286EC1D3A914E192641513883A4b36",
+      "txHash": "0x6a74c6aa737aedc66fe4acc8e18de78e602850844a8287053335f7b2c8256253",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -8912,6 +8917,180 @@
           },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "ca0003809cb6639c14511576f3613a146e99aac74d37aebf65dfc2439183352c": {
+      "address": "0x08936e290473a6BE55441f3E48BCeb44B94cd333",
+      "txHash": "0xfa175159813a36af5dd4ac68ab0fc835f9771f4cd07b46395a53743bad60456f",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:25"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:30"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "DripBar",
+            "label": "campaignRewardInfo",
+            "type": "t_mapping(t_uint256,t_array(t_struct(RewardInfo)10701_storage)dyn_storage)",
+            "src": "contracts/farm/DripBar.sol:42"
+          },
+          {
+            "contract": "DripBar",
+            "label": "campaignInfo",
+            "type": "t_array(t_struct(CampaignInfo)10696_storage)dyn_storage",
+            "src": "contracts/farm/DripBar.sol:45"
+          },
+          {
+            "contract": "DripBar",
+            "label": "userInfo",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(UserInfo)10681_storage))",
+            "src": "contracts/farm/DripBar.sol:47"
+          },
+          {
+            "contract": "DripBar",
+            "label": "rewardInfoLimit",
+            "type": "t_uint256",
+            "src": "contracts/farm/DripBar.sol:51"
+          },
+          {
+            "contract": "DripBar",
+            "label": "rewardHolder",
+            "type": "t_address",
+            "src": "contracts/farm/DripBar.sol:53"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint256,t_array(t_struct(RewardInfo)10701_storage)dyn_storage)": {
+            "label": "mapping(uint256 => struct DripBar.RewardInfo[])"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_struct(RewardInfo)10701_storage)dyn_storage": {
+            "label": "struct DripBar.RewardInfo[]"
+          },
+          "t_struct(RewardInfo)10701_storage": {
+            "label": "struct DripBar.RewardInfo",
+            "members": [
+              {
+                "label": "endBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardPerBlock",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_array(t_struct(CampaignInfo)10696_storage)dyn_storage": {
+            "label": "struct DripBar.CampaignInfo[]"
+          },
+          "t_struct(CampaignInfo)10696_storage": {
+            "label": "struct DripBar.CampaignInfo",
+            "members": [
+              {
+                "label": "stakingToken",
+                "type": "t_contract(IERC20)6402"
+              },
+              {
+                "label": "rewardToken",
+                "type": "t_contract(IERC20)6402"
+              },
+              {
+                "label": "startBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastRewardBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "accRewardPerShare",
+                "type": "t_uint256"
+              },
+              {
+                "label": "totalStaked",
+                "type": "t_uint256"
+              },
+              {
+                "label": "totalRewards",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_contract(IERC20)6402": {
+            "label": "contract IERC20"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(UserInfo)10681_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct DripBar.UserInfo))"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)10681_storage)": {
+            "label": "mapping(address => struct DripBar.UserInfo)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(UserInfo)10681_storage": {
+            "label": "struct DripBar.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
           }
         }
       }
