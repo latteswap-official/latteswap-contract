@@ -3,7 +3,8 @@
   "scripts": {
     "compile": "hardhat typechain --config hardhat.config.ts",
     "remove:sol-log": "hardhat remove-logs",
-    "prettier-format:default": "prettier --config .prettierrc 'deploy/**/*.ts' 'utils/**/*.ts' 'scripts/**/*.ts' 'tests/**/*.ts' --write",
+    "prettier:ts": "prettier --config .prettierrc 'deploy/**/*.ts' 'utils/**/*.ts' 'scripts/**/*.ts' 'tests/**/*.ts' --write",
+    "prettier:sol": "prettier --config .prettierrc --write contracts/**/*.sol",
     "deploy:mainnet": "hardhat --network mainnet deploy --reset",
     "deploy:testnet": "hardhat --network testnet deploy --reset",
     "test": "hardhat test --no-compile",
