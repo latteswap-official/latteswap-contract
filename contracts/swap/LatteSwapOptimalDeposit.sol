@@ -80,6 +80,32 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     return numerator.div(denominator);
   }
 
+  /// @dev optimal swap to balance 2 token value
+  /// @param tokenA address of tokenA desired to deposit
+  /// @param tokenB address of tokenB desired to deposit
+  /// @param amtA amount of tokenA desired to deposit
+  /// @param amtB amonut of tokenB desired to deposit
+  /// @param deadline deadline of the deposit transaction
+  function _optimalSwap(
+    address tokenA,
+    address tokenB,
+    uint256 amtA,
+    uint256 amtB,
+    uint256 deadline
+  ) internal {
+    // 1. Find out what token pair we are dealing with.
+    ILatteSwapPair lpToken = ILatteSwapPair(factory.getPair(tokenA, tokenB));
+    // 2. Compute the optimal amount of tokenA and tokenB to be converted.
+    (uint256 r0, uint256 r1, ) = lpToken.getReserves();
+    (uint256 reserveA, uint256 reserveB) = lpToken.token0() == tokenA ? (r0, r1) : (r1, r0);
+    (uint256 swapAmt, bool isReversed) = calSwapAmount(amtA, amtB, reserveA, reserveB);
+    // 3. Convert between tokenA and tokenB
+    address[] memory path = new address[](2);
+    (path[0], path[1]) = isReversed ? (tokenB, tokenA) : (tokenA, tokenB);
+    // 4. Swap according to path
+    if (swapAmt > 0) router.swapExactTokensForTokens(swapAmt, 0, path, address(this), deadline);
+  }
+
   /// @dev Add liquidity helper
   /// @param tokenA address of tokenA desired to deposit
   /// @param tokenB address of tokenB desired to deposit
@@ -109,20 +135,9 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     // 2. Approve router to do their stuffs
     tokenA.safeApprove(address(router), uint256(-1));
     tokenB.safeApprove(address(router), uint256(-1));
-    // 3. Compute the optimal amount of tokenA and tokenB to be converted.
-    uint256 swapAmt;
-    bool isReversed;
-    {
-      (uint256 r0, uint256 r1, ) = lpToken.getReserves();
-      (uint256 tokenAReserve, uint256 tokenBReserve) = lpToken.token0() == tokenA ? (r0, r1) : (r1, r0);
-      (swapAmt, isReversed) = calSwapAmount(amtA, amtB, tokenAReserve, tokenBReserve);
-    }
-    // 4. Convert between tokenA and tokenB
-    address[] memory path = new address[](2);
-    (path[0], path[1]) = isReversed ? (tokenB, tokenA) : (tokenA, tokenB);
-    // 5. Swap according to path
-    if (swapAmt > 0) router.swapExactTokensForTokens(swapAmt, 0, path, address(this), deadline);
-    // 6. Add liquidity and return all LP tokens to the sender.
+    // 3. Do optimal swap to balance both side
+    _optimalSwap(tokenA, tokenB, amtA, amtB, deadline);
+    // 4. Add liquidity and return all LP tokens to the sender.
     (amountA, amountB, liquidity) = router.addLiquidity(
       tokenA,
       tokenB,
@@ -141,7 +156,7 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
       lpToken.transfer(msg.sender, lpToken.balanceOf(address(this))),
       "LatteSwapOptimalDeposit::_optimalAddLiquidity:: failed to transfer LP token to msg.sender"
     );
-    // 7. Reset approve to 0 for safety reason
+    // 5. Reset approve to 0 for safety reason
     tokenA.safeApprove(address(router), 0);
     tokenB.safeApprove(address(router), 0);
   }
@@ -166,12 +181,12 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     external
     nonReentrant
     returns (
-      uint256 amountA,
-      uint256 amountB,
-      uint256 liquidity
+      uint256,
+      uint256,
+      uint256
     )
   {
-    (amountA, amountB, liquidity) = _optimalAddLiquidity(tokenA, tokenB, amtA, amtB, minLiquidity, to, deadline);
+    return _optimalAddLiquidity(tokenA, tokenB, amtA, amtB, minLiquidity, to, deadline);
   }
 
   /// @dev Optimal swap then add liquidity to the BNB pair
@@ -191,25 +206,17 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     payable
     nonReentrant
     returns (
-      uint256 amountToken,
-      uint256 amountBNB,
-      uint256 liquidity
+      uint256,
+      uint256,
+      uint256
     )
   {
     // 1. Wrap BNB
     if (msg.value != 0) {
-      IWBNB(WBNB).deposit{ value: msg.value }();
+      IWBNB(wbnb).deposit{ value: msg.value }();
     }
     // 2. optimal add liquidity using WBNB
-    (amountToken, amountBNB, liquidity) = _optimalAddLiquidity(
-      token,
-      WBNB,
-      amount,
-      msg.value,
-      minLiquidity,
-      to,
-      deadline
-    );
+    return _optimalAddLiquidity(token, wbnb, amount, msg.value, minLiquidity, to, deadline);
   }
 
   receive() external payable {}
