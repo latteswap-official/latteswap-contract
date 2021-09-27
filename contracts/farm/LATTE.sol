@@ -93,17 +93,9 @@ contract LATTE is ERC20("LATTE", "LATTE"), Ownable {
   /// @param _sender The address of the account that will be debited
   /// @param _recipient The address of the account that will be credited
   /// @param _amount The amount to be moved
-  function transferFrom(
-    address _sender,
-    address _recipient,
-    uint256 _amount
-  ) public virtual override returns (bool) {
+  function transferFrom(address _sender, address _recipient, uint256 _amount) public virtual override returns (bool) {
     _transfer(_sender, _recipient, _amount);
-    _approve(
-      _sender,
-      _msgSender(),
-      allowance(_sender, _msgSender()).sub(_amount, "LATTE::transferFrom::transfer amount exceeds allowance")
-    );
+    _approve(_sender, _msgSender(), allowance(_sender, _msgSender()).sub(_amount, "LATTE::transferFrom::transfer amount exceeds allowance"));
     _moveDelegates(_delegates[_sender], _delegates[_recipient], _amount);
     return true;
   }
@@ -159,7 +151,8 @@ contract LATTE is ERC20("LATTE", "LATTE"), Ownable {
     }
     // When block number is more than startReleaseBlock but less than endReleaseBlock,
     // some LATTEs can be released
-    else {
+    else
+    {
       uint256 releasedBlock = block.number.sub(_lastUnlockBlock[_account]);
       uint256 blockLeft = endReleaseBlock.sub(_lastUnlockBlock[_account]);
       return _locks[_account].mul(releasedBlock).div(blockLeft);
@@ -187,19 +180,16 @@ contract LATTE is ERC20("LATTE", "LATTE"), Ownable {
 
     if (_lastUnlockBlock[_to] < startReleaseBlock) {
       _lastUnlockBlock[_to] = startReleaseBlock;
-    } else if (block.number < endReleaseBlock) {
-      uint256 fromUnlocked = canUnlockAmount(msg.sender);
-      uint256 toUnlocked = canUnlockAmount(_to);
-      uint256 numerator = block
-        .number
-        .mul(_locks[msg.sender])
-        .add(block.number.mul(_locks[_to]))
-        .sub(endReleaseBlock.mul(fromUnlocked))
-        .sub(endReleaseBlock.mul(toUnlocked));
-      uint256 denominator = _locks[msg.sender].add(_locks[_to]).sub(fromUnlocked).sub(toUnlocked);
-      _lastUnlockBlock[_to] = numerator.div(denominator);
     }
 
+    else if (block.number < endReleaseBlock) {
+        uint256 fromUnlocked = canUnlockAmount(msg.sender);
+        uint256 toUnlocked = canUnlockAmount(_to);
+        uint256 numerator = block.number.mul(_locks[msg.sender]).add(block.number.mul(_locks[_to])).sub(endReleaseBlock.mul(fromUnlocked)).sub(endReleaseBlock.mul(toUnlocked));
+        uint256 denominator = _locks[msg.sender].add(_locks[_to]).sub(fromUnlocked).sub(toUnlocked);
+        _lastUnlockBlock[_to] = numerator.div(denominator);
+    }
+    
     _locks[msg.sender] = 0;
     _lastUnlockBlock[msg.sender] = 0;
 
@@ -228,11 +218,14 @@ contract LATTE is ERC20("LATTE", "LATTE"), Ownable {
   mapping(address => uint32) public numCheckpoints;
 
   /// @notice The EIP-712 typehash for the contract's domain
-  bytes32 public constant DOMAIN_TYPEHASH =
-    keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
+  bytes32 public constant DOMAIN_TYPEHASH = keccak256(
+    "EIP712Domain(string name,uint256 chainId,address verifyingContract)"
+  );
 
   /// @notice The EIP-712 typehash for the delegation struct used by the contract
-  bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+  bytes32 public constant DELEGATION_TYPEHASH = keccak256(
+    "Delegation(address delegatee,uint256 nonce,uint256 expiry)"
+  );
 
   /// @notice A record of states for signing / validating signatures
   mapping(address => uint256) public nonces;
@@ -244,30 +237,30 @@ contract LATTE is ERC20("LATTE", "LATTE"), Ownable {
   event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
 
   /**
-   * @notice Delegate votes from `msg.sender` to `delegatee`
-   * @param delegator The address to get delegatee for
-   */
+    * @notice Delegate votes from `msg.sender` to `delegatee`
+    * @param delegator The address to get delegatee for
+    */
   function delegates(address delegator) external view returns (address) {
     return _delegates[delegator];
   }
 
   /**
-   * @notice Delegate votes from `msg.sender` to `delegatee`
-   * @param delegatee The address to delegate votes to
-   */
+    * @notice Delegate votes from `msg.sender` to `delegatee`
+    * @param delegatee The address to delegate votes to
+    */
   function delegate(address delegatee) external {
     return _delegate(msg.sender, delegatee);
   }
 
   /**
-   * @notice Delegates votes from signatory to `delegatee`
-   * @param delegatee The address to delegate votes to
-   * @param nonce The contract state required to match the signature
-   * @param expiry The time at which to expire the signature
-   * @param v The recovery byte of the signature
-   * @param r Half of the ECDSA signature pair
-   * @param s Half of the ECDSA signature pair
-   */
+    * @notice Delegates votes from signatory to `delegatee`
+    * @param delegatee The address to delegate votes to
+    * @param nonce The contract state required to match the signature
+    * @param expiry The time at which to expire the signature
+    * @param v The recovery byte of the signature
+    * @param r Half of the ECDSA signature pair
+    * @param s Half of the ECDSA signature pair
+    */
   function delegateBySig(
     address delegatee,
     uint256 nonce,
@@ -292,22 +285,22 @@ contract LATTE is ERC20("LATTE", "LATTE"), Ownable {
   }
 
   /**
-   * @notice Gets the current votes balance for `account`
-   * @param account The address to get votes balance
-   * @return The number of current votes for `account`
-   */
+    * @notice Gets the current votes balance for `account`
+    * @param account The address to get votes balance
+    * @return The number of current votes for `account`
+    */
   function getCurrentVotes(address account) external view returns (uint256) {
     uint32 nCheckpoints = numCheckpoints[account];
     return nCheckpoints > 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
   }
 
   /**
-   * @notice Determine the prior number of votes for an account as of a block number
-   * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
-   * @param account The address of the account to check
-   * @param blockNumber The block number to get the vote balance at
-   * @return The number of votes the account had as of the given block
-   */
+    * @notice Determine the prior number of votes for an account as of a block number
+    * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
+    * @param account The address of the account to check
+    * @param blockNumber The block number to get the vote balance at
+    * @return The number of votes the account had as of the given block
+    */
   function getPriorVotes(address account, uint256 blockNumber) external view returns (uint256) {
     require(blockNumber < block.number, "LATTE::getPriorVotes: not yet determined");
 
