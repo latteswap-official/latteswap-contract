@@ -12,7 +12,7 @@ import "./interfaces/ILatteSwapRouter.sol";
 import "./interfaces/IWBNB.sol";
 
 import "./libraries/LatteSwapMath.sol";
-import "./libraries/SafeToken.sol";
+import "../periphery/library/SafeToken.sol";
 
 contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
   using SafeToken for address;
