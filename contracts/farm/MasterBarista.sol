@@ -587,7 +587,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
     user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
 
-    activeBean.mint(_for, _amount);
+    bean.mint(_for, _amount);
 
     emit Deposit(_msgSender(), _for, address(latte), _amount);
   }
@@ -614,7 +614,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
     if (user.amount == 0) user.fundedBy = address(0);
 
-    activeBean.burn(_for, _amount);
+    bean.burn(_for, _amount);
 
     emit Withdraw(_msgSender(), _for, address(latte), user.amount);
   }
@@ -713,6 +713,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address _stakeToken,
     uint256 _lastRewardBlock
   ) internal {
+    _assignActiveToken();
     PoolInfo memory pool = poolInfo[_stakeToken];
     UserInfo memory user = userInfo[_stakeToken][_for];
     require(
@@ -766,7 +767,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @param _for if the msg sender is a funder, can emergency withdraw a fundee
   /// @param _stakeToken The pool's stake token
   function emergencyWithdraw(address _for, address _stakeToken) external override nonReentrant {
-    _assignActiveToken();
     UserInfo storage user = userInfo[_stakeToken][_for];
     require(user.fundedBy == _msgSender(), "MasterBarista::emergencyWithdraw::only funder");
     IERC20(_stakeToken).safeTransfer(address(_for), user.amount);
@@ -774,8 +774,11 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     emit EmergencyWithdraw(_for, _stakeToken, user.amount);
 
     // Burn BEAN if user emergencyWithdraw LATTE
-    if (_stakeToken == address(activeLatte)) {
-      activeBean.burn(_for, user.amount);
+    if (_stakeToken == address(latte)) {
+      bean.burn(_for, user.amount);
+    }
+    if (_stakeToken == address(latteV2)) {
+      beanV2.burn(_for, user.amount);
     }
 
     // Reset user info
@@ -836,17 +839,19 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @notice migrate latteV1 -> latteV2 and beanV1 -> beanV2
   function migrate(ILATTEV2 _latteV2, IBeanBag _beanV2) external onlyOwner {
     massUpdatePools();
-    uint256 amount = latte.balanceOf(address(bean));
+    uint256 _amount = latte.balanceOf(address(bean));
 
     activeLatte = ILATTE(address(_latteV2));
     activeBean = _beanV2;
     latteV2 = _latteV2;
     beanV2 = _beanV2;
 
-    bean.safeLatteTransfer(address(this), amount);
-    _latteV2.redeem(amount);
-    _latteV2.transfer(address(beanV2), amount);
+    bean.safeLatteTransfer(address(this), _amount);
+    latte.approve(address(_latteV2), uint256(-1));
+    _latteV2.redeem(_amount);
+    _latteV2.transfer(address(beanV2), _amount);
+    latte.approve(address(_latteV2), 0);
 
-    emit Migrate(amount);
+    emit Migrate(_amount);
   }
 }

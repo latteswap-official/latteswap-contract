@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./interfaces/ILATTE.sol";
 
-contract LATTEV2 is ERC20("LATTEV2", "LATTEV2"), Ownable, AccessControl {
+contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
   using SafeERC20 for IERC20;
   // This is a packed array of booleans.
   mapping(uint256 => uint256) private claimedBitMap;
@@ -95,12 +95,12 @@ contract LATTEV2 is ERC20("LATTEV2", "LATTEV2"), Ownable, AccessControl {
   /// @param _cap The new cap
   function setCap(uint256 _cap) external onlyGovernor {
     require(_cap < cap, "LATTEV2::setCap::_cap must < cap");
-    uint256 prevCap = cap;
+    uint256 _prevCap = cap;
     cap = _cap;
-    emit CapChanged(prevCap, cap);
+    emit CapChanged(_prevCap, cap);
   }
 
-  /// @dev A function to mint LATTE. This will be called by an owner only.
+  /// @dev A function to mint LATTE. This will be called by a minter only.
   /// @param _to The address of the account to get this newly mint LATTE
   /// @param _amount The amount to be minted
   function mint(address _to, uint256 _amount) external onlyMinter {
@@ -108,7 +108,7 @@ contract LATTEV2 is ERC20("LATTEV2", "LATTEV2"), Ownable, AccessControl {
     _mint(_to, _amount);
   }
 
-  /// @dev A generic transfer function with moveDelegates
+  /// @dev A generic transfer function
   /// @param _recipient The address of the account that will be credited
   /// @param _amount The amount to be moved
   function transfer(address _recipient, uint256 _amount) public virtual override returns (bool) {
@@ -116,7 +116,7 @@ contract LATTEV2 is ERC20("LATTEV2", "LATTEV2"), Ownable, AccessControl {
     return true;
   }
 
-  /// @dev A generic transferFrom function with moveDelegates
+  /// @dev A generic transferFrom function
   /// @param _sender The address of the account that will be debited
   /// @param _recipient The address of the account that will be credited
   /// @param _amount The amount to be moved
@@ -238,7 +238,7 @@ contract LATTEV2 is ERC20("LATTEV2", "LATTEV2"), Ownable, AccessControl {
     bytes32 node = keccak256(abi.encodePacked(_index, _account, _amount));
     require(MerkleProof.verify(_merkleProof, merkleRoot, node), "LATTEV2::claimLock:: invalid proof");
 
-    // Mark it claimed and send the token.
+    // Mark it claimed
     _setClaimed(_index);
 
     // mint lock reward to an account

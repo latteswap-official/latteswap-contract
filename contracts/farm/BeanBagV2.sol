@@ -18,14 +18,14 @@ contract BeanBagV2 is ERC20Upgradeable, IBeanBag, OwnableUpgradeable {
   /// @notice latte token
   ILATTE public latte;
 
-  function initialize(ILATTE _latte) public initializer {
+  function initialize(ILATTE _latte) external initializer {
     OwnableUpgradeable.__Ownable_init();
     ERC20Upgradeable.__ERC20_init("Bean Token V2", "BEANV2");
 
     latte = _latte;
   }
 
-  /// @dev A generic transfer function with moveDelegates
+  /// @dev A generic transfer function
   /// @param _to The address of the account that will be credited
   /// @param _amount The amount to be moved
   function transfer(address _to, uint256 _amount) public virtual override returns (bool) {
@@ -33,7 +33,7 @@ contract BeanBagV2 is ERC20Upgradeable, IBeanBag, OwnableUpgradeable {
     return true;
   }
 
-  /// @dev A generic transferFrom function with moveDelegates
+  /// @dev A generic transferFrom function
   /// @param _from The address of the account that will be debited
   /// @param _to The address of the account that will be credited
   /// @param _amount The amount to be moved
@@ -69,9 +69,9 @@ contract BeanBagV2 is ERC20Upgradeable, IBeanBag, OwnableUpgradeable {
   /// @param _to The address to transfer LATTE to
   /// @param _amount The amount to transfer to
   function safeLatteTransfer(address _to, uint256 _amount) external override onlyOwner {
-    uint256 latteBal = latte.balanceOf(address(this));
-    if (_amount > latteBal) {
-      latte.transfer(_to, latteBal);
+    uint256 _latteBal = latte.balanceOf(address(this));
+    if (_amount > _latteBal) {
+      latte.transfer(_to, _latteBal);
     } else {
       latte.transfer(_to, _amount);
     }
