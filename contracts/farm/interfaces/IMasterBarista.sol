@@ -48,6 +48,10 @@ interface IMasterBarista {
 
   function withdrawLatte(address _for, uint256 _amount) external;
 
+  function depositLatteV2(address _for, uint256 _amount) external;
+
+  function withdrawLatteV2(address _for, uint256 _amount) external;
+
   function harvest(address _for, address _stakeToken) external;
 
   function harvest(address _for, address[] calldata _stakeToken) external;
