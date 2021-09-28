@@ -12,6 +12,8 @@ import "./interfaces/ILatteSwapRouter.sol";
 import "./interfaces/IWBNB.sol";
 
 import "./libraries/LatteSwapMath.sol";
+import "./libraries/TransferHelper.sol";
+
 import "../periphery/library/SafeToken.sol";
 
 contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
@@ -69,7 +71,7 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     uint256 a = 9975;
     uint256 b = uint256(19975).mul(resA);
     uint256 _c = (amtA.mul(resB)).sub(amtB.mul(resA));
-    uint256 c = _c.mul(1000).div(amtB.add(resB)).mul(resA);
+    uint256 c = _c.mul(10000).div(amtB.add(resB)).mul(resA);
 
     uint256 d = a.mul(c).mul(4);
     uint256 e = LatteSwapMath.sqrt(b.mul(b).add(d));
@@ -109,16 +111,12 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
   /// @dev Add liquidity helper
   /// @param tokenA address of tokenA desired to deposit
   /// @param tokenB address of tokenB desired to deposit
-  /// @param amtA amount of tokenA desired to deposit
-  /// @param amtB amonut of tokenB desired to deposit
   /// @param minLiquidity minimum lp token expected to receive
   /// @param to address to receive lp token
   /// @param deadline deadline of the deposit transaction
   function _optimalAddLiquidity(
     address tokenA,
     address tokenB,
-    uint256 amtA,
-    uint256 amtB,
     uint256 minLiquidity,
     address to,
     uint256 deadline
@@ -131,12 +129,15 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     )
   {
     // 1. Find out what token pair we are dealing with.
-    ILatteSwapPair lpToken = ILatteSwapPair(factory.getPair(tokenA, tokenB));
-    // 2. Approve router to do their stuffs
+    address lpToken = factory.getPair(tokenA, tokenB);
+    // 2. Approve router and get token from msg.sender
     tokenA.safeApprove(address(router), uint256(-1));
     tokenB.safeApprove(address(router), uint256(-1));
     // 3. Do optimal swap to balance both side
-    _optimalSwap(tokenA, tokenB, amtA, amtB, deadline);
+    // Do NOT optimal swap if pair does not existed
+    if (lpToken != address(0)) {
+      _optimalSwap(tokenA, tokenB, tokenA.myBalance(), tokenB.myBalance(), deadline);
+    }
     // 4. Add liquidity and return all LP tokens to the sender.
     (amountA, amountB, liquidity) = router.addLiquidity(
       tokenA,
@@ -152,10 +153,7 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
       liquidity >= minLiquidity,
       "LatteSwapOptimalDeposit::_optimalAddLiquidity:: insufficient LP tokens received"
     );
-    require(
-      lpToken.transfer(msg.sender, lpToken.balanceOf(address(this))),
-      "LatteSwapOptimalDeposit::_optimalAddLiquidity:: failed to transfer LP token to msg.sender"
-    );
+
     // 5. Reset approve to 0 for safety reason
     tokenA.safeApprove(address(router), 0);
     tokenB.safeApprove(address(router), 0);
@@ -181,12 +179,21 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     external
     nonReentrant
     returns (
-      uint256,
-      uint256,
-      uint256
+      uint256 amountA,
+      uint256 amountB,
+      uint256 liquidity
     )
   {
-    return _optimalAddLiquidity(tokenA, tokenB, amtA, amtB, minLiquidity, to, deadline);
+    //1. Collect tokenA and tokenB
+    tokenA.safeTransferFrom(msg.sender, address(this), amtA);
+    tokenB.safeTransferFrom(msg.sender, address(this), amtB);
+    //2. Do optimal add liquidity
+    (amountA, amountB, liquidity) = _optimalAddLiquidity(tokenA, tokenB, minLiquidity, to, deadline);
+    //3. Refund dust
+    {
+      tokenA.safeTransfer(msg.sender, tokenA.myBalance());
+      tokenB.safeTransfer(msg.sender, tokenB.myBalance());
+    }
   }
 
   /// @dev Optimal swap then add liquidity to the BNB pair
@@ -206,17 +213,33 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     payable
     nonReentrant
     returns (
-      uint256,
-      uint256,
-      uint256
+      uint256 amountA,
+      uint256 amountB,
+      uint256 liquidity
     )
   {
-    // 1. Wrap BNB
+    // 1. Collect token
+    TransferHelper.safeTransferFrom(token, msg.sender, address(this), amount);
+    // 2. Wrap BNB
     if (msg.value != 0) {
       IWBNB(wbnb).deposit{ value: msg.value }();
+      assert(IWBNB(wbnb).transfer(address(this), msg.value));
     }
-    // 2. optimal add liquidity using WBNB
-    return _optimalAddLiquidity(token, wbnb, amount, msg.value, minLiquidity, to, deadline);
+    // 3. Do optimal add liquidity using WBNB
+    (amountA, amountB, liquidity) = _optimalAddLiquidity(token, wbnb, minLiquidity, to, deadline);
+    // 4. Unwrap BNB
+    {
+      uint256 remainingWBNB = wbnb.myBalance();
+      if (remainingWBNB != 0) {
+        IWBNB(wbnb).withdraw(remainingWBNB);
+        assert(payable(address(this)).balance == remainingWBNB);
+      }
+    }
+    // 5. Refund dust
+    {
+      TransferHelper.safeTransfer(token, msg.sender, token.myBalance());
+      TransferHelper.safeTransferETH(msg.sender, payable(address(this)).balance);
+    }
   }
 
   receive() external payable {}

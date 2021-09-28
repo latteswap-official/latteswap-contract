@@ -15,6 +15,7 @@
     "test:unit:latteNFT": "hardhat test --no-compile ./tests/unit/LatteNFT.test.ts",
     "test:unit:boosterConfig": "hardhat test --no-compile ./tests/unit/BoosterConfig.test.ts",
     "test:unit:latteSwapRouter": "hardhat test --no-compile ./tests/unit/LatteSwapRouter.test.ts",
+    "test:unit:latteSwapOptimalDeposit": "hardhat test --no-compile ./tests/unit/LatteSwapOptimalDeposit.test.ts",
     "test:unit:latteSwapFactory": "hardhat test --no-compile ./tests/unit/LatteSwapFactory.test.ts",
     "test:unit:masterBarista": "hardhat test --no-compile ./tests/unit/MasterBarista.test.ts",
     "test:unit:booster": "hardhat test --no-compile ./tests/unit/Booster.test.ts",
