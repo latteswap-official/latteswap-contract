@@ -222,16 +222,22 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     // 2. Wrap BNB
     if (msg.value != 0) {
       IWBNB(wbnb).deposit{ value: msg.value }();
-      assert(IWBNB(wbnb).transfer(address(this), msg.value));
+      require(
+        IWBNB(wbnb).transfer(address(this), msg.value),
+        "LatteSwapOptimalDeposit::optimalAddLiquidityBNB:: failed to wrap BNB"
+      );
     }
     // 3. Do optimal add liquidity using WBNB
     (amountA, amountB, liquidity) = _optimalAddLiquidity(token, wbnb, minLiquidity, to, deadline);
-    // 4. Unwrap BNB
+    // 4. Unwrap WBNB
     {
       uint256 remainingWBNB = wbnb.myBalance();
       if (remainingWBNB != 0) {
         IWBNB(wbnb).withdraw(remainingWBNB);
-        assert(payable(address(this)).balance == remainingWBNB);
+        require(
+          payable(address(this)).balance == remainingWBNB,
+          "LatteSwapOptimalDeposit::optimalAddLiquidityBNB:: failed to unwrap WBNB"
+        );
       }
     }
     // 5. Refund dust
