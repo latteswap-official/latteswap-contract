@@ -46,7 +46,7 @@ export async function boosterUnitTestFixture(
 
   // Deploy LATTE
   const LATTE = (await ethers.getContractFactory("LATTE", deployer)) as LATTE__factory;
-  const latteToken = await LATTE.deploy(await dev.getAddress(), 132, 137);
+  const latteToken = await LATTE.deploy(await dev.getAddress(), 0, 1);
   await latteToken.deployed();
 
   // Mint LATTE for testing purpose

@@ -5,6 +5,7 @@ import { BigNumber } from "ethers";
 import { expect } from "chai";
 import { formatUnits } from "ethers/lib/utils";
 import { formatBigNumber } from "../../../utils/format";
+import { smoddit, ModifiableContract } from "@eth-optimism/smock";
 
 export interface IClaims {
   [account: string]: {
@@ -16,7 +17,7 @@ export interface IClaims {
 
 export interface ILatteConfigUnitTestFixtureDTO {
   latteV2: LATTEV2;
-  latteV1: LATTE;
+  latteV1: ModifiableContract;
   claims: IClaims;
   merkleRoot: string;
   tokenTotal: string;
@@ -35,8 +36,12 @@ export async function latteV2UnitTestFixture(): Promise<ILatteConfigUnitTestFixt
     [await eve.getAddress()]: formatBigNumber(ethers.utils.parseEther("250"), "purehex"),
   });
 
-  const LATTE = (await ethers.getContractFactory("LATTE", deployer)) as LATTE__factory;
-  const latteV1 = await LATTE.deploy(await deployer.getAddress(), 132, 137);
+  const LATTE = await smoddit("LATTE", deployer);
+  const latteV1: ModifiableContract = await LATTE.deploy(
+    await deployer.getAddress(),
+    (await ethers.provider.getBlockNumber()) + 100,
+    (await ethers.provider.getBlockNumber()) + 200
+  );
   await latteV1.deployed();
 
   // Mint LATTE for testing purpose
