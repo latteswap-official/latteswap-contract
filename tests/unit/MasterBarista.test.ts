@@ -116,6 +116,8 @@ describe("MasterBarista", () => {
           expect(stokenAllocPoint).to.be.eq(poolAlloc);
           expect(stokenLastRewardBlock).to.be.eq(stokenLastRewardBlock);
         }
+        expect(await masterBarista.activeBean()).to.eq(beanBag.address);
+        expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
       });
     });
 
@@ -355,6 +357,8 @@ describe("MasterBarista", () => {
           mockStakeTokenCaller,
           "OnBeforeLock"
         );
+        expect(await masterBarista.activeBean()).to.eq(beanBag.address);
+        expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
       });
     });
   });
@@ -486,6 +490,8 @@ describe("MasterBarista", () => {
           expect(userInfo.amount).to.eq(ethers.utils.parseEther("100"));
           expect(userInfo.fundedBy).to.eq(await deployer.getAddress());
           expect(poolInfo.lastRewardBlock).to.eq(tx.blockNumber);
+          expect(await masterBarista.activeBean()).to.eq(beanBag.address);
+          expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
         });
       });
     });
@@ -532,6 +538,8 @@ describe("MasterBarista", () => {
           expect(userInfo.amount).to.eq(ethers.utils.parseEther("100"));
           expect(userInfo.fundedBy).to.eq(await alice.getAddress());
           expect(poolInfo.lastRewardBlock).to.eq(tx.blockNumber);
+          expect(await masterBarista.activeBean()).to.eq(beanBag.address);
+          expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
         });
       });
 
@@ -576,6 +584,8 @@ describe("MasterBarista", () => {
           expect(userInfo.amount).to.eq(ethers.utils.parseEther("100"));
           expect(userInfo.fundedBy).to.eq(await deployer.getAddress());
           expect(poolInfo.lastRewardBlock).to.eq(tx.blockNumber);
+          expect(await masterBarista.activeBean()).to.eq(beanBag.address);
+          expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
         });
       });
     });
@@ -600,6 +610,8 @@ describe("MasterBarista", () => {
       await masterBaristaAsAlice.emergencyWithdraw(await deployer.getAddress(), stakingTokens[0].address);
       expect(await stakingTokens[0].balanceOf(await deployer.getAddress())).to.eq(ethers.utils.parseEther("100"));
       expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(ethers.utils.parseEther("100"));
+      expect(await masterBarista.activeBean()).to.eq(beanBag.address);
+      expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
     });
   });
 });
