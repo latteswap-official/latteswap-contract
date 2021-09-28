@@ -28,9 +28,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`>> tx hash: ${tx.hash}`);
     console.log("✅ Done");
 
-    await deploy("LatteSwapRouter", {
+    const router = await deploy("LatteSwapRouter", {
       from: deployer,
       args: [factory.address, WBNB_ADDRESS],
+      log: true,
+      deterministicDeployment: false,
+    });
+
+    await deploy("LatteSwapOptimalDeposit", {
+      from: deployer,
+      args: [router.address, WBNB_ADDRESS],
       log: true,
       deterministicDeployment: false,
     });
