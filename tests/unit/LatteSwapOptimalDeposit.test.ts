@@ -272,8 +272,6 @@ describe("LatteSwapOptimalDeposit", () => {
       await sortedToken1.approve(latteSwapOptimalDeposit.address, MaxUint256);
 
       // add initial liquidity
-      console.log("alice address: ", aliceAddress);
-      console.log("deployerAddress address: ", deployerAddress);
       await latteSwapOptimalDeposit.optimalAddLiquidityBNB(
         token0.address,
         token0Amount,
