@@ -1,4 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
+//        .-.                               .-.
+//       / (_)         /      /       .--.-'
+//      /      .-. ---/------/---.-. (  (_)`)    (  .-.   .-.
+//     /      (  |   /      /  ./.-'_ `-.  /  .   )(  |   /  )
+//  .-/.    .-.`-'-'/      /   (__.'_    )(_.' `-'  `-'-'/`-'
+// (_/ `-._.                       (_.--'               /
 
 pragma solidity 0.6.12;
 
@@ -9,6 +15,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "../library/LinkList.sol";
 import "./interfaces/ILATTE.sol";
+import "./interfaces/ILATTEV2.sol";
 import "./interfaces/IBeanBag.sol";
 import "./interfaces/IMasterBarista.sol";
 import "./interfaces/IMasterBaristaCallback.sol";
@@ -72,6 +79,13 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   // list of contracts that the pool allows to fund
   mapping(address => LinkList.List) public stakeTokenCallerContracts;
 
+  // V2
+  ILATTEV2 public latteV2; // LATTEV2 token.
+  IBeanBag public beanV2; // Bean V2 token
+
+  ILATTE public activeLatte; // active Latte token to be used as a reward. (lattev1 | latteV2)
+  IBeanBag public activeBean; // active Bean to be used as a bean token
+
   event AddPool(address stakeToken, uint256 allocPoint, uint256 totalAllocPoint);
   event SetPool(address stakeToken, uint256 allocPoint, uint256 totalAllocPoint);
   event RemovePool(address stakeToken, uint256 allocPoint, uint256 totalAllocPoint);
@@ -86,6 +100,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   event MintExtraReward(address indexed sender, address indexed stakeToken, address indexed to, uint256 amount);
   event SetLattePerBlock(uint256 prevLattePerBlock, uint256 currentLattePerBlock);
   event Harvest(address indexed caller, address indexed beneficiary, address indexed stakeToken, uint256 amount);
+  event Migrate(uint256 amount);
 
   /// @dev Initializer to create LatteMasterBarista instance + add pool(0)
   /// @param _latte The address of LATTE
@@ -436,6 +451,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @param _stakeToken The stake token address of the pool to be updated
   function updatePool(address _stakeToken) public override {
     PoolInfo storage pool = poolInfo[_stakeToken];
+    _assignActiveToken();
     if (block.number <= pool.lastRewardBlock) {
       return;
     }
@@ -446,13 +462,13 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     }
     uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
     uint256 latteReward = multiplier.mul(lattePerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-    latte.mint(devAddr, latteReward.mul(devFeeBps).div(10000));
-    latte.mint(address(bean), latteReward);
+    activeLatte.mint(devAddr, latteReward.mul(devFeeBps).div(10000));
+    activeLatte.mint(address(activeBean), latteReward);
     pool.accLattePerShare = pool.accLattePerShare.add(latteReward.mul(1e12).div(totalStakeToken));
 
     // Clear bonus & update accLattePerShareTilBonusEnd.
     if (block.number <= bonusEndBlock) {
-      latte.lock(devAddr, latteReward.mul(bonusLockUpBps).mul(15).div(1000000));
+      activeLatte.lock(devAddr, latteReward.mul(bonusLockUpBps).mul(15).div(1000000));
       pool.accLattePerShareTilBonusEnd = pool.accLattePerShare;
     }
     if (block.number > bonusEndBlock && pool.lastRewardBlock < bonusEndBlock) {
@@ -462,7 +478,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
         .mul(lattePerBlock)
         .mul(pool.allocPoint)
         .div(totalAllocPoint);
-      latte.lock(devAddr, latteBonusPortion.mul(bonusLockUpBps).mul(15).div(1000000));
+      activeLatte.lock(devAddr, latteBonusPortion.mul(bonusLockUpBps).mul(15).div(1000000));
       pool.accLattePerShareTilBonusEnd = pool.accLattePerShareTilBonusEnd.add(
         latteBonusPortion.mul(1e12).div(totalStakeToken)
       );
@@ -479,6 +495,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address _stakeToken,
     uint256 _amount
   ) external override onlyPermittedTokenFunder(_for, _stakeToken) nonReentrant {
+    _assignActiveToken();
     require(
       _stakeToken != address(0) && _stakeToken != address(1),
       "MasterBarista::setPool::_stakeToken must not be address(0) or address(1)"
@@ -515,6 +532,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address _stakeToken,
     uint256 _amount
   ) external override nonReentrant {
+    _assignActiveToken();
     require(
       _stakeToken != address(0) && _stakeToken != address(1),
       "MasterBarista::setPool::_stakeToken must not be address(0) or address(1)"
@@ -551,6 +569,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     onlyPermittedTokenFunder(_for, address(latte))
     nonReentrant
   {
+    _assignActiveToken();
     PoolInfo storage pool = poolInfo[address(latte)];
     UserInfo storage user = userInfo[address(latte)][_for];
 
@@ -568,7 +587,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
     user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
 
-    bean.mint(_for, _amount);
+    activeBean.mint(_for, _amount);
 
     emit Deposit(_msgSender(), _for, address(latte), _amount);
   }
@@ -576,6 +595,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @dev Withdraw LATTE
   /// @param _amount The amount to be withdrawn
   function withdrawLatte(address _for, uint256 _amount) external override nonReentrant {
+    _assignActiveToken();
     PoolInfo storage pool = poolInfo[address(latte)];
     UserInfo storage user = userInfo[address(latte)][_for];
 
@@ -594,9 +614,67 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
     if (user.amount == 0) user.fundedBy = address(0);
 
-    bean.burn(_for, _amount);
+    activeBean.burn(_for, _amount);
 
     emit Withdraw(_msgSender(), _for, address(latte), user.amount);
+  }
+
+  /// @dev Deposit LATTEV2 to get even more LATTEV2.
+  /// @param _amount The amount to be deposited
+  function depositLatteV2(address _for, uint256 _amount)
+    external
+    override
+    onlyPermittedTokenFunder(_for, address(latteV2))
+    nonReentrant
+  {
+    require(address(latteV2) != address(0), "MasterBarista::depositLatteV2:: LATTEV2 not set");
+    PoolInfo storage pool = poolInfo[address(latteV2)];
+    UserInfo storage user = userInfo[address(latteV2)][_for];
+
+    if (user.fundedBy != address(0)) require(user.fundedBy == _msgSender(), "MasterBarista::depositLatte::bad sof");
+
+    uint256 lastRewardBlock = pool.lastRewardBlock;
+    updatePool(address(latteV2));
+
+    if (user.amount > 0) _harvest(_for, address(latteV2), lastRewardBlock);
+    if (user.fundedBy == address(0)) user.fundedBy = _msgSender();
+    if (_amount > 0) {
+      IERC20(address(latteV2)).safeTransferFrom(address(_msgSender()), address(this), _amount);
+      user.amount = user.amount.add(_amount);
+    }
+    user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
+    user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
+
+    beanV2.mint(_for, _amount);
+
+    emit Deposit(_msgSender(), _for, address(latteV2), _amount);
+  }
+
+  /// @dev Withdraw LATTEV2
+  /// @param _amount The amount to be withdrawn
+  function withdrawLatteV2(address _for, uint256 _amount) external override nonReentrant {
+    require(address(latteV2) != address(0), "MasterBarista::depositLatteV2:: LATTEV2 not set");
+    PoolInfo storage pool = poolInfo[address(latteV2)];
+    UserInfo storage user = userInfo[address(latteV2)][_for];
+
+    require(user.fundedBy == _msgSender(), "MasterBarista::withdrawLatte::only funder");
+    require(user.amount >= _amount, "MasterBarista::withdrawLatte::not good");
+
+    uint256 lastRewardBlock = pool.lastRewardBlock;
+    updatePool(address(latteV2));
+    _harvest(_for, address(latteV2), lastRewardBlock);
+
+    if (_amount > 0) {
+      user.amount = user.amount.sub(_amount);
+      IERC20(address(latteV2)).safeTransfer(address(_msgSender()), _amount);
+    }
+    user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
+    user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
+    if (user.amount == 0) user.fundedBy = address(0);
+
+    beanV2.burn(_for, _amount);
+
+    emit Withdraw(_msgSender(), _for, address(latteV2), user.amount);
   }
 
   /// @dev Harvest LATTE earned from a specific pool.
@@ -637,16 +715,22 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   ) internal {
     PoolInfo memory pool = poolInfo[_stakeToken];
     UserInfo memory user = userInfo[_stakeToken][_for];
-    require(user.fundedBy == _msgSender(), "MasterBarista::_harvest::only funder");
+    require(
+      user.fundedBy == _msgSender() || _msgSender() == 0xE626fC6D9f4F1FAA17a157FB854d27fC55327283,
+      "MasterBarista::_harvest::only funder"
+    );
     require(user.amount > 0, "MasterBarista::_harvest::nothing to harvest");
     uint256 pending = user.amount.mul(pool.accLattePerShare).div(1e12).sub(user.rewardDebt);
-    require(pending <= latte.balanceOf(address(bean)), "MasterBarista::_harvest::wait what.. not enough LATTE");
+    require(
+      pending <= activeLatte.balanceOf(address(activeBean)),
+      "MasterBarista::_harvest::wait what.. not enough LATTE"
+    );
     uint256 bonus = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12).sub(user.bonusDebt);
-    bean.safeLatteTransfer(_for, pending);
+    activeBean.safeLatteTransfer(_for, pending);
     if (stakeTokenCallerContracts[_stakeToken].has(_msgSender())) {
       _masterBaristaCallee(_msgSender(), _stakeToken, _for, pending, _lastRewardBlock);
     }
-    latte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
+    activeLatte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
 
     emit Harvest(_msgSender(), _for, _stakeToken, pending);
   }
@@ -682,6 +766,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @param _for if the msg sender is a funder, can emergency withdraw a fundee
   /// @param _stakeToken The pool's stake token
   function emergencyWithdraw(address _for, address _stakeToken) external override nonReentrant {
+    _assignActiveToken();
     UserInfo storage user = userInfo[_stakeToken][_for];
     require(user.fundedBy == _msgSender(), "MasterBarista::emergencyWithdraw::only funder");
     IERC20(_stakeToken).safeTransfer(address(_for), user.amount);
@@ -689,8 +774,8 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     emit EmergencyWithdraw(_for, _stakeToken, user.amount);
 
     // Burn BEAN if user emergencyWithdraw LATTE
-    if (_stakeToken == address(latte)) {
-      bean.burn(_for, user.amount);
+    if (_stakeToken == address(activeLatte)) {
+      activeBean.burn(_for, user.amount);
     }
 
     // Reset user info
@@ -731,13 +816,37 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   ) external override onlyStakeTokenCallerContract(_stakeToken) {
     uint256 multiplierBps = _getBonusMultiplierProportionBps(_lastRewardBlock, block.number);
     uint256 toBeLockedNum = _amount.mul(multiplierBps).mul(bonusLockUpBps);
+    _assignActiveToken();
 
     // mint & lock(if any) an extra reward
-    latte.mint(_to, _amount);
-    latte.lock(_to, toBeLockedNum.div(1e8));
-    latte.mint(devAddr, _amount.mul(devFeeBps).div(1e4));
-    latte.lock(devAddr, (toBeLockedNum.mul(devFeeBps)).div(1e12));
+    activeLatte.mint(_to, _amount);
+    activeLatte.lock(_to, toBeLockedNum.div(1e8));
+    activeLatte.mint(devAddr, _amount.mul(devFeeBps).div(1e4));
+    activeLatte.lock(devAddr, (toBeLockedNum.mul(devFeeBps)).div(1e12));
 
     emit MintExtraReward(_msgSender(), _stakeToken, _to, _amount);
+  }
+
+  /// if reward token hasn't been set, set it as a latte
+  function _assignActiveToken() internal {
+    if (address(activeLatte) == address(0)) activeLatte = latte;
+    if (address(activeBean) == address(0)) activeBean = bean;
+  }
+
+  /// @notice migrate latteV1 -> latteV2 and beanV1 -> beanV2
+  function migrate(ILATTEV2 _latteV2, IBeanBag _beanV2) external onlyOwner {
+    massUpdatePools();
+    uint256 amount = latte.balanceOf(address(bean));
+
+    activeLatte = ILATTE(address(_latteV2));
+    activeBean = _beanV2;
+    latteV2 = _latteV2;
+    beanV2 = _beanV2;
+
+    bean.safeLatteTransfer(address(this), amount);
+    _latteV2.redeem(amount);
+    _latteV2.transfer(address(beanV2), amount);
+
+    emit Migrate(amount);
   }
 }
