@@ -39,6 +39,7 @@ contract LATTEV2 is ERC20("LATTEV2", "LATTEV2"), Ownable, AccessControl {
 
   bytes32 public constant GOVERNOR_ROLE = keccak256("GOVERNOR_ROLE"); // role for setting up non-sensitive data
   bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE"); // role for minting stuff (owner + some delegated contract)
+  address public constant DEAD_ADDR = 0x000000000000000000000000000000000000dEaD;
 
   /// @dev events
   event Lock(address indexed to, uint256 value);
@@ -252,7 +253,7 @@ contract LATTEV2 is ERC20("LATTEV2", "LATTEV2"), Ownable, AccessControl {
   /// @notice used for redeem a new token from the lagacy one, noted that the legacy one will be burnt as a result of redemption
   function redeem(uint256 _amount) external beforeStartReleaseBlock {
     // burn legacy token
-    lattev1.safeTransferFrom(_msgSender(), address(0), _amount);
+    lattev1.safeTransferFrom(_msgSender(), DEAD_ADDR, _amount);
 
     // mint a new token
     _mint(_msgSender(), _amount);
