@@ -41,7 +41,6 @@ export async function latteV2UnitTestFixture(): Promise<ILatteConfigUnitTestFixt
 
   // Mint LATTE for testing purpose
   await latteV1.mint(await deployer.getAddress(), ethers.utils.parseEther("888888888"));
-  await latteV1.mint(await alice.getAddress(), ethers.utils.parseEther("200"));
   await latteV1.mint(await bob.getAddress(), ethers.utils.parseEther("300"));
   await latteV1.mint(await eve.getAddress(), ethers.utils.parseEther("250"));
 

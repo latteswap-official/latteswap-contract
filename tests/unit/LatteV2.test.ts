@@ -68,4 +68,28 @@ describe("LATTEV2", () => {
       });
     });
   });
+
+  describe("#redeem()", () => {
+    context("with full amount", () => {
+      it("should redeem from LATTEV1 to V2 by minting a new one and burning the former one", async () => {
+        const aliceAddr = await alice.getAddress();
+        await latteV1.mint(aliceAddr, ethers.utils.parseEther("168"));
+        const aliceBal = await latteV1.balanceOf(aliceAddr);
+        await latteV1AsAlice.approve(latteV2.address, aliceBal);
+        await expect(latteV2AsAlice.redeem(aliceBal)).to.emit(latteV2, "Redeem").withArgs(aliceAddr, aliceBal);
+        expect(await latteV2AsAlice.balanceOf(aliceAddr)).to.eq(ethers.utils.parseEther("168"));
+      });
+    });
+    context("with some amount", () => {
+      it("should redeem from LATTEV1 to V2 by minting a new one and burning the former one", async () => {
+        const aliceAddr = await alice.getAddress();
+        await latteV1.mint(aliceAddr, ethers.utils.parseEther("168"));
+        const redeemAmount = ethers.utils.parseEther("68");
+        await latteV1AsAlice.approve(latteV2.address, redeemAmount);
+        await expect(latteV2AsAlice.redeem(redeemAmount)).to.emit(latteV2, "Redeem").withArgs(aliceAddr, redeemAmount);
+        expect(await latteV2AsAlice.balanceOf(aliceAddr)).to.eq(ethers.utils.parseEther("68"));
+        expect(await latteV1.balanceOf(aliceAddr)).to.eq(ethers.utils.parseEther("100"));
+      });
+    });
+  });
 });
