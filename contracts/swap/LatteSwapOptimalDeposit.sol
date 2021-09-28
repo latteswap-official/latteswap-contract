@@ -12,7 +12,6 @@ import "./interfaces/ILatteSwapRouter.sol";
 import "./interfaces/IWBNB.sol";
 
 import "./libraries/LatteSwapMath.sol";
-import "./libraries/TransferHelper.sol";
 
 import "../periphery/library/SafeToken.sol";
 
@@ -219,7 +218,7 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     )
   {
     // 1. Collect token
-    TransferHelper.safeTransferFrom(token, msg.sender, address(this), amount);
+    token.safeTransferFrom(msg.sender, address(this), amount);
     // 2. Wrap BNB
     if (msg.value != 0) {
       IWBNB(wbnb).deposit{ value: msg.value }();
@@ -237,8 +236,8 @@ contract LatteSwapOptimalDeposit is ReentrancyGuardUpgradeable {
     }
     // 5. Refund dust
     {
-      TransferHelper.safeTransfer(token, msg.sender, token.myBalance());
-      TransferHelper.safeTransferETH(msg.sender, payable(address(this)).balance);
+      token.safeTransfer(msg.sender, token.myBalance());
+      SafeToken.safeTransferETH(msg.sender, payable(address(this)).balance);
     }
   }
 
