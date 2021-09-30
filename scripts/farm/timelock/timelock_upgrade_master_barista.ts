@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, upgrades, network } from "hardhat";
 import { MasterBarista__factory, Timelock__factory } from "../../../typechain";
-import { getConfig, withNetworkFile } from "../../../utils";
+import { getConfig, ITimelockResponse, withNetworkFile, FileService, TimelockService } from "../../../utils";
 
 async function main() {
   /*
@@ -18,7 +18,7 @@ async function main() {
   const TARGETED_MASTER_BARISTA = config.MasterBarista;
   const EXACT_ETA = "1632409221";
 
-  const timelock = Timelock__factory.connect(config.Timelock, (await ethers.getSigners())[0]);
+  const timelockTransactions: Array<ITimelockResponse> = [];
 
   console.log(`============`);
   console.log(`>> Upgrading MasterBarista through Timelock + ProxyAdmin`);
@@ -29,20 +29,20 @@ async function main() {
   console.log("✅ Done");
 
   console.log(`>> Queue tx on Timelock to upgrade the implementation`);
-  await timelock.queueTransaction(
-    config.ProxyAdmin,
-    "0",
-    "upgrade(address,address)",
-    ethers.utils.defaultAbiCoder.encode(["address", "address"], [TARGETED_MASTER_BARISTA, preparedMasterBarista]),
-    EXACT_ETA
+  timelockTransactions.push(
+    await TimelockService.queueTransaction(
+      `queue tx on Timelock to upgrade the implementation to ${preparedMasterBarista}`,
+      config.ProxyAdmin,
+      "0",
+      "upgrade(address,address)",
+      ["address", "address"],
+      [TARGETED_MASTER_BARISTA, preparedMasterBarista],
+      EXACT_ETA
+    )
   );
   console.log("✅ Done");
-
-  console.log(`>> Generate executeTransaction:`);
-  console.log(
-    `await timelock.executeTransaction('${config.ProxyAdmin}', '0', 'upgrade(address,address)', ethers.utils.defaultAbiCoder.encode(['address','address'], ['${TARGETED_MASTER_BARISTA}','${preparedMasterBarista}']), ${EXACT_ETA})`
-  );
-  console.log("✅ Done");
+  await FileService.write("upgrade-master-barista", timelockTransactions);
+  console.log(`============`);
 }
 
 withNetworkFile(main)
