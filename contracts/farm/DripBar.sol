@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-// Dropbar allows users to stake LATTE to earn various rewards.
+// Dripbar allows users to stake BEAN to earn various rewards.
 contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -67,19 +67,19 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     rewardHolder = _rewardHolder;
   }
 
-  // @notice function for setting a reward holder who is responsible for adding a reward info
+  /// @notice function for setting a reward holder who is responsible for adding a reward info
   function setRewardHolder(address _rewardHolder) external onlyOwner {
     rewardHolder = _rewardHolder;
     emit SetRewardHolder(_rewardHolder);
   }
 
-  // @notice set new reward info limit
+  /// @notice set new reward info limit
   function setRewardInfoLimit(uint256 _updatedRewardInfoLimit) external onlyOwner {
     rewardInfoLimit = _updatedRewardInfoLimit;
     emit SetRewardInfoLimit(rewardInfoLimit);
   }
 
-  // @notice reward campaign, one campaign represents a pair of staking and reward token, last reward Block and acc reward Per Share
+  /// @notice reward campaign, one campaign represents a pair of staking and reward token, last reward Block and acc reward Per Share
   function addCampaignInfo(
     IERC20 _stakingToken,
     IERC20 _rewardToken,
@@ -99,7 +99,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     emit AddCampaignInfo(campaignInfo.length - 1, _stakingToken, _rewardToken, _startBlock);
   }
 
-  // @notice if the new reward info is added, the reward & its end block will be extended by the newly pushed reward info.
+  /// @notice if the new reward info is added, the reward & its end block will be extended by the newly pushed reward info.
   function addRewardInfo(
     uint256 _campaignID,
     uint256 _endBlock,
@@ -133,7 +133,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     return campaignInfo.length;
   }
 
-  // @notice this will return  end block based on the current block number.
+  /// @notice this will return  end block based on the current block number.
   function currentEndBlock(uint256 _campaignID) external view returns (uint256) {
     return _endBlockOf(_campaignID, block.number);
   }
@@ -152,7 +152,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     return rewardInfo[len - 1].endBlock;
   }
 
-  // @notice this will return reward per block based on the current block number.
+  /// @notice this will return reward per block based on the current block number.
   function currentRewardPerBlock(uint256 _campaignID) external view returns (uint256) {
     return _rewardPerBlockOf(_campaignID, block.number);
   }
@@ -171,7 +171,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     return 0;
   }
 
-  // @notice Return reward multiplier over the given _from to _to block.
+  /// @notice Return reward multiplier over the given _from to _to block.
   function getMultiplier(
     uint256 _from,
     uint256 _to,
@@ -186,7 +186,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     return _endBlock.sub(_from);
   }
 
-  // @notice View function to see pending Reward on frontend.
+  /// @notice View function to see pending Reward on frontend.
   function pendingReward(uint256 _campaignID, address _user) external view returns (uint256) {
     return _pendingReward(_campaignID, userInfo[_campaignID][_user].amount, userInfo[_campaignID][_user].rewardDebt);
   }
@@ -217,7 +217,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     _updateCampaign(_campaignID);
   }
 
-  // @notice Update reward variables of the given campaign to be up-to-date.
+  /// @notice Update reward variables of the given campaign to be up-to-date.
   function _updateCampaign(uint256 _campaignID) internal {
     CampaignInfo storage campaign = campaignInfo[_campaignID];
     RewardInfo[] memory rewardInfo = campaignRewardInfo[_campaignID];
@@ -254,7 +254,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
   }
 
-  // @notice Update reward variables for all campaigns. gas spending is HIGH in this method call, BE CAREFUL
+  /// @notice Update reward variables for all campaigns. gas spending is HIGH in this method call, BE CAREFUL
   function massUpdateCampaigns() external nonReentrant {
     uint256 length = campaignInfo.length;
     for (uint256 pid = 0; pid < length; ++pid) {
@@ -262,7 +262,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
   }
 
-  // @notice Stake Staking tokens to DripBar
+  /// @notice Stake Staking tokens to DripBar
   function deposit(uint256 _campaignID, uint256 _amount) external nonReentrant {
     CampaignInfo storage campaign = campaignInfo[_campaignID];
     UserInfo storage user = userInfo[_campaignID][msg.sender];
@@ -282,12 +282,12 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     emit Deposit(msg.sender, _amount, _campaignID);
   }
 
-  // @notice Withdraw Staking tokens from STAKING.
+  /// @notice Withdraw Staking tokens from STAKING.
   function withdraw(uint256 _campaignID, uint256 _amount) external nonReentrant {
     _withdraw(_campaignID, _amount);
   }
 
-  // @notice internal method for withdraw (withdraw and harvest method depend on this method)
+  /// @notice internal method for withdraw (withdraw and harvest method depend on this method)
   function _withdraw(uint256 _campaignID, uint256 _amount) internal {
     CampaignInfo storage campaign = campaignInfo[_campaignID];
     UserInfo storage user = userInfo[_campaignID][msg.sender];
@@ -307,14 +307,14 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     emit Withdraw(msg.sender, _amount, _campaignID);
   }
 
-  // @notice method for harvest campaigns (used when the user want to claim their reward token based on specified campaigns)
+  /// @notice method for harvest campaigns (used when the user want to claim their reward token based on specified campaigns)
   function harvest(uint256[] calldata _campaignIDs) external nonReentrant {
     for (uint256 i = 0; i < _campaignIDs.length; ++i) {
       _withdraw(_campaignIDs[i], 0);
     }
   }
 
-  // @notice Withdraw without caring about rewards. EMERGENCY ONLY.
+  /// @notice Withdraw without caring about rewards. EMERGENCY ONLY.
   function emergencyWithdraw(uint256 _campaignID) external nonReentrant {
     CampaignInfo storage campaign = campaignInfo[_campaignID];
     UserInfo storage user = userInfo[_campaignID][msg.sender];
@@ -326,7 +326,7 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     emit EmergencyWithdraw(msg.sender, _amount, _campaignID);
   }
 
-  // @notice Withdraw reward. EMERGENCY ONLY.
+  /// @notice Withdraw reward. EMERGENCY ONLY.
   function emergencyRewardWithdraw(
     uint256 _campaignID,
     uint256 _amount,
