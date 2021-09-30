@@ -376,9 +376,8 @@ describe("MasterBarista", () => {
     context("when the pool does not allow adding a corresponding stake token caller", () => {
       it("should revert", async () => {
         const stakeCallerContract = await alice.getAddress();
-        await expect(
-          masterBarista.addStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract)
-        ).to.be.revertedWith("");
+        await expect(masterBarista.addStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract)).to.be
+          .reverted;
       });
     });
 
@@ -391,6 +390,12 @@ describe("MasterBarista", () => {
         await masterBarista.addStakeTokenCallerContract(stakingTokens[0].address, await bob.getAddress());
         callerCount = await masterBarista.stakeTokenCallerContracts(stakingTokens[0].address);
         expect(callerCount).to.eq(2);
+        await masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, await bob.getAddress());
+        callerCount = await masterBarista.stakeTokenCallerContracts(stakingTokens[0].address);
+        expect(callerCount).to.eq(1);
+        await masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, await alice.getAddress());
+        callerCount = await masterBarista.stakeTokenCallerContracts(stakingTokens[0].address);
+        expect(callerCount).to.eq(0);
       });
     });
   });
@@ -452,7 +457,8 @@ describe("MasterBarista", () => {
           );
 
           // when revoke a stakeCallerContract, shouldn't be able to call a deposit
-          await masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract);
+          await expect(masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract)).not
+            .to.be.reverted;
           await expect(
             masterBaristaAsAlice.deposit(
               await deployer.getAddress(),

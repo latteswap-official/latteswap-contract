@@ -207,7 +207,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       "MasterBarista::removeStakeTokenCallerContract: the pool doesn't allow a contract caller"
     );
     LinkList.List storage list = stakeTokenCallerContracts[_stakeToken];
-    list.remove(_caller, pools.getPreviousOf(_stakeToken));
+    list.remove(_caller, list.getPreviousOf(_caller));
 
     emit RemoveStakeTokenCallerContract(_stakeToken, _caller);
   }

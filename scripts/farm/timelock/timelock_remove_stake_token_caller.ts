@@ -1,8 +1,11 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
-import { ethers, upgrades, network } from "hardhat";
-import { MasterBarista__factory, Timelock__factory } from "../../../typechain";
 import { getConfig, ITimelockResponse, withNetworkFile, FileService, TimelockService } from "../../../utils";
+
+interface IRemoveStakeTokenCallerParam {
+  STAKE_TOKEN: string;
+  CALLER: string;
+}
+
+type IRemoveStakeTokenCallerParams = Array<IRemoveStakeTokenCallerParam>;
 
 async function main() {
   /*
@@ -15,34 +18,42 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const TARGETED_MASTER_BARISTA = config.MasterBarista;
-  const EXACT_ETA = "1632409221";
+  const PARAMS: IRemoveStakeTokenCallerParams = [
+    {
+      STAKE_TOKEN: config.Tokens.LATTE,
+      CALLER: "0x11A250AE3b15Bab026B03b97b0e4d01F3aC03477",
+    },
+    {
+      STAKE_TOKEN: config.Tokens.LATTE,
+      CALLER: "0x62A51129E59c85a391baC8f392440E70d70e6c92",
+    },
+    {
+      STAKE_TOKEN: config.Tokens.LATTE,
+      CALLER: "0xbe4c5db18bc7e3ccbf83ec1732b79ec170b7a1e0",
+    },
+  ];
+  const EXACT_ETA = "1632993000";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
-  console.log(`============`);
-  console.log(`>> Upgrading MasterBarista through Timelock + ProxyAdmin`);
-  console.log(">> Prepare upgrade & deploy if needed a new IMPL automatically.");
-  const MasterBarista = (await ethers.getContractFactory("MasterBarista")) as MasterBarista__factory;
-  const preparedMasterBarista = await upgrades.prepareUpgrade(TARGETED_MASTER_BARISTA, MasterBarista);
-  console.log(`>> Implementation address: ${preparedMasterBarista}`);
-  console.log("✅ Done");
-
-  console.log(`>> Queue tx on Timelock to upgrade the implementation`);
-  timelockTransactions.push(
-    await TimelockService.queueTransaction(
-      `queue tx on Timelock to upgrade the implementation to ${preparedMasterBarista}`,
-      config.ProxyAdmin,
-      "0",
-      "upgrade(address,address)",
-      ["address", "address"],
-      [TARGETED_MASTER_BARISTA, preparedMasterBarista],
-      EXACT_ETA
-    )
-  );
-  console.log("✅ Done");
-  await FileService.write("upgrade-master-barista", timelockTransactions);
-  console.log(`============`);
+  for (const PARAM of PARAMS) {
+    console.log(
+      `>> Queue Transaction to remove a stake token caller ${PARAM.CALLER} from a staking token pool ${PARAM.STAKE_TOKEN} through Timelock`
+    );
+    timelockTransactions.push(
+      await TimelockService.queueTransaction(
+        `removing a stake token caller ${PARAM.CALLER} from a staking token pool ${PARAM.STAKE_TOKEN} through Timelock`,
+        config.MasterBarista,
+        "0",
+        "removeStakeTokenCallerContract(address,address)",
+        ["address", "address"],
+        [PARAM.STAKE_TOKEN, PARAM.CALLER],
+        EXACT_ETA
+      )
+    );
+    console.log("✅ Done");
+  }
+  await FileService.write("remove-stake-token-caller", timelockTransactions);
 }
 
 withNetworkFile(main)
