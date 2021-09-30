@@ -1,11 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import { ethers, upgrades } from "hardhat";
+import { DripBar, DripBar__factory } from "../../typechain";
 import { withNetworkFile } from "../../utils";
-
-interface IToken {
-  NAME: string;
-  SYMBOL: string;
-}
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
@@ -17,29 +14,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
+  const REWARD_HOLDER = "0x531C535f253e023a2cDc56aB587431076B791757";
 
-  const MOCK_TOKENS: Array<IToken> = [
-    {
-      NAME: "MOCK_TOKEN_1",
-      SYMBOL: "MOCK_TOKEN_1",
-    },
-  ];
-
-  const { deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
-
-  const { deployer } = await getNamedAccounts();
   await withNetworkFile(async () => {
-    for (let i = 0; i < MOCK_TOKENS.length; i++) {
-      await deploy("SimpleToken", {
-        from: deployer,
-        args: [MOCK_TOKENS[i].NAME, MOCK_TOKENS[i].SYMBOL],
-        log: true,
-        deterministicDeployment: false,
-      });
-    }
+    const DripBar = (await ethers.getContractFactory("DripBar", (await ethers.getSigners())[0])) as DripBar__factory;
+    const dripbar = (await upgrades.deployProxy(DripBar, [REWARD_HOLDER])) as DripBar;
+
+    await dripbar.deployed();
+    console.log(`>> Deployed at ${dripbar.address}`);
+    console.log("✅ Done deploying a DripBar");
   });
 };
 
 export default func;
-func.tags = ["DeployMockERC20"];
+func.tags = ["DeployDripBar"];
