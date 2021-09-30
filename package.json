@@ -59,6 +59,8 @@
     "script:mainnet:farm:timelock:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_pool_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPoolAllocBps": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_bps_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_point_to_master_barista.ts",
+    "script:mainnet:farm:timelock:removeStakeTokenCaller": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_remove_stake_token_caller.ts",
+    "script:mainnet:farm:timelock:setStakeTokenCallerAllowance": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_stake_token_caller_allowance.ts",
     "script:mainnet:farm:timelock:upgradeMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_upgrade_master_barista.ts",
     "script:mainnet:farm:upgrade:masterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
     "script:mainnet:farm:validate:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
