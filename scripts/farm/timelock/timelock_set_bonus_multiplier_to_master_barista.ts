@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { MasterBarista__factory } from "../../../compiled-typechain";
+import { MasterBarista__factory } from "../../../typechain";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
 
 async function main() {

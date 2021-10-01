@@ -1,7 +1,7 @@
 import { MockProvider } from "ethereum-waffle";
 import { BigNumber, providers, Wallet } from "ethers";
 import { ethers, upgrades } from "hardhat";
-import { BeanBagV2 } from "../../../compiled-typechain";
+import { BeanBagV2 } from "../../../typechain";
 import {
   LATTE__factory,
   LATTE,

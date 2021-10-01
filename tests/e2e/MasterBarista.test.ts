@@ -18,7 +18,7 @@ import { advanceBlock, advanceBlockTo, latestBlockNumber } from "../helpers/time
 import { masterBaristaE2ETestFixture } from "../helpers/fixtures/MasterBarista";
 import { wrapErr } from "../../utils";
 import { isLeft } from "fp-ts/lib/Either";
-import { BeanBagV2, LATTEV2 } from "../../compiled-typechain";
+import { BeanBagV2, LATTEV2 } from "../../typechain";
 
 chai.use(solidity);
 const { expect } = chai;
