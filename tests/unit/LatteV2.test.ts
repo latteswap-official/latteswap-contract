@@ -104,6 +104,10 @@ describe("LATTEV2", () => {
         await latteV1AsAlice.approve(latteV2.address, aliceBal);
         await expect(latteV2AsAlice.redeem(aliceBal)).to.emit(latteV2, "Redeem").withArgs(aliceAddr, aliceBal);
         expect(await latteV2AsAlice.balanceOf(aliceAddr)).to.eq(ethers.utils.parseEther("168"));
+        expect(await (latteV1 as unknown as LATTE).balanceOf("0x000000000000000000000000000000000000dEaD")).to.eq(
+          ethers.utils.parseEther("168")
+        );
+        expect(await (latteV1 as unknown as LATTE).balanceOf(aliceAddr)).to.eq(ethers.utils.parseEther("0"));
       });
     });
     context("with some amount", () => {
@@ -115,6 +119,9 @@ describe("LATTEV2", () => {
         await expect(latteV2AsAlice.redeem(redeemAmount)).to.emit(latteV2, "Redeem").withArgs(aliceAddr, redeemAmount);
         expect(await latteV2AsAlice.balanceOf(aliceAddr)).to.eq(ethers.utils.parseEther("68"));
         expect(await latteV1.balanceOf(aliceAddr)).to.eq(ethers.utils.parseEther("100"));
+        expect(await (latteV1 as unknown as LATTE).balanceOf("0x000000000000000000000000000000000000dEaD")).to.eq(
+          ethers.utils.parseEther("68")
+        );
       });
     });
   });
