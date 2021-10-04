@@ -214,11 +214,7 @@ contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
       if (_locks[_accounts[i]] > 0) continue; // locked reward existed
 
       _locks[_accounts[i]] = _amounts[i];
-
-      if (_lastUnlockBlock[_accounts[i]] < startReleaseBlock) {
-        _lastUnlockBlock[_accounts[i]] = startReleaseBlock;
-      }
-
+      _lastUnlockBlock[_accounts[i]] = startReleaseBlock; // set batch is always < startReleaseBlock
       _total = _total.add(_amounts[i]);
 
       emit ClaimedLock(_accounts[i], _amounts[i]);
