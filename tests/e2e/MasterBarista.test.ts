@@ -500,11 +500,17 @@ describe("MasterBarista e2e", () => {
         // 23. deployer set latte/block to be 0
         await masterBarista.setLattePerBlock(0);
         expect(await masterBarista.lattePerBlock()).to.eq(0, "latte per block should be 0");
+
         // 24. deployer calls migrate
         const latteOwnedByBean = await latteToken.balanceOf(beanBag.address);
         await expect(masterBarista.migrate(latteV2.address, beanV2.address), "should emit a correct migrate amount")
           .to.emit(masterBarista, "Migrate")
           .withArgs(latteOwnedByBean);
+        await masterBarista.addPool(latteV2.address, 1);
+        await masterBarista.setPoolAllocBps(latteToken.address, 0);
+        await expect(
+          masterBarista.deposit(await deployer.getAddress(), latteV2.address, ethers.utils.parseEther("100"))
+        ).to.be.revertedWith("MasterBarista::deposit::use depositLatteV2 instead");
         expect(await masterBarista.activeBean()).to.eq(beanV2.address, "active bean should be a v2");
         expect(await masterBarista.activeLatte()).to.eq(latteV2.address, "active latte should be a v2");
         expect(await latteV2.balanceOf(beanV2.address)).to.eq(
