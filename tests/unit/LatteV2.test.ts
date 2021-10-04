@@ -19,10 +19,6 @@ describe("LATTEV2", () => {
   let latteV1: ModifiableContract;
   let latteV1AsAlice: LATTE;
 
-  let claims: IClaims;
-  let merkleRoot: string;
-  let tokenTotal: string;
-
   // Accounts
   let deployer: Signer;
   let alice: Signer;
@@ -31,53 +27,25 @@ describe("LATTEV2", () => {
 
   beforeEach(async () => {
     [deployer, alice, bob, eve] = await ethers.getSigners();
-    ({ latteV2, claims, merkleRoot, tokenTotal, latteV1 } = await waffle.loadFixture(latteV2UnitTestFixture));
-    expect(tokenTotal).to.eq(ethers.utils.parseEther("750").toHexString(), "tokenTotal should be equal to 750"); // 750
+    ({ latteV2, latteV1 } = await waffle.loadFixture(latteV2UnitTestFixture));
     latteV2AsAlice = LATTEV2__factory.connect(latteV2.address, alice);
     latteV1AsAlice = LATTE__factory.connect(latteV1.address, alice);
   });
 
-  describe("#claimLock", () => {
-    context("when the block number exceed or equal start release block", () => {
+  describe("#batchSetLockedAmounts", () => {
+    context("when the caller is not an owner", () => {
       it("should revert", async () => {
-        const blockNumber = await ethers.provider.getBlockNumber();
-        await advanceBlockTo(blockNumber + 100);
         const account = await alice.getAddress();
-        const claim = claims[account];
-        await expect(latteV2AsAlice.claimLock(claim.index, account, claim.amount, claim.proof)).to.revertedWith(
-          "LATTEV2::beforeStartReleaseBlock:: operation can only be done before start release"
+        await expect(latteV2AsAlice.batchSetLockedAmounts([account], [parseEther("100")])).to.revertedWith(
+          "Ownable: caller is not the owner"
         );
       });
     });
     context("when the user claim a reward", async () => {
-      context("with valid proof", async () => {
-        it("should claim their Lattev1 and mint & lock lattev2", async () => {
-          const account = await alice.getAddress();
-          const claim = claims[account];
-          await latteV2AsAlice.claimLock(claim.index, account, claim.amount, claim.proof);
-          expect(await latteV2AsAlice.lockOf(account)).to.eq(claim.amount, "lock of amount should be equal");
-        });
-      });
-      context("with invalid proof", async () => {
-        it("should revert", async () => {
-          const account = await alice.getAddress();
-          const claim = claims[account];
-          await expect(
-            latteV2AsAlice.claimLock(claim.index, account, parseEther("100"), claim.proof)
-          ).to.be.revertedWith("LATTEV2::claimLock:: invalid proof");
-        });
-      });
-    });
-
-    context("when the user already claimed their locked reward", async () => {
-      it("should reverted", async () => {
+      it("should claim their Lattev1 and mint & lock lattev2", async () => {
         const account = await alice.getAddress();
-        const claim = claims[account];
-        await latteV2AsAlice.claimLock(claim.index, account, claim.amount, claim.proof);
-        expect(await latteV2AsAlice.lockOf(account)).to.eq(claim.amount, "lock of amount should be equal");
-        await expect(latteV2AsAlice.claimLock(claim.index, account, claim.amount, claim.proof)).to.be.revertedWith(
-          "LATTEV2::claimLock:: already claim lock"
-        );
+        await latteV2.batchSetLockedAmounts([account], [parseEther("100")]);
+        expect(await latteV2AsAlice.lockOf(account)).to.eq(parseEther("100"), "lock of amount should be equal");
       });
     });
   });

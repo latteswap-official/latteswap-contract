@@ -58,17 +58,9 @@ export async function masterBaristaUnitTestFixture(
   await latteToken.deployed();
 
   // Deploy LATTEV2
-  const {
-    claims: innerClaims,
-    merkleRoot,
-    tokenTotal,
-  } = parseBalanceMap({
-    [await alice.getAddress()]: formatBigNumber(ethers.utils.parseEther("200"), "purehex"),
-    [await bob.getAddress()]: formatBigNumber(ethers.utils.parseEther("300"), "purehex"),
-    [await dev.getAddress()]: formatBigNumber(ethers.utils.parseEther("250"), "purehex"),
-  });
+
   const LATTEV2 = (await ethers.getContractFactory("LATTEV2", deployer)) as LATTEV2__factory;
-  const latteV2 = (await LATTEV2.deploy(latteToken.address, merkleRoot)) as LATTEV2;
+  const latteV2 = (await LATTEV2.deploy(latteToken.address)) as LATTEV2;
   await latteV2.deployed();
 
   // Mint LATTE for testing purpose
@@ -152,17 +144,8 @@ export async function masterBaristaE2ETestFixture(
   await latteToken.deployed();
 
   // Deploy LATTEV2
-  const {
-    claims: innerClaims,
-    merkleRoot,
-    tokenTotal,
-  } = parseBalanceMap({
-    [await alice.getAddress()]: formatBigNumber(ethers.utils.parseEther("200"), "purehex"),
-    [await bob.getAddress()]: formatBigNumber(ethers.utils.parseEther("300"), "purehex"),
-    [await dev.getAddress()]: formatBigNumber(ethers.utils.parseEther("250"), "purehex"),
-  });
   const LATTEV2 = (await ethers.getContractFactory("LATTEV2", deployer)) as LATTEV2__factory;
-  const latteV2 = (await LATTEV2.deploy(latteToken.address, merkleRoot)) as LATTEV2;
+  const latteV2 = (await LATTEV2.deploy(latteToken.address)) as LATTEV2;
   await latteV2.deployed();
 
   // Mint LATTE for testing purpose
