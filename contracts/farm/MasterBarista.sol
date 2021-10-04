@@ -733,8 +733,9 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     if (stakeTokenCallerContracts[_stakeToken].has(_msgSender())) {
       _masterBaristaCallee(_msgSender(), _stakeToken, _for, pending, _lastRewardBlock);
     }
-    activeLatte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
-
+    if (bonus > 0) {
+      activeLatte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
+    }
     emit Harvest(_msgSender(), _for, _stakeToken, pending);
   }
 
