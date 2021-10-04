@@ -148,21 +148,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     _;
   }
 
-  /// @notice only permitted funder can continue the execution
-  /// @dev eg. if a pool accepted funders (from setStakeTokenCallerAllowancePool), then msg.sender needs to be those funders, otherwise it will be reverted
-  /// @dev --  if a pool doesn't accepted any funders, then msg.sender needs to be the one with beneficiary (eoa account)
-  /// @param _beneficiary is an address this funder funding for
-  /// @param _stakeTokens a set of stake token (when doing batch)
-  modifier onlyPermittedTokensFunder(address _beneficiary, address[] calldata _stakeTokens) {
-    for (uint256 i = 0; i < _stakeTokens.length; i++) {
-      require(
-        _isFunder(_beneficiary, _stakeTokens[i]),
-        "MasterBarista::onlyPermittedTokensFunder: caller is not permitted"
-      );
-    }
-    _;
-  }
-
   /// @dev only stake token caller contract can continue the execution (stakeTokenCaller must be a funder contract)
   /// @param _stakeToken a stakeToken to be validated
   modifier onlyStakeTokenCallerContract(address _stakeToken) {
