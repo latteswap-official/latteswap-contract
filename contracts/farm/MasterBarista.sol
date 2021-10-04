@@ -501,6 +501,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       "MasterBarista::setPool::_stakeToken must not be address(0) or address(1)"
     );
     require(_stakeToken != address(latte), "MasterBarista::deposit::use depositLatte instead");
+    require(_stakeToken != address(latteV2), "MasterBarista::deposit::use depositLatteV2 instead");
     require(pools.has(_stakeToken), "MasterBarista::deposit::no pool");
 
     PoolInfo storage pool = poolInfo[_stakeToken];
@@ -538,6 +539,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       "MasterBarista::setPool::_stakeToken must not be address(0) or address(1)"
     );
     require(_stakeToken != address(latte), "MasterBarista::withdraw::use withdrawLatte instead");
+    require(_stakeToken != address(latteV2), "MasterBarista::withdraw::use withdrawLatteV2 instead");
     require(pools.has(_stakeToken), "MasterBarista::withdraw::no pool");
 
     PoolInfo storage pool = poolInfo[_stakeToken];
