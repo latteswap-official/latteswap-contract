@@ -4,8 +4,10 @@ import chai from "chai";
 import { solidity } from "ethereum-waffle";
 import {
   BeanBag,
+  BeanBagV2,
   BeanBag__factory,
   LATTE,
+  LATTEV2,
   LATTE__factory,
   MasterBarista,
   MasterBarista__factory,
@@ -24,29 +26,8 @@ chai.use(solidity);
 const { expect } = chai;
 
 describe("MasterBarista", () => {
-  let LATTE_START_BLOCK: number;
-  let LATTE_PER_BLOCK: BigNumber;
-  let LATTE_BONUS_LOCK_UP_BPS: number;
-
   // Contract as Signer
-  let latteAsAlice: LATTE;
-  let latteAsBob: LATTE;
-  let latteAsDev: LATTE;
-
-  let stoken0AsDeployer: SimpleToken;
-  let stoken0AsAlice: SimpleToken;
-  let stoken0AsBob: SimpleToken;
-  let stoken0AsDev: SimpleToken;
-
-  let stoken1AsDeployer: SimpleToken;
-  let stoken1AsAlice: SimpleToken;
-  let stoken1AsBob: SimpleToken;
-  let stoken1AsDev: SimpleToken;
-
-  let masterBaristaAsDeployer: MasterBarista;
   let masterBaristaAsAlice: MasterBarista;
-  let masterBaristaAsBob: MasterBarista;
-  let masterBaristaAsDev: MasterBarista;
 
   let mockStakeTokenCaller: MockStakeTokenCallerContract;
 
@@ -56,42 +37,20 @@ describe("MasterBarista", () => {
   let bob: Signer;
   let dev: Signer;
 
+  // from fixtures
   let latteToken: LATTE;
   let beanBag: BeanBag;
+  let latteV2: LATTEV2;
+  let beanV2: BeanBagV2;
   let masterBarista: MasterBarista;
   let stakingTokens: SimpleToken[];
 
   beforeEach(async () => {
-    ({
-      latteToken,
-      beanBag,
-      masterBarista,
-      stakingTokens,
-      LATTE_START_BLOCK,
-      LATTE_PER_BLOCK,
-      LATTE_BONUS_LOCK_UP_BPS,
-      mockStakeTokenCaller,
-    } = await waffle.loadFixture(masterBaristaUnitTestFixture));
+    ({ latteToken, beanBag, masterBarista, stakingTokens, mockStakeTokenCaller, latteV2, beanV2 } =
+      await waffle.loadFixture(masterBaristaUnitTestFixture));
     [deployer, alice, bob, dev] = await ethers.getSigners();
 
-    latteAsAlice = LATTE__factory.connect(latteToken.address, alice);
-    latteAsBob = LATTE__factory.connect(latteToken.address, bob);
-    latteAsDev = LATTE__factory.connect(latteToken.address, dev);
-
-    stoken0AsDeployer = SimpleToken__factory.connect(stakingTokens[0].address, deployer);
-    stoken0AsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
-    stoken0AsBob = SimpleToken__factory.connect(stakingTokens[0].address, bob);
-    stoken0AsDev = SimpleToken__factory.connect(stakingTokens[0].address, dev);
-
-    stoken1AsDeployer = SimpleToken__factory.connect(stakingTokens[1].address, deployer);
-    stoken1AsAlice = SimpleToken__factory.connect(stakingTokens[1].address, alice);
-    stoken1AsBob = SimpleToken__factory.connect(stakingTokens[1].address, bob);
-    stoken1AsDev = SimpleToken__factory.connect(stakingTokens[1].address, dev);
-
-    masterBaristaAsDeployer = MasterBarista__factory.connect(masterBarista.address, deployer);
     masterBaristaAsAlice = MasterBarista__factory.connect(masterBarista.address, alice);
-    masterBaristaAsBob = MasterBarista__factory.connect(masterBarista.address, bob);
-    masterBaristaAsDev = MasterBarista__factory.connect(masterBarista.address, dev);
   });
 
   describe("#setpool()", () => {
@@ -506,6 +465,13 @@ describe("MasterBarista", () => {
         await expect(
           masterBarista.deposit(await deployer.getAddress(), stakingTokens[0].address, ethers.utils.parseEther("100"))
         ).to.be.revertedWith("MasterBarista::deposit::no pool");
+      });
+    });
+    context("when the pool is latte", () => {
+      it("should revert", async () => {
+        await expect(
+          masterBarista.deposit(await deployer.getAddress(), latteToken.address, ethers.utils.parseEther("100"))
+        ).to.be.revertedWith("MasterBarista::deposit::use depositLatte instead");
       });
     });
   });
