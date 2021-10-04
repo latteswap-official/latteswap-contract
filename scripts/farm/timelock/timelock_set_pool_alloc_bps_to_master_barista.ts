@@ -18,16 +18,15 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-
+  const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0xf1bE8ecC990cBcb90e166b71E368299f0116d421",
-      ALLOC_BPS: "100",
-      EXACT_ETA: "1631858073",
+      STAKING_TOKEN_ADDRESS: config.Tokens.LATTEV2,
+      ALLOC_BPS: "1500",
+      EXACT_ETA: "1633331560",
     },
   ];
 
-  const config = getConfig();
   const timelockTransactions: Array<ITimelockResponse> = [];
 
   for (const STAKING_POOL of STAKING_POOLS) {
