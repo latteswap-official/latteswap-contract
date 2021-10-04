@@ -41,6 +41,7 @@
     "deploy:mainnet:wNativeRelayer": "hardhat --network mainnet deploy --no-compile --reset --tags DeployWNativeRelayer",
     "deploy:mainnet:ogNFTOffering": "hardhat --network mainnet deploy --no-compile --reset --tags DeployOGNFTOffering",
     "deploy:mainnet:dripbar": "hardhat --network mainnet deploy --no-compile --reset --tags DeployDripBar",
+    "deploy:mainnet:latteV2": "hardhat --network mainnet deploy --no-compile --reset --tags DeployLATTEV2andBeanBagV2",
 
     "script:mainnet:ownership:transferOwnerToTimelock": "hardhat --network mainnet run --no-compile ./scripts/ownership/transfer_ownership_to_timelock.ts",
     "script:mainnet:ownership:transferLatteBeanOwnerToMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/ownership/transfer_ownership_of_latte_bean_to_master_barista.ts",
@@ -62,6 +63,7 @@
     "script:mainnet:farm:timelock:setBonusMultiplier": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_bonus_multiplier_to_master_barista.ts",
     "script:mainnet:farm:timelock:removeStakeTokenCaller": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_remove_stake_token_caller.ts",
     "script:mainnet:farm:timelock:setStakeTokenCallerAllowance": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_stake_token_caller_allowance.ts",
+    "script:mainnet:farm:timelock:migrateMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_migrate_master_barista_to_v2.ts",
     "script:mainnet:farm:timelock:upgradeMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_upgrade_master_barista.ts",
     "script:mainnet:farm:upgrade:masterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
     "script:mainnet:farm:validate:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
@@ -108,7 +110,7 @@
   "devDependencies": {
     "@eth-optimism/smock": "^1.1.10",
     "@ethersproject/bignumber": "^5.0.14",
-    "@latteswap/latteswap-contract-config": "^1.1.0-rc.0",
+    "@latteswap/latteswap-contract-config": "^1.1.0-rc.2",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
