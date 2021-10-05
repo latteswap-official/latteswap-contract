@@ -404,6 +404,11 @@ describe("MasterBarista e2e", () => {
         await expect(masterBarista.migrate(latteV2.address, beanV2.address), "should emit a correct migrate amount")
           .to.emit(masterBarista, "Migrate")
           .withArgs(latteOwnedByBean);
+        await masterBarista.addPool(latteV2.address, 1);
+        await masterBarista.setPoolAllocBps(latteToken.address, 0);
+        await expect(
+          masterBarista.deposit(await deployer.getAddress(), latteV2.address, ethers.utils.parseEther("100"))
+        ).to.be.revertedWith("MasterBarista::deposit::use depositLatteV2 instead");
         expect(await masterBarista.activeBean()).to.eq(beanV2.address, "active bean should be a v2");
         expect(await masterBarista.activeLatte()).to.eq(latteV2.address, "active latte should be a v2");
         expect(await latteV2.balanceOf(beanV2.address)).to.eq(
@@ -444,17 +449,17 @@ describe("MasterBarista e2e", () => {
               .div(10000)
               .add(LATTE_PER_BLOCK.mul(10).mul(4).mul(8000).div(10000))
               .add(LATTE_PER_BLOCK.mul(4).mul(8000).div(10000))
-              .add(LATTE_PER_BLOCK.mul(4).mul(8000).div(10000))
+              .add(LATTE_PER_BLOCK.mul(3).mul(8000).div(10000))
           );
         const aliceLatteV1Balance = await latteToken.balanceOf(await alice.getAddress());
         //   From previous state:         [LATTE_PER_BLOCK * 0.8] +
         //        From bonus period:      [LATTE_PER_BLOCK * 10 * 4 * 0.8] +
         //        From after bonus:       [LATTE_PER_BLOCK * 4 * 0.8]
-        //   From pending rewards         [LATTE_PER_BLOCK * 4 * 0.8]
-        // = ((LATTE_PER_BLOCK * 0.8 + LATTE_PER_BLOCK * 10 * 4 * 0.8) * 0.7) + LATTE_PER_BLOCK * 4 * 0.8 + LATTE_PER_BLOCK * 4 * 0.8
-        // = (320) * 0.3 + 8 + 32 + 32 = 168
+        //   From pending rewards         [LATTE_PER_BLOCK * 3 * 0.8]
+        // = ((LATTE_PER_BLOCK * 0.8 + LATTE_PER_BLOCK * 10 * 4 * 0.8) * 0.7) + LATTE_PER_BLOCK * 4 * 0.8 + LATTE_PER_BLOCK * 3 * 0.8
+        // = (320) * 0.3 + 8 + 32 + 24 = 160
         expect(await latteV2.balanceOf(await alice.getAddress())).to.eq(
-          ethers.utils.parseEther("168"),
+          ethers.utils.parseEther("160"),
           "alice should get a correct amount of latte v2"
         );
         expect(aliceLatteV1Balance).to.eq(

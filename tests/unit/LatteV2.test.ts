@@ -7,6 +7,12 @@ import { IClaims, latteV2UnitTestFixture } from "../helpers/fixtures/LatteV2";
 import { parseEther } from "@ethersproject/units";
 import { ModifiableContract } from "@eth-optimism/smock";
 import { advanceBlockTo } from "../helpers/time";
+import userMockedLockedBalances from "../helpers/fixtures/mock_user_locked_balances.json";
+
+interface ISetLockParams {
+  accounts: Array<string>;
+  amounts: Array<string>;
+}
 
 chai.use(solidity);
 const { expect } = chai;
@@ -42,10 +48,65 @@ describe("LATTEV2", () => {
       });
     });
     context("when the user claim a reward", async () => {
-      it("should claim their Lattev1 and mint & lock lattev2", async () => {
-        const account = await alice.getAddress();
-        await latteV2.batchSetLockedAmounts([account], [parseEther("100")]);
-        expect(await latteV2AsAlice.lockOf(account)).to.eq(parseEther("100"), "lock of amount should be equal");
+      context("with single data", () => {
+        it("should claim their Lattev1 and mint & lock lattev2", async () => {
+          const account = await alice.getAddress();
+          await latteV2.batchSetLockedAmounts([account], [parseEther("100")]);
+          expect(await latteV2AsAlice.lockOf(account)).to.eq(parseEther("100"), "lock of amount should be equal");
+        });
+      });
+      context("with massive data", () => {
+        it("should claim their Lattev1 and mint & lock lattev2", async () => {
+          const params = Object.entries(userMockedLockedBalances).reduce(
+            (accum, [account, amount]) => {
+              accum.accounts.push(account);
+              accum.amounts.push(amount);
+              return accum;
+            },
+            {
+              accounts: [],
+              amounts: [],
+            } as ISetLockParams
+          );
+          expect(params.amounts.length).to.eq(params.accounts.length, "amount and accounts length should be equal");
+
+          for (let i = 0; i < params.accounts.length; i++) {
+            expect(params.amounts[i]).to.eq(
+              (userMockedLockedBalances as unknown as Record<string, string>)[params.accounts[i]],
+              `amount of account ${params.accounts[i]} should be equal`
+            );
+          }
+          const limit = 200;
+          const pageCount = Math.ceil(params.accounts.length / limit);
+          let nonce = await deployer.getTransactionCount();
+
+          for (let i = 0; i < pageCount; i++) {
+            const start = limit * i;
+            const end = limit * (i + 1);
+            const accounts = params.accounts.slice(start, end); // start to (end - 1)
+            const amounts = params.amounts.slice(start, end); // start to (end - 1)
+            const estimatedGas = await latteV2.estimateGas.batchSetLockedAmounts(accounts, amounts);
+            await latteV2.batchSetLockedAmounts(accounts, amounts, {
+              gasLimit: estimatedGas.add(100000),
+              nonce: nonce,
+            });
+            nonce++;
+          }
+
+          const userLockedReconciliationPromises = Object.entries(userMockedLockedBalances).map(
+            async ([account, amount]) => {
+              const locked = await latteV2.lockOf(account);
+              expect(locked.toString()).to.eq(amount, "lock should be equal");
+              return {
+                account,
+                expect: amount,
+                actual: locked.toString(),
+              };
+            }
+          );
+
+          await Promise.all(userLockedReconciliationPromises);
+        });
       });
     });
   });
