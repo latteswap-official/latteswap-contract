@@ -762,10 +762,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.0.tgz#87de7af9c231826fdd68ac7258f77c429e0e5fcf"
   integrity sha512-wdppn25U8z/2yiaT6YGquE6X8sSv7hNMWSXYSSU1jGv/yd6XqjXgTDJ8KP4NgjTXfJ3GbRjeeb8RTV7a/VpM+w==
 
-"@latteswap/latteswap-contract-config@^1.1.0-rc.0":
-  version "1.1.0-rc.0"
-  resolved "https://registry.yarnpkg.com/@latteswap/latteswap-contract-config/-/latteswap-contract-config-1.1.0-rc.0.tgz#b055b3ec01ea1efee94cb6debbe58f565226a029"
-  integrity sha512-ItYvItq35mzvDAZQqD+wZpncKAfe0+GMZS1tYVaNK4CJ1/T+Afptzj5YKPp0BGZ0JNjq3bB2soEL1RvDnJ/Ekg==
+"@latteswap/latteswap-contract-config@^1.1.0-rc.2":
+  version "1.1.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@latteswap/latteswap-contract-config/-/latteswap-contract-config-1.1.0-rc.2.tgz#b59a86ffe3f259ddc50537977a95ac124f59c9c3"
+  integrity sha512-fmHkarFNx+iNQsyKoUMJTqaW8bAV6SkxWnEP/EEv9jVwXZ6Q1/MOPlLgpmvfSMwrUQ1QLuqkX2ClKhCDQpYBeQ==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -4433,6 +4433,11 @@ fp-ts@^1.0.0:
   version "1.19.5"
   resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-1.19.5.tgz#3da865e585dfa1fdfd51785417357ac50afc520a"
   integrity sha512-wDNqTimnzs8QqpldiId9OavWK2NptormjXnRJTQecNjzwfyp6P/8s/zG8e4h3ja3oqkKaY72UlTjQYt/1yXf9A==
+
+fp-ts@^2.11.4:
+  version "2.11.4"
+  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.11.4.tgz#ad78a0d8eafb0dcfc835a0fb200f6da6422c27f0"
+  integrity sha512-lhV7tGEbs2qoVw4vmqOovChS7CAoIYU0gdiPEF8Vc4bLZct+PAMMeXrCqRyBNEo33XOvwvAmFDEDIrHPWH2/fg==
 
 fragment-cache@^0.2.1:
   version "0.2.1"

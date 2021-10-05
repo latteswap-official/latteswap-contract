@@ -18,14 +18,16 @@
     "test:unit:boosterConfig": "hardhat test --no-compile ./tests/unit/BoosterConfig.test.ts",
     "test:unit:latteSwapRouter": "hardhat test --no-compile ./tests/unit/LatteSwapRouter.test.ts",
     "test:unit:latteSwapFactory": "hardhat test --no-compile ./tests/unit/LatteSwapFactory.test.ts",
+    "test:unit:masterBaristaV1": "hardhat test --no-compile ./tests/unit/MasterBaristaV1.test.ts",
     "test:unit:masterBarista": "hardhat test --no-compile ./tests/unit/MasterBarista.test.ts",
     "test:unit:booster": "hardhat test --no-compile ./tests/unit/Booster.test.ts",
     "test:unit:latteMarket": "hardhat test --no-compile ./tests/unit/LatteMarket.test.ts",
     "test:unit:ogNFT": "hardhat test --no-compile ./tests/unit/OGNFT.test.ts",
     "test:unit:ogNFTOffering": "hardhat test --no-compile ./tests/unit/OGNFTOffering.test.ts",
     "test:unit:tripleSlopePriceModel": "hardhat test --no-compile ./tests/unit/TripleSlopePriceModel.test.ts",
+    "test:unit:lattev2": "hardhat test --no-compile ./tests/unit/LatteV2.test.ts",
+    "test:e2e:masterBaristaV1": "hardhat test --no-compile ./tests/e2e/MasterBaristaV1.test.ts",
     "test:e2e:masterBarista": "hardhat test --no-compile ./tests/e2e/MasterBarista.test.ts",
-
 
     "deploy:mainnet:mockErc20": "hardhat --network mainnet deploy --no-compile --reset --tags DeployMockERC20",
     "deploy:mainnet:latteSwap": "hardhat --network mainnet deploy --no-compile --reset --tags DeployLatteSwap",
@@ -39,7 +41,7 @@
     "deploy:mainnet:wNativeRelayer": "hardhat --network mainnet deploy --no-compile --reset --tags DeployWNativeRelayer",
     "deploy:mainnet:ogNFTOffering": "hardhat --network mainnet deploy --no-compile --reset --tags DeployOGNFTOffering",
     "deploy:mainnet:dripbar": "hardhat --network mainnet deploy --no-compile --reset --tags DeployDripBar",
-
+    "deploy:mainnet:latteV2": "hardhat --network mainnet deploy --no-compile --reset --tags DeployLATTEV2andBeanBagV2",
 
     "script:mainnet:ownership:transferOwnerToTimelock": "hardhat --network mainnet run --no-compile ./scripts/ownership/transfer_ownership_to_timelock.ts",
     "script:mainnet:ownership:transferLatteBeanOwnerToMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/ownership/transfer_ownership_of_latte_bean_to_master_barista.ts",
@@ -49,7 +51,6 @@
     "script:mainnet:swap:getLPAddresses": "hardhat --network mainnet run --no-compile ./scripts/swap/get_deterministic_lp_address.ts",
     "script:mainnet:swap:setFeeto": "hardhat --network mainnet run --no-compile ./scripts/swap/set_feeto_latteswap_factory.ts",
     "script:mainnet:swap:createPair": "hardhat --network mainnet run --no-compile ./scripts/swap/create_pair.ts",
-    
     "script:mainnet:farm:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/add_pool_to_master_barista.ts",
     "script:mainnet:farm:setLattePerBlock": "hardhat --network mainnet run --no-compile ./scripts/farm/set_latte_per_block_to_master_barista.ts",
     "script:mainnet:farm:setPool": "hardhat --network mainnet run --no-compile ./scripts/farm/master_barista_set_pool.ts",
@@ -59,12 +60,13 @@
     "script:mainnet:farm:timelock:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_pool_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPoolAllocBps": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_bps_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_point_to_master_barista.ts",
+    "script:mainnet:farm:timelock:setBonusMultiplier": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_bonus_multiplier_to_master_barista.ts",
     "script:mainnet:farm:timelock:removeStakeTokenCaller": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_remove_stake_token_caller.ts",
     "script:mainnet:farm:timelock:setStakeTokenCallerAllowance": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_stake_token_caller_allowance.ts",
+    "script:mainnet:farm:timelock:migrateMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_migrate_master_barista_to_v2.ts",
     "script:mainnet:farm:timelock:upgradeMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_upgrade_master_barista.ts",
     "script:mainnet:farm:upgrade:masterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
     "script:mainnet:farm:validate:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
-    
     "script:mainnet:nft:addLatteNFTCategory": "hardhat --network mainnet run --no-compile ./scripts/nft/latte_nft_add_category.ts",
     "script:mainnet:nft:batchMintLatteNFT": "hardhat --network mainnet run --no-compile ./scripts/nft/latte_nft_batch_mint.ts",
     "script:mainnet:nft:setStakeTokenToBeBoosted": "hardhat --network mainnet run --no-compile ./scripts/nft/set_stake_token_to_be_boosted.ts",
@@ -87,7 +89,6 @@
     "script:mainnet:nft:upgrade:ogOwnerToken": "hardhat --network mainnet run --no-compile ./scripts/nft/upgrade/upgrade_og_owner_token.ts",
     "script:mainnet:nft:validate:stakeTokenToBeBoosted": "hardhat --network mainnet run --no-compile ./scripts/nft/validate/stake_token_to_be_boosted.ts",
     "script:mainnet:nft:validate:setBoosterConfigStakeTokenCategoryAllowance": "hardhat --network mainnet run --no-compile ./scripts/nft/validate/booster_config_set_stake_token_category_allowance.ts",
-    
     "script:mainnet:market:setSupportedNFT": "hardhat --network mainnet run --no-compile ./scripts/market/set_supported_nft.ts",
     "script:mainnet:market:readyToSell": "hardhat --network mainnet run --no-compile ./scripts/market/ready_to_sell.ts",
     "script:mainnet:market:setSaleCap": "hardhat --network mainnet run --no-compile ./scripts/market/set_sale_cap.ts",
@@ -95,7 +96,6 @@
     "script:mainnet:market:validate:deployLatteMarket": "hardhat --network mainnet run --no-compile ./scripts/market/validate/deploy_latte_market.ts",
     "script:mainnet:market:validate:readyToSell": "hardhat --network mainnet run --no-compile ./scripts/market/validate/ready_to_sell.ts",
     "script:mainnet:market:timelock:upgradeLatteMarket": "hardhat --network mainnet run --no-compile ./scripts/market/timelock/upgrade.ts",
-    
     "script:mainnet:ogNftOffering:readyToSell": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/ready_to_sell.ts",
     "script:mainnet:ogNftOffering:upgrade:ogNFTOffering": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/upgrade/upgrade_og_nft_offering.ts",
     "script:mainnet:ogNftOffering:validate:deployOGNFTOffering": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/validate/deploy_og_nft_offering.ts",
@@ -104,13 +104,13 @@
     "script:mainnet:ogNftOffering:timelock:setBuyLimitCount": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/timelock_set_buy_limit_count.ts",
     "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts"
   },
-  "version": "1.3.2-rc.0",
+  "version": "2.0.0-rc.1",
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
     "@eth-optimism/smock": "^1.1.10",
     "@ethersproject/bignumber": "^5.0.14",
-    "@latteswap/latteswap-contract-config": "^1.1.0-rc.0",
+    "@latteswap/latteswap-contract-config": "^1.1.0-rc.2",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
@@ -133,6 +133,7 @@
     "ethereum-waffle": "^3.2.2",
     "ethereumjs-util": "^7.0.10",
     "ethers": "^5.0.31",
+    "fp-ts": "^2.11.4",
     "hardhat": "2.5.0",
     "hardhat-deploy": "^0.7.0-beta.45",
     "hardhat-log-remover": "^2.0.2",

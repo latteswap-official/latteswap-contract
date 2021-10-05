@@ -1,12 +1,6 @@
+import { ethers } from "hardhat";
+import { MasterBarista__factory } from "../../../typechain";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
-
-interface IStakingPool {
-  STAKING_TOKEN_ADDRESS: string;
-  ALLOC_POINT: string;
-  EXACT_ETA: string;
-}
-
-type IStakingPools = Array<IStakingPool>;
 
 async function main() {
   /*
@@ -19,33 +13,26 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const STAKING_POOLS: IStakingPools = [
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.LATTEV2,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1633331560",
-    },
-  ];
+  const EXACT_ETA = "1633278300";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
-  for (const STAKING_POOL of STAKING_POOLS) {
-    console.log(">> Queue Transaction to add a staking token pool through Timelock");
-    timelockTransactions.push(
-      await TimelockService.queueTransaction(
-        `adding staking token pool ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`,
-        config.MasterBarista,
-        "0",
-        "addPool(address,uint256)",
-        ["address", "uint256"],
-        [STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_POINT],
-        STAKING_POOL.EXACT_ETA
-      )
-    );
-    console.log("✅ Done");
-  }
+  console.log(">> Queue Transaction to migrate a MasterBarista to use LATTEV2 and BeanBagV2");
 
-  await FileService.write("add-staking-token-pools", timelockTransactions);
+  timelockTransactions.push(
+    await TimelockService.queueTransaction(
+      `call migrate() function in MasterBarista to migrate to use LATTEV2 and BeanBagV2`,
+      config.MasterBarista,
+      "0",
+      "migrate(address,address)",
+      ["address", "address"],
+      [config.Tokens.LATTEV2, config.BeanBagV2],
+      EXACT_ETA
+    )
+  );
+  console.log("✅ Done");
+
+  await FileService.write("masterbarista-migrate", timelockTransactions);
 }
 
 withNetworkFile(main)

@@ -1,53 +1,48 @@
 import { MockProvider } from "ethereum-waffle";
 import { BigNumber, providers, Wallet } from "ethers";
 import { ethers, upgrades } from "hardhat";
-import { BeanBagV2 } from "../../../typechain";
 import {
   LATTE__factory,
   LATTE,
   BeanBag__factory,
-  MasterBarista__factory,
+  MasterBaristaV1,
   SimpleToken__factory,
   BeanBag,
-  MasterBarista,
   SimpleToken,
   MockStakeTokenCallerContract__factory,
   MockStakeTokenCallerContract,
+  MasterBaristaV1__factory,
   LATTEV2__factory,
   LATTEV2,
 } from "../../../typechain";
 import { formatBigNumber } from "../../../utils/format";
 import { parseBalanceMap } from "../../../utils/merkle/parse-balance-map";
 
-export interface IMasterBaristaUnitTestFixtureDTO {
+export interface IMasterBaristaV1UnitTestFixtureDTO {
   LATTE_START_BLOCK: number;
   LATTE_PER_BLOCK: BigNumber;
   LATTE_BONUS_LOCK_UP_BPS: number;
   latteToken: LATTE;
   beanBag: BeanBag;
-  beanV2: BeanBagV2;
-  latteV2: LATTEV2;
-  masterBarista: MasterBarista;
+  masterBarista: MasterBaristaV1;
   stakingTokens: Array<SimpleToken>;
   mockStakeTokenCaller: MockStakeTokenCallerContract;
 }
 
-export interface IMasterBaristaE2ETestFixtureDTO {
+export interface IMasterBaristaV1E2ETestFixtureDTO {
   LATTE_START_BLOCK: number;
   LATTE_PER_BLOCK: BigNumber;
   LATTE_BONUS_LOCK_UP_BPS: number;
   latteToken: LATTE;
   beanBag: BeanBag;
-  beanV2: BeanBagV2;
-  latteV2: LATTEV2;
-  masterBarista: MasterBarista;
+  masterBarista: MasterBaristaV1;
   stakingTokens: Array<SimpleToken>;
 }
 
-export async function masterBaristaUnitTestFixture(
+export async function masterBaristaV1UnitTestFixture(
   maybeWallets?: Wallet[],
   maybeProvider?: MockProvider
-): Promise<IMasterBaristaUnitTestFixtureDTO> {
+): Promise<IMasterBaristaV1UnitTestFixtureDTO> {
   const LATTE_START_BLOCK = 5;
   const LATTE_PER_BLOCK = ethers.utils.parseEther("10");
   const LATTE_BONUS_LOCK_UP_BPS = 7000;
@@ -57,12 +52,6 @@ export async function masterBaristaUnitTestFixture(
   const latteToken = await LATTE.deploy(await dev.getAddress(), 132, 137);
   await latteToken.deployed();
 
-  // Deploy LATTEV2
-
-  const LATTEV2 = (await ethers.getContractFactory("LATTEV2", deployer)) as LATTEV2__factory;
-  const latteV2 = (await LATTEV2.deploy(latteToken.address)) as LATTEV2;
-  await latteV2.deployed();
-
   // Mint LATTE for testing purpose
   await latteToken.mint(await deployer.getAddress(), ethers.utils.parseEther("888888888"));
 
@@ -71,25 +60,15 @@ export async function masterBaristaUnitTestFixture(
   const beanBag = await BeanBag.deploy(latteToken.address);
   await beanBag.deployed();
 
-  // Deploy BeanBagV2
-  const BeanBagV2 = await ethers.getContractFactory("BeanBagV2", deployer);
-  const beanV2 = (await upgrades.deployProxy(BeanBagV2, [latteV2.address])) as BeanBagV2;
-  await beanV2.deployed();
-
-  // Deploy MasterBarista
-  const MasterBarista = (await ethers.getContractFactory("MasterBarista", deployer)) as MasterBarista__factory;
+  // Deploy MasterBaristaV1
+  const MasterBarista = (await ethers.getContractFactory("MasterBaristaV1", deployer)) as MasterBaristaV1__factory;
   const masterBarista = (await upgrades.deployProxy(MasterBarista, [
     latteToken.address,
     beanBag.address,
     await dev.getAddress(),
     LATTE_PER_BLOCK,
     LATTE_START_BLOCK,
-  ])) as MasterBarista;
-
-  // set minter role to master barista
-  await latteV2.grantRole(await latteV2.MINTER_ROLE(), masterBarista.address);
-  // set beanv2 owner to master barista
-  await beanV2.transferOwnership(masterBarista.address);
+  ])) as MasterBaristaV1;
 
   await masterBarista.setPool(latteToken.address, 1);
   await masterBarista.setPoolAllocBps(latteToken.address, 4000);
@@ -121,19 +100,17 @@ export async function masterBaristaUnitTestFixture(
     LATTE_PER_BLOCK,
     LATTE_BONUS_LOCK_UP_BPS,
     latteToken,
-    latteV2,
     beanBag,
-    beanV2,
     masterBarista,
     stakingTokens,
     mockStakeTokenCaller,
-  } as IMasterBaristaUnitTestFixtureDTO;
+  } as IMasterBaristaV1UnitTestFixtureDTO;
 }
 
-export async function masterBaristaE2ETestFixture(
+export async function masterBaristaV1E2ETestFixture(
   maybeWallets?: Wallet[],
   maybeProvider?: MockProvider
-): Promise<IMasterBaristaE2ETestFixtureDTO> {
+): Promise<IMasterBaristaV1E2ETestFixtureDTO> {
   const LATTE_START_BLOCK = 5;
   const LATTE_PER_BLOCK = ethers.utils.parseEther("10");
   const LATTE_BONUS_LOCK_UP_BPS = 7000;
@@ -143,11 +120,6 @@ export async function masterBaristaE2ETestFixture(
   const latteToken = await LATTE.deploy(await dev.getAddress(), 132, 137);
   await latteToken.deployed();
 
-  // Deploy LATTEV2
-  const LATTEV2 = (await ethers.getContractFactory("LATTEV2", deployer)) as LATTEV2__factory;
-  const latteV2 = (await LATTEV2.deploy(latteToken.address)) as LATTEV2;
-  await latteV2.deployed();
-
   // Mint LATTE for testing purpose
   await latteToken.mint(await deployer.getAddress(), ethers.utils.parseEther("888888888"));
 
@@ -156,26 +128,27 @@ export async function masterBaristaE2ETestFixture(
   const beanBag = await BeanBag.deploy(latteToken.address);
   await beanBag.deployed();
 
-  // Deploy BeanBagV2
-  const BeanBagV2 = await ethers.getContractFactory("BeanBagV2", deployer);
-  const beanV2 = (await upgrades.deployProxy(BeanBagV2, [latteV2.address])) as BeanBagV2;
-  await beanV2.deployed();
+  // Deploy LATTEV2
+  const {
+    claims: innerClaims,
+    merkleRoot,
+    tokenTotal,
+  } = parseBalanceMap({
+    [await alice.getAddress()]: formatBigNumber(ethers.utils.parseEther("200"), "purehex"),
+    [await bob.getAddress()]: formatBigNumber(ethers.utils.parseEther("300"), "purehex"),
+    [await dev.getAddress()]: formatBigNumber(ethers.utils.parseEther("250"), "purehex"),
+  });
 
   // Deploy MasterBarista
-  const MasterBarista = (await ethers.getContractFactory("MasterBarista", deployer)) as MasterBarista__factory;
+  const MasterBarista = (await ethers.getContractFactory("MasterBaristaV1", deployer)) as MasterBaristaV1__factory;
   const masterBarista = (await upgrades.deployProxy(MasterBarista, [
     latteToken.address,
     beanBag.address,
     await dev.getAddress(),
     LATTE_PER_BLOCK,
     LATTE_START_BLOCK,
-  ])) as MasterBarista;
+  ])) as MasterBaristaV1;
   await masterBarista.deployed();
-
-  // set minter role to master barista
-  await latteV2.grantRole(await latteV2.MINTER_ROLE(), masterBarista.address);
-  // set beanv2 owner to master barista
-  await beanV2.transferOwnership(masterBarista.address);
 
   await masterBarista.setPool(latteToken.address, 1);
   await masterBarista.setPoolAllocBps(latteToken.address, 4000);
@@ -196,10 +169,8 @@ export async function masterBaristaE2ETestFixture(
     LATTE_PER_BLOCK,
     LATTE_BONUS_LOCK_UP_BPS,
     latteToken,
-    latteV2,
     beanBag,
-    beanV2,
     masterBarista,
     stakingTokens,
-  } as IMasterBaristaE2ETestFixtureDTO;
+  } as IMasterBaristaV1E2ETestFixtureDTO;
 }

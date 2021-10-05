@@ -17,11 +17,11 @@ import "../library/LinkList.sol";
 import "./interfaces/ILATTE.sol";
 import "./interfaces/ILATTEV2.sol";
 import "./interfaces/IBeanBag.sol";
-import "./interfaces/IMasterBarista.sol";
+import "./interfaces/IMasterBaristaV1.sol";
 import "./interfaces/IMasterBaristaCallback.sol";
 
-/// @notice MasterBarista is a smart contract for distributing LATTE by asking user to stake the BEP20-based token.
-contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+/// @notice MasterBaristaV1 is a smart contract for distributing LATTE by asking user to stake the BEP20-based token.
+contract MasterBaristaV1 is IMasterBaristaV1, OwnableUpgradeable, ReentrancyGuardUpgradeable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
   using LinkList for LinkList.List;
@@ -79,13 +79,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   // list of contracts that the pool allows to fund
   mapping(address => LinkList.List) public stakeTokenCallerContracts;
 
-  // V2
-  ILATTEV2 public latteV2; // LATTEV2 token.
-  IBeanBag public beanV2; // Bean V2 token
-
-  ILATTE public activeLatte; // active Latte token to be used as a reward. (lattev1 | latteV2)
-  IBeanBag public activeBean; // active Bean to be used as a bean token
-
   event AddPool(address stakeToken, uint256 allocPoint, uint256 totalAllocPoint);
   event SetPool(address stakeToken, uint256 allocPoint, uint256 totalAllocPoint);
   event RemovePool(address stakeToken, uint256 allocPoint, uint256 totalAllocPoint);
@@ -100,7 +93,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   event MintExtraReward(address indexed sender, address indexed stakeToken, address indexed to, uint256 amount);
   event SetLattePerBlock(uint256 prevLattePerBlock, uint256 currentLattePerBlock);
   event Harvest(address indexed caller, address indexed beneficiary, address indexed stakeToken, uint256 amount);
-  event Migrate(uint256 amount);
 
   /// @dev Initializer to create LatteMasterBarista instance + add pool(0)
   /// @param _latte The address of LATTE
@@ -148,6 +140,21 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     _;
   }
 
+  /// @notice only permitted funder can continue the execution
+  /// @dev eg. if a pool accepted funders (from setStakeTokenCallerAllowancePool), then msg.sender needs to be those funders, otherwise it will be reverted
+  /// @dev --  if a pool doesn't accepted any funders, then msg.sender needs to be the one with beneficiary (eoa account)
+  /// @param _beneficiary is an address this funder funding for
+  /// @param _stakeTokens a set of stake token (when doing batch)
+  modifier onlyPermittedTokensFunder(address _beneficiary, address[] calldata _stakeTokens) {
+    for (uint256 i = 0; i < _stakeTokens.length; i++) {
+      require(
+        _isFunder(_beneficiary, _stakeTokens[i]),
+        "MasterBarista::onlyPermittedTokensFunder: caller is not permitted"
+      );
+    }
+    _;
+  }
+
   /// @dev only stake token caller contract can continue the execution (stakeTokenCaller must be a funder contract)
   /// @param _stakeToken a stakeToken to be validated
   modifier onlyStakeTokenCallerContract(address _stakeToken) {
@@ -192,7 +199,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
       "MasterBarista::removeStakeTokenCallerContract: the pool doesn't allow a contract caller"
     );
     LinkList.List storage list = stakeTokenCallerContracts[_stakeToken];
-    list.remove(_caller, list.getPreviousOf(_caller));
+    list.remove(_caller, pools.getPreviousOf(_stakeToken));
 
     emit RemoveStakeTokenCallerContract(_stakeToken, _caller);
   }
@@ -436,7 +443,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @param _stakeToken The stake token address of the pool to be updated
   function updatePool(address _stakeToken) public override {
     PoolInfo storage pool = poolInfo[_stakeToken];
-    _assignActiveToken();
     if (block.number <= pool.lastRewardBlock) {
       return;
     }
@@ -447,13 +453,13 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     }
     uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
     uint256 latteReward = multiplier.mul(lattePerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-    activeLatte.mint(devAddr, latteReward.mul(devFeeBps).div(10000));
-    activeLatte.mint(address(activeBean), latteReward);
+    latte.mint(devAddr, latteReward.mul(devFeeBps).div(10000));
+    latte.mint(address(bean), latteReward);
     pool.accLattePerShare = pool.accLattePerShare.add(latteReward.mul(1e12).div(totalStakeToken));
 
     // Clear bonus & update accLattePerShareTilBonusEnd.
     if (block.number <= bonusEndBlock) {
-      activeLatte.lock(devAddr, latteReward.mul(bonusLockUpBps).mul(15).div(1000000));
+      latte.lock(devAddr, latteReward.mul(bonusLockUpBps).mul(15).div(1000000));
       pool.accLattePerShareTilBonusEnd = pool.accLattePerShare;
     }
     if (block.number > bonusEndBlock && pool.lastRewardBlock < bonusEndBlock) {
@@ -463,7 +469,7 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
         .mul(lattePerBlock)
         .mul(pool.allocPoint)
         .div(totalAllocPoint);
-      activeLatte.lock(devAddr, latteBonusPortion.mul(bonusLockUpBps).mul(15).div(1000000));
+      latte.lock(devAddr, latteBonusPortion.mul(bonusLockUpBps).mul(15).div(1000000));
       pool.accLattePerShareTilBonusEnd = pool.accLattePerShareTilBonusEnd.add(
         latteBonusPortion.mul(1e12).div(totalStakeToken)
       );
@@ -480,13 +486,11 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address _stakeToken,
     uint256 _amount
   ) external override onlyPermittedTokenFunder(_for, _stakeToken) nonReentrant {
-    _assignActiveToken();
     require(
       _stakeToken != address(0) && _stakeToken != address(1),
       "MasterBarista::setPool::_stakeToken must not be address(0) or address(1)"
     );
     require(_stakeToken != address(latte), "MasterBarista::deposit::use depositLatte instead");
-    require(_stakeToken != address(latteV2), "MasterBarista::deposit::use depositLatteV2 instead");
     require(pools.has(_stakeToken), "MasterBarista::deposit::no pool");
 
     PoolInfo storage pool = poolInfo[_stakeToken];
@@ -518,13 +522,11 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address _stakeToken,
     uint256 _amount
   ) external override nonReentrant {
-    _assignActiveToken();
     require(
       _stakeToken != address(0) && _stakeToken != address(1),
       "MasterBarista::setPool::_stakeToken must not be address(0) or address(1)"
     );
     require(_stakeToken != address(latte), "MasterBarista::withdraw::use withdrawLatte instead");
-    require(_stakeToken != address(latteV2), "MasterBarista::withdraw::use withdrawLatteV2 instead");
     require(pools.has(_stakeToken), "MasterBarista::withdraw::no pool");
 
     PoolInfo storage pool = poolInfo[_stakeToken];
@@ -556,7 +558,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     onlyPermittedTokenFunder(_for, address(latte))
     nonReentrant
   {
-    _assignActiveToken();
     PoolInfo storage pool = poolInfo[address(latte)];
     UserInfo storage user = userInfo[address(latte)][_for];
 
@@ -582,7 +583,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   /// @dev Withdraw LATTE
   /// @param _amount The amount to be withdrawn
   function withdrawLatte(address _for, uint256 _amount) external override nonReentrant {
-    _assignActiveToken();
     PoolInfo storage pool = poolInfo[address(latte)];
     UserInfo storage user = userInfo[address(latte)][_for];
 
@@ -604,64 +604,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     bean.burn(_for, _amount);
 
     emit Withdraw(_msgSender(), _for, address(latte), user.amount);
-  }
-
-  /// @dev Deposit LATTEV2 to get even more LATTEV2.
-  /// @param _amount The amount to be deposited
-  function depositLatteV2(address _for, uint256 _amount)
-    external
-    override
-    onlyPermittedTokenFunder(_for, address(latteV2))
-    nonReentrant
-  {
-    require(address(latteV2) != address(0), "MasterBarista::depositLatteV2:: LATTEV2 not set");
-    PoolInfo storage pool = poolInfo[address(latteV2)];
-    UserInfo storage user = userInfo[address(latteV2)][_for];
-
-    if (user.fundedBy != address(0)) require(user.fundedBy == _msgSender(), "MasterBarista::depositLatte::bad sof");
-
-    uint256 lastRewardBlock = pool.lastRewardBlock;
-    updatePool(address(latteV2));
-
-    if (user.amount > 0) _harvest(_for, address(latteV2), lastRewardBlock);
-    if (user.fundedBy == address(0)) user.fundedBy = _msgSender();
-    if (_amount > 0) {
-      IERC20(address(latteV2)).safeTransferFrom(address(_msgSender()), address(this), _amount);
-      user.amount = user.amount.add(_amount);
-    }
-    user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
-    user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
-
-    beanV2.mint(_for, _amount);
-
-    emit Deposit(_msgSender(), _for, address(latteV2), _amount);
-  }
-
-  /// @dev Withdraw LATTEV2
-  /// @param _amount The amount to be withdrawn
-  function withdrawLatteV2(address _for, uint256 _amount) external override nonReentrant {
-    require(address(latteV2) != address(0), "MasterBarista::depositLatteV2:: LATTEV2 not set");
-    PoolInfo storage pool = poolInfo[address(latteV2)];
-    UserInfo storage user = userInfo[address(latteV2)][_for];
-
-    require(user.fundedBy == _msgSender(), "MasterBarista::withdrawLatte::only funder");
-    require(user.amount >= _amount, "MasterBarista::withdrawLatte::not good");
-
-    uint256 lastRewardBlock = pool.lastRewardBlock;
-    updatePool(address(latteV2));
-    _harvest(_for, address(latteV2), lastRewardBlock);
-
-    if (_amount > 0) {
-      user.amount = user.amount.sub(_amount);
-      IERC20(address(latteV2)).safeTransfer(address(_msgSender()), _amount);
-    }
-    user.rewardDebt = user.amount.mul(pool.accLattePerShare).div(1e12);
-    user.bonusDebt = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12);
-    if (user.amount == 0) user.fundedBy = address(0);
-
-    beanV2.burn(_for, _amount);
-
-    emit Withdraw(_msgSender(), _for, address(latteV2), user.amount);
   }
 
   /// @dev Harvest LATTE earned from a specific pool.
@@ -700,27 +642,19 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     address _stakeToken,
     uint256 _lastRewardBlock
   ) internal {
-    _assignActiveToken();
     PoolInfo memory pool = poolInfo[_stakeToken];
     UserInfo memory user = userInfo[_stakeToken][_for];
-    require(
-      user.fundedBy == _msgSender() || _msgSender() == 0xE626fC6D9f4F1FAA17a157FB854d27fC55327283,
-      "MasterBarista::_harvest::only funder"
-    );
+    require(user.fundedBy == _msgSender(), "MasterBarista::_harvest::only funder");
     require(user.amount > 0, "MasterBarista::_harvest::nothing to harvest");
     uint256 pending = user.amount.mul(pool.accLattePerShare).div(1e12).sub(user.rewardDebt);
-    require(
-      pending <= activeLatte.balanceOf(address(activeBean)),
-      "MasterBarista::_harvest::wait what.. not enough LATTE"
-    );
+    require(pending <= latte.balanceOf(address(bean)), "MasterBarista::_harvest::wait what.. not enough LATTE");
     uint256 bonus = user.amount.mul(pool.accLattePerShareTilBonusEnd).div(1e12).sub(user.bonusDebt);
-    activeBean.safeLatteTransfer(_for, pending);
+    bean.safeLatteTransfer(_for, pending);
     if (stakeTokenCallerContracts[_stakeToken].has(_msgSender())) {
       _masterBaristaCallee(_msgSender(), _stakeToken, _for, pending, _lastRewardBlock);
     }
-    if (bonus > 0) {
-      activeLatte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
-    }
+    latte.lock(_for, bonus.mul(bonusLockUpBps).div(10000));
+
     emit Harvest(_msgSender(), _for, _stakeToken, pending);
   }
 
@@ -765,9 +699,6 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
     if (_stakeToken == address(latte)) {
       bean.burn(_for, user.amount);
     }
-    if (_stakeToken == address(latteV2)) {
-      beanV2.burn(_for, user.amount);
-    }
 
     // Reset user info
     user.amount = 0;
@@ -807,39 +738,13 @@ contract MasterBarista is IMasterBarista, OwnableUpgradeable, ReentrancyGuardUpg
   ) external override onlyStakeTokenCallerContract(_stakeToken) {
     uint256 multiplierBps = _getBonusMultiplierProportionBps(_lastRewardBlock, block.number);
     uint256 toBeLockedNum = _amount.mul(multiplierBps).mul(bonusLockUpBps);
-    _assignActiveToken();
 
     // mint & lock(if any) an extra reward
-    activeLatte.mint(_to, _amount);
-    activeLatte.lock(_to, toBeLockedNum.div(1e8));
-    activeLatte.mint(devAddr, _amount.mul(devFeeBps).div(1e4));
-    activeLatte.lock(devAddr, (toBeLockedNum.mul(devFeeBps)).div(1e12));
+    latte.mint(_to, _amount);
+    latte.lock(_to, toBeLockedNum.div(1e8));
+    latte.mint(devAddr, _amount.mul(devFeeBps).div(1e4));
+    latte.lock(devAddr, (toBeLockedNum.mul(devFeeBps)).div(1e12));
 
     emit MintExtraReward(_msgSender(), _stakeToken, _to, _amount);
-  }
-
-  /// if reward token hasn't been set, set it as a latte
-  function _assignActiveToken() internal {
-    if (address(activeLatte) == address(0)) activeLatte = latte;
-    if (address(activeBean) == address(0)) activeBean = bean;
-  }
-
-  /// @notice migrate latteV1 -> latteV2 and beanV1 -> beanV2
-  function migrate(ILATTEV2 _latteV2, IBeanBag _beanV2) external onlyOwner {
-    massUpdatePools();
-    uint256 _amount = latte.balanceOf(address(bean));
-
-    activeLatte = ILATTE(address(_latteV2));
-    activeBean = _beanV2;
-    latteV2 = _latteV2;
-    beanV2 = _beanV2;
-
-    bean.safeLatteTransfer(address(this), _amount);
-    latte.approve(address(_latteV2), uint256(-1));
-    _latteV2.redeem(_amount);
-    _latteV2.transfer(address(beanV2), _amount);
-    latte.approve(address(_latteV2), 0);
-
-    emit Migrate(_amount);
   }
 }

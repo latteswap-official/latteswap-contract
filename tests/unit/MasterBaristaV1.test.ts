@@ -4,20 +4,18 @@ import chai from "chai";
 import { solidity } from "ethereum-waffle";
 import {
   BeanBag,
-  BeanBagV2,
   BeanBag__factory,
   LATTE,
-  LATTEV2,
   LATTE__factory,
-  MasterBarista,
-  MasterBarista__factory,
   MockStakeTokenCallerContract,
   SimpleToken,
   SimpleToken__factory,
+  MasterBaristaV1,
+  MasterBaristaV1__factory,
 } from "../../typechain";
 import { assertAlmostEqual } from "../helpers/assert";
 import { advanceBlock, advanceBlockTo, latestBlockNumber } from "../helpers/time";
-import { masterBaristaUnitTestFixture } from "../helpers/fixtures/MasterBarista";
+import { masterBaristaV1UnitTestFixture } from "../helpers/fixtures/MasterBaristaV1";
 import exp from "constants";
 import { deploy } from "@openzeppelin/hardhat-upgrades/dist/utils";
 import { parseEther } from "ethers/lib/utils";
@@ -25,9 +23,30 @@ import { parseEther } from "ethers/lib/utils";
 chai.use(solidity);
 const { expect } = chai;
 
-describe("MasterBarista", () => {
+describe("MasterBaristaV1", () => {
+  let LATTE_START_BLOCK: number;
+  let LATTE_PER_BLOCK: BigNumber;
+  let LATTE_BONUS_LOCK_UP_BPS: number;
+
   // Contract as Signer
-  let masterBaristaAsAlice: MasterBarista;
+  let latteAsAlice: LATTE;
+  let latteAsBob: LATTE;
+  let latteAsDev: LATTE;
+
+  let stoken0AsDeployer: SimpleToken;
+  let stoken0AsAlice: SimpleToken;
+  let stoken0AsBob: SimpleToken;
+  let stoken0AsDev: SimpleToken;
+
+  let stoken1AsDeployer: SimpleToken;
+  let stoken1AsAlice: SimpleToken;
+  let stoken1AsBob: SimpleToken;
+  let stoken1AsDev: SimpleToken;
+
+  let masterBaristaAsDeployer: MasterBaristaV1;
+  let masterBaristaAsAlice: MasterBaristaV1;
+  let masterBaristaAsBob: MasterBaristaV1;
+  let masterBaristaAsDev: MasterBaristaV1;
 
   let mockStakeTokenCaller: MockStakeTokenCallerContract;
 
@@ -37,20 +56,42 @@ describe("MasterBarista", () => {
   let bob: Signer;
   let dev: Signer;
 
-  // from fixtures
   let latteToken: LATTE;
   let beanBag: BeanBag;
-  let latteV2: LATTEV2;
-  let beanV2: BeanBagV2;
-  let masterBarista: MasterBarista;
+  let masterBarista: MasterBaristaV1;
   let stakingTokens: SimpleToken[];
 
   beforeEach(async () => {
-    ({ latteToken, beanBag, masterBarista, stakingTokens, mockStakeTokenCaller, latteV2, beanV2 } =
-      await waffle.loadFixture(masterBaristaUnitTestFixture));
+    ({
+      latteToken,
+      beanBag,
+      masterBarista,
+      stakingTokens,
+      LATTE_START_BLOCK,
+      LATTE_PER_BLOCK,
+      LATTE_BONUS_LOCK_UP_BPS,
+      mockStakeTokenCaller,
+    } = await waffle.loadFixture(masterBaristaV1UnitTestFixture));
     [deployer, alice, bob, dev] = await ethers.getSigners();
 
-    masterBaristaAsAlice = MasterBarista__factory.connect(masterBarista.address, alice);
+    latteAsAlice = LATTE__factory.connect(latteToken.address, alice);
+    latteAsBob = LATTE__factory.connect(latteToken.address, bob);
+    latteAsDev = LATTE__factory.connect(latteToken.address, dev);
+
+    stoken0AsDeployer = SimpleToken__factory.connect(stakingTokens[0].address, deployer);
+    stoken0AsAlice = SimpleToken__factory.connect(stakingTokens[0].address, alice);
+    stoken0AsBob = SimpleToken__factory.connect(stakingTokens[0].address, bob);
+    stoken0AsDev = SimpleToken__factory.connect(stakingTokens[0].address, dev);
+
+    stoken1AsDeployer = SimpleToken__factory.connect(stakingTokens[1].address, deployer);
+    stoken1AsAlice = SimpleToken__factory.connect(stakingTokens[1].address, alice);
+    stoken1AsBob = SimpleToken__factory.connect(stakingTokens[1].address, bob);
+    stoken1AsDev = SimpleToken__factory.connect(stakingTokens[1].address, dev);
+
+    masterBaristaAsDeployer = MasterBaristaV1__factory.connect(masterBarista.address, deployer);
+    masterBaristaAsAlice = MasterBaristaV1__factory.connect(masterBarista.address, alice);
+    masterBaristaAsBob = MasterBaristaV1__factory.connect(masterBarista.address, bob);
+    masterBaristaAsDev = MasterBaristaV1__factory.connect(masterBarista.address, dev);
   });
 
   describe("#setpool()", () => {
@@ -75,8 +116,6 @@ describe("MasterBarista", () => {
           expect(stokenAllocPoint).to.be.eq(poolAlloc);
           expect(stokenLastRewardBlock).to.be.eq(stokenLastRewardBlock);
         }
-        expect(await masterBarista.activeBean()).to.eq(beanBag.address);
-        expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
       });
     });
 
@@ -316,8 +355,6 @@ describe("MasterBarista", () => {
           mockStakeTokenCaller,
           "OnBeforeLock"
         );
-        expect(await masterBarista.activeBean()).to.eq(beanBag.address);
-        expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
       });
     });
   });
@@ -335,8 +372,9 @@ describe("MasterBarista", () => {
     context("when the pool does not allow adding a corresponding stake token caller", () => {
       it("should revert", async () => {
         const stakeCallerContract = await alice.getAddress();
-        await expect(masterBarista.addStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract)).to.be
-          .reverted;
+        await expect(
+          masterBarista.addStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract)
+        ).to.be.revertedWith("");
       });
     });
 
@@ -349,12 +387,6 @@ describe("MasterBarista", () => {
         await masterBarista.addStakeTokenCallerContract(stakingTokens[0].address, await bob.getAddress());
         callerCount = await masterBarista.stakeTokenCallerContracts(stakingTokens[0].address);
         expect(callerCount).to.eq(2);
-        await masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, await bob.getAddress());
-        callerCount = await masterBarista.stakeTokenCallerContracts(stakingTokens[0].address);
-        expect(callerCount).to.eq(1);
-        await masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, await alice.getAddress());
-        callerCount = await masterBarista.stakeTokenCallerContracts(stakingTokens[0].address);
-        expect(callerCount).to.eq(0);
       });
     });
   });
@@ -416,8 +448,7 @@ describe("MasterBarista", () => {
           );
 
           // when revoke a stakeCallerContract, shouldn't be able to call a deposit
-          await expect(masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract)).not
-            .to.be.reverted;
+          await masterBarista.removeStakeTokenCallerContract(stakingTokens[0].address, stakeCallerContract);
           await expect(
             masterBaristaAsAlice.deposit(
               await deployer.getAddress(),
@@ -455,8 +486,6 @@ describe("MasterBarista", () => {
           expect(userInfo.amount).to.eq(ethers.utils.parseEther("100"));
           expect(userInfo.fundedBy).to.eq(await deployer.getAddress());
           expect(poolInfo.lastRewardBlock).to.eq(tx.blockNumber);
-          expect(await masterBarista.activeBean()).to.eq(beanBag.address);
-          expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
         });
       });
     });
@@ -465,13 +494,6 @@ describe("MasterBarista", () => {
         await expect(
           masterBarista.deposit(await deployer.getAddress(), stakingTokens[0].address, ethers.utils.parseEther("100"))
         ).to.be.revertedWith("MasterBarista::deposit::no pool");
-      });
-    });
-    context("when the pool is latte", () => {
-      it("should revert", async () => {
-        await expect(
-          masterBarista.deposit(await deployer.getAddress(), latteToken.address, ethers.utils.parseEther("100"))
-        ).to.be.revertedWith("MasterBarista::deposit::use depositLatte instead");
       });
     });
   });
@@ -510,8 +532,6 @@ describe("MasterBarista", () => {
           expect(userInfo.amount).to.eq(ethers.utils.parseEther("100"));
           expect(userInfo.fundedBy).to.eq(await alice.getAddress());
           expect(poolInfo.lastRewardBlock).to.eq(tx.blockNumber);
-          expect(await masterBarista.activeBean()).to.eq(beanBag.address);
-          expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
         });
       });
 
@@ -556,8 +576,6 @@ describe("MasterBarista", () => {
           expect(userInfo.amount).to.eq(ethers.utils.parseEther("100"));
           expect(userInfo.fundedBy).to.eq(await deployer.getAddress());
           expect(poolInfo.lastRewardBlock).to.eq(tx.blockNumber);
-          expect(await masterBarista.activeBean()).to.eq(beanBag.address);
-          expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
         });
       });
     });
@@ -582,8 +600,6 @@ describe("MasterBarista", () => {
       await masterBaristaAsAlice.emergencyWithdraw(await deployer.getAddress(), stakingTokens[0].address);
       expect(await stakingTokens[0].balanceOf(await deployer.getAddress())).to.eq(ethers.utils.parseEther("100"));
       expect(await stakingTokens[0].balanceOf(await alice.getAddress())).to.eq(ethers.utils.parseEther("100"));
-      expect(await masterBarista.activeBean()).to.eq(beanBag.address);
-      expect(await masterBarista.activeLatte()).to.eq(latteToken.address);
     });
   });
 });

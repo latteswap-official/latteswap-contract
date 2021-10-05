@@ -1,12 +1,6 @@
+import { ethers } from "hardhat";
+import { MasterBarista__factory } from "../../../typechain";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
-
-interface IStakingPool {
-  STAKING_TOKEN_ADDRESS: string;
-  ALLOC_POINT: string;
-  EXACT_ETA: string;
-}
-
-type IStakingPools = Array<IStakingPool>;
 
 async function main() {
   /*
@@ -19,33 +13,30 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const STAKING_POOLS: IStakingPools = [
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.LATTEV2,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1633331560",
-    },
-  ];
+  const MULTIPLIER = "5";
+  const EXACT_ETA = "1632713400";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
-  for (const STAKING_POOL of STAKING_POOLS) {
-    console.log(">> Queue Transaction to add a staking token pool through Timelock");
-    timelockTransactions.push(
-      await TimelockService.queueTransaction(
-        `adding staking token pool ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`,
-        config.MasterBarista,
-        "0",
-        "addPool(address,uint256)",
-        ["address", "uint256"],
-        [STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_POINT],
-        STAKING_POOL.EXACT_ETA
-      )
-    );
-    console.log("✅ Done");
-  }
+  console.log(">> Queue Transaction to set a new bonus multiplier through Timelock");
+  const masterBarista = MasterBarista__factory.connect(config.MasterBarista, (await ethers.getSigners())[0]);
+  const bonusEndBlock = await masterBarista.bonusEndBlock();
+  const bonusLockupBps = await masterBarista.bonusLockUpBps();
 
-  await FileService.write("add-staking-token-pools", timelockTransactions);
+  timelockTransactions.push(
+    await TimelockService.queueTransaction(
+      `setting a new bonus multiplier to ${MULTIPLIER} having the same endblock ${bonusEndBlock} and lock bps ${bonusLockupBps}`,
+      config.MasterBarista,
+      "0",
+      "setBonus(uint256,uint256,uint256)",
+      ["uint256", "uint256", "uint256"],
+      [MULTIPLIER, bonusEndBlock, bonusLockupBps],
+      EXACT_ETA
+    )
+  );
+  console.log("✅ Done");
+
+  await FileService.write("set-masterbarista-multiplier", timelockTransactions);
 }
 
 withNetworkFile(main)

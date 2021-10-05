@@ -2,7 +2,7 @@
 
 pragma solidity 0.6.12;
 
-interface IMasterBarista {
+interface IMasterBaristaV1 {
   /// @dev functions return information. no states changed.
   function poolLength() external view returns (uint256);
 
@@ -47,10 +47,6 @@ interface IMasterBarista {
   function depositLatte(address _for, uint256 _amount) external;
 
   function withdrawLatte(address _for, uint256 _amount) external;
-
-  function depositLatteV2(address _for, uint256 _amount) external;
-
-  function withdrawLatteV2(address _for, uint256 _amount) external;
 
   function harvest(address _for, address _stakeToken) external;
 
