@@ -16,7 +16,7 @@ async function main() {
   */
   const config = getConfig();
   const TARGETED_MASTER_BARISTA = config.MasterBarista;
-  const EXACT_ETA = "1632409221";
+  const EXACT_ETA = "1633430406";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 

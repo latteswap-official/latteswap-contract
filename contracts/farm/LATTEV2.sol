@@ -7,6 +7,7 @@
 // (_/ `-._.                       (_.--'               /
 
 pragma solidity 0.6.12;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -29,6 +30,7 @@ contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
   /// @dev public immutable state variables
   uint256 public immutable startReleaseBlock;
   uint256 public immutable endReleaseBlock;
+  bytes32 public immutable merkleRoot;
 
   /// @dev public mutable state variables
   uint256 public cap;
@@ -41,18 +43,19 @@ contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
   address public constant DEAD_ADDR = 0x000000000000000000000000000000000000dEaD;
 
   /// @dev events
-  event Lock(address indexed to, uint256 value);
-  event CapChanged(uint256 prevCap, uint256 newCap);
+  event LogLock(address indexed to, uint256 value);
+  event LogCapChanged(uint256 prevCap, uint256 newCap);
   // This event is triggered whenever a call to #claim succeeds.
-  event ClaimedLock(address indexed account, uint256 amount);
-  event Redeem(address indexed account, uint256 indexed amount);
+  event LogClaimedLock(uint256 index, address indexed account, uint256 amount);
+  event LogRedeem(address indexed account, uint256 indexed amount);
 
-  constructor(IERC20 _lattev1) public {
+  constructor(IERC20 _lattev1, bytes32 _merkleRoot) public {
     require(address(_lattev1) != address(0), "LATTEV2::constructor::latte v1 cannot be a zero address");
     _setupDecimals(18);
     cap = uint256(-1);
     startReleaseBlock = ILATTE(address(_lattev1)).startReleaseBlock();
     endReleaseBlock = ILATTE(address(_lattev1)).endReleaseBlock();
+    merkleRoot = _merkleRoot;
     lattev1 = _lattev1;
 
     _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -95,7 +98,7 @@ contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
     require(_cap < cap, "LATTEV2::setCap::_cap must < cap");
     uint256 _prevCap = cap;
     cap = _cap;
-    emit CapChanged(_prevCap, cap);
+    emit LogCapChanged(_prevCap, cap);
   }
 
   /// @dev A function to mint LATTE. This will be called by a minter only.
@@ -172,7 +175,7 @@ contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
       _lastUnlockBlock[_account] = startReleaseBlock;
     }
 
-    emit Lock(_account, _amount);
+    emit LogLock(_account, _amount);
   }
 
   /// @dev Return how many LATTE is unlocked for a given account
@@ -207,17 +210,44 @@ contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
     _totalLock = _totalLock.sub(amount);
   }
 
-  /// @notice set locked amounts for all users
-  function batchSetLockedAmounts(address[] calldata _accounts, uint256[] calldata _amounts) external onlyOwner {
+  /// @dev check whether or not the user already claimed
+  function isClaimed(uint256 _index) public view returns (bool) {
+    uint256 claimedWordIndex = _index / 256;
+    uint256 claimedBitIndex = _index % 256;
+    uint256 claimedWord = claimedBitMap[claimedWordIndex];
+    uint256 mask = (1 << claimedBitIndex);
+    return claimedWord & mask == mask;
+  }
+
+  /// @dev once an index (which is an account) claimed sth, set claimed
+  function _setClaimed(uint256 _index) private {
+    uint256 claimedWordIndex = _index / 256;
+    uint256 claimedBitIndex = _index % 256;
+    claimedBitMap[claimedWordIndex] = claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
+  }
+
+  /// @notice method for letting an account to claim lock from V1
+  function claimLock(
+    uint256[] calldata _indexes,
+    address[] calldata _accounts,
+    uint256[] calldata _amounts,
+    bytes32[][] calldata _merkleProofs
+  ) external beforeStartReleaseBlock {
     uint256 _total = 0;
     for (uint256 i = 0; i < _accounts.length; i++) {
-      if (_locks[_accounts[i]] > 0) continue; // locked reward existed
+      if (isClaimed(_indexes[i])) continue; // if some amounts already claimed their lock, continue to another one
+
+      // Verify the merkle proof.
+      bytes32 node = keccak256(abi.encodePacked(_indexes[i], _accounts[i], _amounts[i]));
+      require(MerkleProof.verify(_merkleProofs[i], merkleRoot, node), "LATTEV2::claimLock:: invalid proof");
 
       _locks[_accounts[i]] = _amounts[i];
       _lastUnlockBlock[_accounts[i]] = startReleaseBlock; // set batch is always < startReleaseBlock
       _total = _total.add(_amounts[i]);
 
-      emit ClaimedLock(_accounts[i], _amounts[i]);
+      // Mark it claimed
+      _setClaimed(_indexes[i]);
+      emit LogClaimedLock(_indexes[i], _accounts[i], _amounts[i]);
     }
     _mint(address(this), _total);
     _totalLock = _totalLock.add(_total);
@@ -231,6 +261,6 @@ contract LATTEV2 is ERC20("LATTEv2", "LATTE"), Ownable, AccessControl {
     // mint a new token
     _mint(_msgSender(), _amount);
 
-    emit Redeem(_msgSender(), _amount);
+    emit LogRedeem(_msgSender(), _amount);
   }
 }

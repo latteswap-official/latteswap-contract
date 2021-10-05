@@ -16,4 +16,4 @@
 .openzeppelin/prod-rehearsal-1-unknown-56.json
 compiled-typechain
 /utils/merkle/distribution-info/*
-mock_user_locked_balances.json
+mock_merkle_distribution.json

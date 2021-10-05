@@ -89,6 +89,6 @@ module.exports = {
     target: process.env.TYPECHAIN_TARGET || "ethers-v5",
   },
   mocha: {
-    timeout: 50000,
+    timeout: 500000,
   },
 };

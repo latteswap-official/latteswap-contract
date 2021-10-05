@@ -21,44 +21,14 @@ async function main() {
   const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: config.Tokens.BUSD,
+      STAKING_TOKEN_ADDRESS: config.LP["PCS_LATTE-BUSD"],
       ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
+      EXACT_ETA: "1633438806",
     },
     {
-      STAKING_TOKEN_ADDRESS: config.Tokens.WBNB,
+      STAKING_TOKEN_ADDRESS: "0xB4BC3F991aec9c54B489d5a5db818487db42857D",
       ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.ETH,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.BTCB,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.CAKE,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.XVS,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.EPS,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.BELT,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1632279600",
+      EXACT_ETA: "1633438806",
     },
   ];
 
