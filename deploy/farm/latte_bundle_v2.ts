@@ -3,6 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, upgrades } from "hardhat";
 import { BeanBagV2, BeanBagV2__factory, LATTEV2, LATTEV2__factory } from "../../typechain";
 import { getConfig, withNetworkFile } from "../../utils";
+import merkleDistributionInfo from "../../utils/merkle/distribution-info/mock.json";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
@@ -17,6 +18,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network } = hre;
   const { deploy } = deployments;
   const config = getConfig();
+  const { merkleRoot } = merkleDistributionInfo;
 
   const { deployer } = await getNamedAccounts();
 
@@ -24,7 +26,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     /// DEPLOY LATTEV2
     await deploy("LATTEV2", {
       from: deployer,
-      args: [config.Tokens.LATTE],
+      args: [config.Tokens.LATTE, merkleRoot],
       log: true,
       deterministicDeployment: false,
     });
