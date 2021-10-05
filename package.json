@@ -65,6 +65,7 @@
     "script:mainnet:farm:timelock:setStakeTokenCallerAllowance": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_stake_token_caller_allowance.ts",
     "script:mainnet:farm:timelock:migrateMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_migrate_master_barista_to_v2.ts",
     "script:mainnet:farm:timelock:upgradeMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_upgrade_master_barista.ts",
+    "script:mainnet:farm:timelock:setLattePerBlock": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_reward_emission.ts",
     "script:mainnet:farm:upgrade:masterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
     "script:mainnet:farm:validate:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
     "script:mainnet:nft:addLatteNFTCategory": "hardhat --network mainnet run --no-compile ./scripts/nft/latte_nft_add_category.ts",

@@ -1,12 +1,6 @@
+import { ethers } from "hardhat";
+import { MasterBarista__factory } from "../../../typechain";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
-
-interface IStakingPool {
-  STAKING_TOKEN_ADDRESS: string;
-  ALLOC_BPS: string;
-  EXACT_ETA: string;
-}
-
-type IStakingPools = Array<IStakingPool>;
 
 async function main() {
   /*
@@ -19,33 +13,27 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const STAKING_POOLS: IStakingPools = [
-    {
-      STAKING_TOKEN_ADDRESS: config.Tokens.LATTE,
-      ALLOC_BPS: "0",
-      EXACT_ETA: "1633438806",
-    },
-  ];
+  const LATTE_PER_BLOCK = ethers.utils.parseEther("10");
+  const EXACT_ETA = "1633438806";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
-  for (const STAKING_POOL of STAKING_POOLS) {
-    console.log(">> Queue Transaction to set a staking token pool bps through Timelock");
-    timelockTransactions.push(
-      await TimelockService.queueTransaction(
-        `adding staking token pool bps of ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`,
-        config.MasterBarista,
-        "0",
-        "setPoolAllocBps(address,uint256)",
-        ["address", "uint256"],
-        [STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_BPS],
-        STAKING_POOL.EXACT_ETA
-      )
-    );
-    console.log("✅ Done");
-  }
+  console.log(`>> Queue Transaction to set a reward emission to ${LATTE_PER_BLOCK} through Timelock`);
 
-  await FileService.write("set-staking-token-bps", timelockTransactions);
+  timelockTransactions.push(
+    await TimelockService.queueTransaction(
+      `seting a reward emission to ${LATTE_PER_BLOCK} through Timelock`,
+      config.MasterBarista,
+      "0",
+      "setLattePerBlock(uint256)",
+      ["uint256"],
+      [LATTE_PER_BLOCK],
+      EXACT_ETA
+    )
+  );
+  console.log("✅ Done");
+
+  await FileService.write("set-reward-emission", timelockTransactions);
 }
 
 withNetworkFile(main)
