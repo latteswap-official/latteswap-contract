@@ -23,7 +23,7 @@ async function main() {
     {
       STAKING_TOKEN_ADDRESS: config.Tokens.LATTEV2,
       ALLOC_POINT: "0",
-      EXACT_ETA: "1633331560",
+      EXACT_ETA: "1633539606",
     },
   ];
 

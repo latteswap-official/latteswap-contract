@@ -21,9 +21,9 @@ async function main() {
   const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: config.Tokens.LATTE,
-      ALLOC_BPS: "0",
-      EXACT_ETA: "1633438806",
+      STAKING_TOKEN_ADDRESS: config.Tokens.LATTEV2,
+      ALLOC_BPS: "1500",
+      EXACT_ETA: "1633539606",
     },
   ];
 

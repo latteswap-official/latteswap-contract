@@ -13,7 +13,7 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const EXACT_ETA = "1633278300";
+  const EXACT_ETA = "1633539606";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
