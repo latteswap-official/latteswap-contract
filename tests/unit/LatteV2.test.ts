@@ -154,6 +154,16 @@ describe("LATTEV2", () => {
           ).to.be.revertedWith("LATTEV2::claimLock:: invalid proof");
         });
       });
+
+      context("when the user already claimed their locked reward", async () => {
+        it("isClaimed should return true reverted", async () => {
+          const account = await alice.getAddress();
+          const claim = claims[account];
+          await latteV2AsAlice.claimLock([claim.index], [account], [claim.amount], [claim.proof]);
+          expect(await latteV2AsAlice.lockOf(account)).to.eq(claim.amount, "lock of amount should be equal");
+          expect(await latteV2AsAlice.isClaimed(claim.index)).to.be.true;
+        });
+      });
     });
   });
 
