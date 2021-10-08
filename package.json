@@ -1,6 +1,7 @@
 {
   "name": "@latteswap/latteswap-contract",
   "scripts": {
+    "mainnetfork": "source ./start_mainnet_fork_node.sh",
     "prepublish": "yarn build",
     "copy-dts-typechain": "npx copyfiles -u 1 \"typechain/**/*.d.ts\" compiled-typechain",
     "build": "tsc -p tsconfig.cjs.json && yarn copy-dts-typechain",
@@ -103,7 +104,8 @@
     "script:mainnet:ogNftOffering:validate:readyToSell": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/validate/ready_to_sell.ts",
     "script:mainnet:ogNftOffering:timelock:upgradeOGNFTOffering": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/upgrade.ts",
     "script:mainnet:ogNftOffering:timelock:setBuyLimitCount": "hardhat --network mainnet run --no-compile ./scripts/og-nft-offering/timelock/timelock_set_buy_limit_count.ts",
-    "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts"
+    "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts",
+    "script:mainnetfork:farm:e2e:MigrateToV2": "hardhat --network mainnetfork run --no-compile ./scripts/farm/e2e/migrate_to_v2.ts"
   },
   "version": "2.0.0-rc.2",
   "main": "index.js",
@@ -111,7 +113,7 @@
   "devDependencies": {
     "@eth-optimism/smock": "^1.1.10",
     "@ethersproject/bignumber": "^5.0.14",
-    "@latteswap/latteswap-contract-config": "^1.1.0-rc.2",
+    "@latteswap/latteswap-contract-config": "^1.1.0-rc.3",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",

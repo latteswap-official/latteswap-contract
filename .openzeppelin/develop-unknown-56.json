@@ -9752,6 +9752,540 @@
           }
         }
       }
+    },
+    "6728a226eda00eb6e86335d3d90e1ebf7ea88736b26c4d86f24c785270f23218": {
+      "address": "0xebA589Fa6d6791Ae0272cbea5B7E6ABbc8577D84",
+      "txHash": "0x66338ba2ce94a84a322ac325067bd11947b30eafd5c599e0775b64eca59898ed",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:25"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:30"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "latte",
+            "type": "t_contract(ILATTE)21712",
+            "src": "contracts/farm/MasterBarista.sol:48"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bean",
+            "type": "t_contract(IBeanBag)21609",
+            "src": "contracts/farm/MasterBarista.sol:50"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "devAddr",
+            "type": "t_address",
+            "src": "contracts/farm/MasterBarista.sol:52"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "devFeeBps",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:53"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "lattePerBlock",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:55"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bonusMultiplier",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:57"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bonusEndBlock",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:59"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bonusLockUpBps",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:61"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "pools",
+            "type": "t_struct(List)22162_storage",
+            "src": "contracts/farm/MasterBarista.sol:66"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "poolInfo",
+            "type": "t_mapping(t_address,t_struct(PoolInfo)15386_storage)",
+            "src": "contracts/farm/MasterBarista.sol:68"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "userInfo",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_struct(UserInfo)15375_storage))",
+            "src": "contracts/farm/MasterBarista.sol:70"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "totalAllocPoint",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:72"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "startBlock",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:74"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "stakeTokenCallerAllowancePool",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/farm/MasterBarista.sol:77"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "stakeTokenCallerContracts",
+            "type": "t_mapping(t_address,t_struct(List)22162_storage)",
+            "src": "contracts/farm/MasterBarista.sol:80"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "latteV2",
+            "type": "t_contract(ILATTEV2)21839",
+            "src": "contracts/farm/MasterBarista.sol:83"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "beanV2",
+            "type": "t_contract(IBeanBag)21609",
+            "src": "contracts/farm/MasterBarista.sol:84"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "activeLatte",
+            "type": "t_contract(ILATTE)21712",
+            "src": "contracts/farm/MasterBarista.sol:86"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "activeBean",
+            "type": "t_contract(IBeanBag)21609",
+            "src": "contracts/farm/MasterBarista.sol:87"
+          }
+        ],
+        "types": {
+          "t_contract(ILATTE)21712": {
+            "label": "contract ILATTE"
+          },
+          "t_contract(IBeanBag)21609": {
+            "label": "contract IBeanBag"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_struct(List)22162_storage": {
+            "label": "struct LinkList.List",
+            "members": [
+              {
+                "label": "llSize",
+                "type": "t_uint256"
+              },
+              {
+                "label": "next",
+                "type": "t_mapping(t_address,t_address)"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_mapping(t_address,t_struct(PoolInfo)15386_storage)": {
+            "label": "mapping(address => struct MasterBarista.PoolInfo)"
+          },
+          "t_struct(PoolInfo)15386_storage": {
+            "label": "struct MasterBarista.PoolInfo",
+            "members": [
+              {
+                "label": "allocPoint",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastRewardBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "accLattePerShare",
+                "type": "t_uint256"
+              },
+              {
+                "label": "accLattePerShareTilBonusEnd",
+                "type": "t_uint256"
+              },
+              {
+                "label": "allocBps",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_struct(UserInfo)15375_storage))": {
+            "label": "mapping(address => mapping(address => struct MasterBarista.UserInfo))"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)15375_storage)": {
+            "label": "mapping(address => struct MasterBarista.UserInfo)"
+          },
+          "t_struct(UserInfo)15375_storage": {
+            "label": "struct MasterBarista.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256"
+              },
+              {
+                "label": "bonusDebt",
+                "type": "t_uint256"
+              },
+              {
+                "label": "fundedBy",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_struct(List)22162_storage)": {
+            "label": "mapping(address => struct LinkList.List)"
+          },
+          "t_contract(ILATTEV2)21839": {
+            "label": "contract ILATTEV2"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "1a5a74aefae369997be2560890573ac29afce8faf09f11ae86ca386228c683d5": {
+      "address": "0xeb4380ec62442c76564AA89571cCC518396C18e3",
+      "txHash": "0x30995185cd666f91652070124afa3b0390a5bed6edf585a41d4faef36b004b22",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:25"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:30"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "latte",
+            "type": "t_contract(ILATTE)21692",
+            "src": "contracts/farm/MasterBarista.sol:48"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bean",
+            "type": "t_contract(IBeanBag)21589",
+            "src": "contracts/farm/MasterBarista.sol:50"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "devAddr",
+            "type": "t_address",
+            "src": "contracts/farm/MasterBarista.sol:52"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "devFeeBps",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:53"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "lattePerBlock",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:55"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bonusMultiplier",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:57"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bonusEndBlock",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:59"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "bonusLockUpBps",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:61"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "pools",
+            "type": "t_struct(List)22142_storage",
+            "src": "contracts/farm/MasterBarista.sol:66"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "poolInfo",
+            "type": "t_mapping(t_address,t_struct(PoolInfo)15386_storage)",
+            "src": "contracts/farm/MasterBarista.sol:68"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "userInfo",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_struct(UserInfo)15375_storage))",
+            "src": "contracts/farm/MasterBarista.sol:70"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "totalAllocPoint",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:72"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "startBlock",
+            "type": "t_uint256",
+            "src": "contracts/farm/MasterBarista.sol:74"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "stakeTokenCallerAllowancePool",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/farm/MasterBarista.sol:77"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "stakeTokenCallerContracts",
+            "type": "t_mapping(t_address,t_struct(List)22142_storage)",
+            "src": "contracts/farm/MasterBarista.sol:80"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "latteV2",
+            "type": "t_contract(ILATTEV2)21819",
+            "src": "contracts/farm/MasterBarista.sol:83"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "beanV2",
+            "type": "t_contract(IBeanBag)21589",
+            "src": "contracts/farm/MasterBarista.sol:84"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "activeLatte",
+            "type": "t_contract(ILATTE)21692",
+            "src": "contracts/farm/MasterBarista.sol:86"
+          },
+          {
+            "contract": "MasterBarista",
+            "label": "activeBean",
+            "type": "t_contract(IBeanBag)21589",
+            "src": "contracts/farm/MasterBarista.sol:87"
+          }
+        ],
+        "types": {
+          "t_contract(ILATTE)21692": {
+            "label": "contract ILATTE"
+          },
+          "t_contract(IBeanBag)21589": {
+            "label": "contract IBeanBag"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_struct(List)22142_storage": {
+            "label": "struct LinkList.List",
+            "members": [
+              {
+                "label": "llSize",
+                "type": "t_uint256"
+              },
+              {
+                "label": "next",
+                "type": "t_mapping(t_address,t_address)"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_mapping(t_address,t_struct(PoolInfo)15386_storage)": {
+            "label": "mapping(address => struct MasterBarista.PoolInfo)"
+          },
+          "t_struct(PoolInfo)15386_storage": {
+            "label": "struct MasterBarista.PoolInfo",
+            "members": [
+              {
+                "label": "allocPoint",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastRewardBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "accLattePerShare",
+                "type": "t_uint256"
+              },
+              {
+                "label": "accLattePerShareTilBonusEnd",
+                "type": "t_uint256"
+              },
+              {
+                "label": "allocBps",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_struct(UserInfo)15375_storage))": {
+            "label": "mapping(address => mapping(address => struct MasterBarista.UserInfo))"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)15375_storage)": {
+            "label": "mapping(address => struct MasterBarista.UserInfo)"
+          },
+          "t_struct(UserInfo)15375_storage": {
+            "label": "struct MasterBarista.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256"
+              },
+              {
+                "label": "bonusDebt",
+                "type": "t_uint256"
+              },
+              {
+                "label": "fundedBy",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_struct(List)22142_storage)": {
+            "label": "mapping(address => struct LinkList.List)"
+          },
+          "t_contract(ILATTEV2)21819": {
+            "label": "contract ILATTEV2"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
     }
   }
 }

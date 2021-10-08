@@ -3,7 +3,19 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { ethers, upgrades } from "hardhat";
 import { BeanBagV2, BeanBagV2__factory, LATTEV2, LATTEV2__factory } from "../../typechain";
 import { getConfig, withNetworkFile } from "../../utils";
-import merkleDistributionInfo from "../../tests/helpers/fixtures/mock_merkle_distribution.json";
+import merkleDistributionInfo from "../../merkle-distribution-info/1633494615_merkleDistributionInfo.json";
+
+type IMerkleDistribution = {
+  merkleRoot: string;
+  tokenTotal: string;
+  claims: {
+    [index: string]: {
+      index: number;
+      amount: string;
+      proof: Array<string>;
+    };
+  };
+};
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
@@ -18,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network } = hre;
   const { deploy } = deployments;
   const config = getConfig();
-  const { merkleRoot } = merkleDistributionInfo;
+  const { merkleRoot } = merkleDistributionInfo as unknown as IMerkleDistribution;
 
   const { deployer } = await getNamedAccounts();
 

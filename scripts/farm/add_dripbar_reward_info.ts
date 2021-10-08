@@ -25,8 +25,8 @@ async function main() {
   const REWARDINFO: IAddDripBarRewardInfoParamList = [
     {
       PHASE_NAME: "WEEK_1",
-      CAMPAIGN_ID: "1",
-      ENDBLOCK: "11502340",
+      CAMPAIGN_ID: "2",
+      ENDBLOCK: "11766303",
       REWARD_PER_BLOCK: ethers.utils.parseEther("0.01").toString(),
     },
   ];

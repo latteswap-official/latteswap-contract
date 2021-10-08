@@ -20,8 +20,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const MOCK_TOKENS: Array<IToken> = [
     {
-      NAME: "MOCK_TOKEN_1",
-      SYMBOL: "MOCK_TOKEN_1",
+      NAME: "MOCK_TOKEN_3",
+      SYMBOL: "MOCK_TOKEN_3",
     },
   ];
 
