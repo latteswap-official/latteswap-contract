@@ -21,9 +21,14 @@ async function main() {
   const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: config.Tokens.LATTEV2,
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1633539606",
+      STAKING_TOKEN_ADDRESS: "0x1524C3380257eF5D556AFeB6056c35DeFA9db8b6", // LATTEV2-BUSD
+      ALLOC_POINT: "5000",
+      EXACT_ETA: "1633607417",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: "0xa82a0b7bacf3fde41802b1ec32065e518958c715", // LATTEV2-BUSD PCS
+      ALLOC_POINT: "500",
+      EXACT_ETA: "1633607417",
     },
   ];
 

@@ -24,10 +24,10 @@ async function main() {
   const config = getConfig();
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "Mock Token #2",
-      STAKING_TOKEN: config.BeanBag,
-      REWARD_TOKEN: "0x128EEB898Db09784262E346900EDA06815873065",
-      START_BLOCK: "11329540",
+      NAME: "Mock Token #3",
+      STAKING_TOKEN: config.BeanBagV2,
+      REWARD_TOKEN: "0x360C50c8da3288FD7f875d4e93cf03038878fF85",
+      START_BLOCK: "11565163",
     },
   ];
 
