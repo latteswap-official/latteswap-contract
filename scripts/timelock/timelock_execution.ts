@@ -1,5 +1,5 @@
 import { ITimelockResponse, withNetworkFile } from "../../utils";
-import TimelockTransactions from "../results/prod/1633604347_set-staking-token-category-allowance.json";
+import TimelockTransactions from "../results/prod/1633679853_set-staking-token-pool-alloc-point.json";
 import { FileService, TimelockService } from "../../utils";
 
 async function main() {

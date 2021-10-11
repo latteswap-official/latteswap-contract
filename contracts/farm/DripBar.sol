@@ -54,7 +54,8 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
   event Deposit(address indexed user, uint256 amount, uint256 campaign);
   event Withdraw(address indexed user, uint256 amount, uint256 campaign);
-  event EmergencyWithdraw(address indexed user, uint256 amount, uint256 campaign);
+  event EmergencyWithdraw(address indexed user, uint256 amount, uint256 indexed campaign);
+  event EmergencyRewardWithdraw(address indexed beneficiary, uint256 amount, uint256 indexed campaign);
   event AddCampaignInfo(uint256 indexed campaignID, IERC20 stakingToken, IERC20 rewardToken, uint256 startBlock);
   event AddRewardInfo(uint256 indexed campaignID, uint256 indexed phase, uint256 endBlock, uint256 rewardPerBlock);
   event SetRewardInfoLimit(uint256 rewardInfoLimit);
@@ -340,5 +341,6 @@ contract DripBar is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     );
     campaign.totalRewards = campaign.totalRewards.sub(_amount);
     campaign.rewardToken.safeTransfer(_beneficiary, _amount);
+    emit EmergencyRewardWithdraw(_beneficiary, _amount, _campaignID);
   }
 }
