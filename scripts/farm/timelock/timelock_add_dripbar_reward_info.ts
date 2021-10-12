@@ -1,6 +1,6 @@
-import { ethers, network } from "hardhat";
-import { DripBar, DripBar__factory } from "../../typechain";
-import { withNetworkFile, getConfig } from "../../utils";
+import { ethers } from "ethers";
+import { DripBar__factory } from "../../../typechain";
+import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
 
 interface IAddDripBarRewardInfoParam {
   PHASE_NAME: string;
@@ -30,21 +30,29 @@ async function main() {
       REWARD_PER_BLOCK: ethers.utils.parseEther("0.52250").toString(),
     },
   ];
+  const EXACT_ETA = "";
 
-  for (let i = 0; i < REWARDINFO.length; i++) {
-    const rewardInfo = REWARDINFO[i];
-    const dripbar = DripBar__factory.connect(config.DripBar, (await ethers.getSigners())[0]) as DripBar;
+  const timelockTransactions: Array<ITimelockResponse> = [];
 
+  for (const rewardInfo of REWARDINFO) {
     console.log(
-      `>> Execute Transaction to add reward info for campaign#${rewardInfo.CAMPAIGN_ID} ${rewardInfo.PHASE_NAME}`
+      `>> Queue Transaction to add reward info for campaign#${rewardInfo.CAMPAIGN_ID} ${rewardInfo.PHASE_NAME}`
     );
-    const tx = await dripbar.addRewardInfo(rewardInfo.CAMPAIGN_ID, rewardInfo.ENDBLOCK, rewardInfo.REWARD_PER_BLOCK, {
-      gasLimit: 10000000,
-    });
-    await tx.wait();
-    console.log(`>> returned tx hash: ${tx.hash}`);
+    timelockTransactions.push(
+      await TimelockService.queueTransaction(
+        `add reward info for campaign#${rewardInfo.CAMPAIGN_ID} ${rewardInfo.PHASE_NAME}`,
+        config.DripBar,
+        "0",
+        "addRewardInfo(uint256,uint256,uint256)",
+        ["uint256", "uint256", "uint256"],
+        [rewardInfo.CAMPAIGN_ID, rewardInfo.ENDBLOCK, rewardInfo.REWARD_PER_BLOCK],
+        EXACT_ETA
+      )
+    );
     console.log("✅ Done");
   }
+
+  await FileService.write("add-dripbar-reward-info", timelockTransactions);
 }
 
 withNetworkFile(main)

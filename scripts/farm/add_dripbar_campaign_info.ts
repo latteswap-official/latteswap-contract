@@ -1,5 +1,6 @@
+import { constants } from "ethers";
 import { ethers, network } from "hardhat";
-import { DripBar, DripBar__factory } from "../../typechain";
+import { DripBar, DripBar__factory, SimpleToken__factory } from "../../typechain";
 import { withNetworkFile, getConfig } from "../../utils";
 
 interface IAddDripBarCampaignParam {
@@ -22,14 +23,23 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
+  const deployer = (await ethers.getSigners())[0];
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "Mock Token #3",
+      NAME: "LuckyLion Dripbar",
       STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: "0x360C50c8da3288FD7f875d4e93cf03038878fF85",
-      START_BLOCK: "11565163",
+      REWARD_TOKEN: config.Tokens.LUCKY,
+      START_BLOCK: "11708000",
     },
   ];
+
+  const luckyAsDeployer = SimpleToken__factory.connect(config.Tokens.LUCKY, deployer);
+  if ((await luckyAsDeployer.allowance(await deployer.getAddress(), config.DripBar)).lte(constants.Zero)) {
+    console.log(`>> Execute approve tx to let the deployer (as a token holder) approve Dripbar to transfer the money`);
+    const tx = await luckyAsDeployer.approve(config.DripBar, constants.MaxUint256);
+    await tx.wait();
+    console.log("✅ Done");
+  }
 
   for (let i = 0; i < CAMPAIGNS.length; i++) {
     const campaign = CAMPAIGNS[i];

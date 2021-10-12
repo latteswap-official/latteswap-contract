@@ -2,7 +2,6 @@
   "name": "@latteswap/latteswap-contract",
   "scripts": {
     "mainnetfork": "source ./start_mainnet_fork_node.sh",
-    "prepublish": "yarn build",
     "copy-dts-typechain": "npx copyfiles -u 1 \"typechain/**/*.d.ts\" compiled-typechain",
     "build": "tsc -p tsconfig.cjs.json && yarn copy-dts-typechain",
     "compile": "hardhat typechain --config hardhat.config.ts",
@@ -14,7 +13,7 @@
     "mainnet": "hardhat console --network mainnet",
     "testnet": "hardhat console --network testnet",
     "test:case": "mocha --timeout 500000 --require hardhat/register --file tests/**/* --extension ts -g",
-    "prepublishOnly": "yarn compile",
+    "prepublishOnly": "yarn compile && yarn build",
     "test:unit:latteNFT": "hardhat test --no-compile ./tests/unit/LatteNFT.test.ts",
     "test:unit:boosterConfig": "hardhat test --no-compile ./tests/unit/BoosterConfig.test.ts",
     "test:unit:latteSwapRouter": "hardhat test --no-compile ./tests/unit/LatteSwapRouter.test.ts",
@@ -27,6 +26,7 @@
     "test:unit:ogNFTOffering": "hardhat test --no-compile ./tests/unit/OGNFTOffering.test.ts",
     "test:unit:tripleSlopePriceModel": "hardhat test --no-compile ./tests/unit/TripleSlopePriceModel.test.ts",
     "test:unit:lattev2": "hardhat test --no-compile ./tests/unit/LatteV2.test.ts",
+    "test:unit:dripbar": "hardhat test --no-compile ./tests/unit/Dripbar.test.ts",
     "test:e2e:masterBaristaV1": "hardhat test --no-compile ./tests/e2e/MasterBaristaV1.test.ts",
     "test:e2e:masterBarista": "hardhat test --no-compile ./tests/e2e/MasterBarista.test.ts",
 
@@ -59,6 +59,7 @@
     "script:mainnet:farm:addDripBarCampaignInfo": "hardhat --network mainnet run --no-compile ./scripts/farm/add_dripbar_campaign_info.ts",
     "script:mainnet:farm:addDripBarRewardInfo": "hardhat --network mainnet run --no-compile ./scripts/farm/add_dripbar_reward_info.ts",
     "script:mainnet:farm:timelock:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_pool_to_master_barista.ts",
+    "script:mainnet:farm:timelock:addBoosterPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_booster_pool_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPoolAllocBps": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_bps_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_point_to_master_barista.ts",
     "script:mainnet:farm:timelock:setBonusMultiplier": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_bonus_multiplier_to_master_barista.ts",
@@ -107,13 +108,13 @@
     "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts",
     "script:mainnetfork:farm:e2e:MigrateToV2": "hardhat --network mainnetfork run --no-compile ./scripts/farm/e2e/migrate_to_v2.ts"
   },
-  "version": "2.1.0-rc.0",
+  "version": "2.1.0-rc.1",
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
     "@eth-optimism/smock": "^1.1.10",
     "@ethersproject/bignumber": "^5.0.14",
-    "@latteswap/latteswap-contract-config": "^1.1.0-rc.3",
+    "@latteswap/latteswap-contract-config": "^1.2.0-rc.2",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",

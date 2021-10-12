@@ -26,27 +26,7 @@ async function main() {
   const timelockTransactions: Array<ITimelockResponse> = [];
   const STAKING_POOLS: ISetStakingTokenBoosterAllowanceParams = [
     {
-      stakingToken: "0x1524C3380257eF5D556AFeB6056c35DeFA9db8b6", // LATTEV2-BUSD
-      allowance: [
-        {
-          nftAddress: config.LatteNFT,
-          nftCategoryId: 1,
-          allowance: false,
-        },
-        {
-          nftAddress: config.LatteNFT,
-          nftCategoryId: 2,
-          allowance: false,
-        },
-        {
-          nftAddress: config.LatteNFT,
-          nftCategoryId: 3,
-          allowance: true,
-        },
-      ],
-    },
-    {
-      stakingToken: "0xa82a0b7bacf3fde41802b1ec32065e518958c715", // LATTEV2-BUSD PCS
+      stakingToken: "0xf29df34748694f53e6c7bd1fb159659164cc3e27", // LUCKY-BUSD
       allowance: [
         {
           nftAddress: config.LatteNFT,
@@ -66,7 +46,7 @@ async function main() {
       ],
     },
   ];
-  const TIMELOCK_ETA = "1633626000";
+  const TIMELOCK_ETA = "1633971600";
 
   for (const STAKING_POOL of STAKING_POOLS) {
     console.log(`>> Queue BoosterConfig Transaction to setStakingTokenCategoryAllowance ${STAKING_POOL.stakingToken}`);

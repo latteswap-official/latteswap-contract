@@ -762,10 +762,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.0.tgz#87de7af9c231826fdd68ac7258f77c429e0e5fcf"
   integrity sha512-wdppn25U8z/2yiaT6YGquE6X8sSv7hNMWSXYSSU1jGv/yd6XqjXgTDJ8KP4NgjTXfJ3GbRjeeb8RTV7a/VpM+w==
 
-"@latteswap/latteswap-contract-config@^1.1.0-rc.3":
-  version "1.1.0-rc.3"
-  resolved "https://registry.yarnpkg.com/@latteswap/latteswap-contract-config/-/latteswap-contract-config-1.1.0-rc.3.tgz#52ba81a226a9bb5b79ef766df97304ffbf8bb467"
-  integrity sha512-e+N7QeyBGPkkGPowVcFBotjjoUb78h1HcIIFcHhoihCGzB8YXQEsC/kKZQkX3BeuTtHg/ZhuUuF6AB5xnV2hPQ==
+"@latteswap/latteswap-contract-config@^1.2.0-rc.2":
+  version "1.2.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@latteswap/latteswap-contract-config/-/latteswap-contract-config-1.2.0-rc.2.tgz#03f670d651705715de828ebd16b5ad393ccd225f"
+  integrity sha512-Em5YVN4BswIfxUu7QbTKcVPjTshJnsB75z05bKG1U1EJypNubw01rWlpCSXc4bdZ8BsVodobh6hJYo0erbm4gA==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
