@@ -298,7 +298,7 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
     require(_shares > 0, "LatteVault::withdraw::nothing to withdraw");
     require(_shares <= user.shares, "LatteVault::withdraw::withdraw amount exceeds balance");
 
-    uint256 _beanAmount = (totalStakingAmount.mul(_shares)).div(totalShares);
+    uint256 _beanAmount = (user.amount.mul(_shares)).div(user.shares);
     user.amount = user.amount.sub(_beanAmount);
     totalStakingAmount = totalStakingAmount.sub(_beanAmount);
 
