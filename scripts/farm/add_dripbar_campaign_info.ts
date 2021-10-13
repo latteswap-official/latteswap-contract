@@ -26,10 +26,10 @@ async function main() {
   const deployer = (await ethers.getSigners())[0];
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "LuckyLion Dripbar",
+      NAME: "Elastic BNB Dripbar",
       STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: config.Tokens.LUCKY,
-      START_BLOCK: "11708000",
+      REWARD_TOKEN: config.Tokens.XBN,
+      START_BLOCK: "11765600",
     },
   ];
 
