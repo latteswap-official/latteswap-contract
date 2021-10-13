@@ -2,38 +2,39 @@
 
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/cryptography/ECDSAUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 import "./interfaces/IMasterBarista.sol";
 
-contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
-  using SafeERC20 for IERC20;
-  using SafeMath for uint256;
+contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable, AccessControlUpgradeable {
+  using SafeERC20Upgradeable for IERC20Upgradeable;
+  using SafeMathUpgradeable for uint256;
 
   bytes32 public constant GOVERNANCE_ROLE = keccak256("GOVERNANCE_ROLE");
-  // keccak256(abi.encodePacked("I am an EOA"))
-  bytes32 public constant SIGNATURE_HASH = 0x08367bb0e0d2abf304a79452b2b95f4dc75fda0fc6df55dca6e5ad183de10cf0;
 
   struct UserInfo {
+    uint256 amount; // number of user staking amount
     uint256 shares; // number of shares for a user
     uint256 lastDepositedTime; // keeps track of deposited time for potential penalty
     uint256 latteAtLastUserAction; // keeps track of LATTE deposited at the last user action
     uint256 lastUserActionTime; // keeps track of the last user action time
   }
 
-  IERC20 public immutable latte; // LATTE token
+  IERC20Upgradeable public latte; // LATTEv2 token
+  IERC20Upgradeable public bean; // BEANv2 token
 
-  IMasterBarista public immutable masterBarista;
+  IMasterBarista public masterBarista;
 
   mapping(address => UserInfo) public userInfo;
 
   uint256 public totalShares;
+  uint256 public totalStakingAmount;
   uint256 public lastHarvestedTime;
   address public treasury;
   mapping(address => bool) public okFarmers;
@@ -43,31 +44,45 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
   uint256 public constant MAX_WITHDRAW_FEE = 100; // 1%
   uint256 public constant MAX_WITHDRAW_FEE_PERIOD = 72 hours; // 3 days
 
-  uint256 public performanceFee = 225; // 2.25%
-  uint256 public withdrawFee = 10; // 0.1%
-  uint256 public withdrawFeePeriod = 72 hours; // 3 days
+  uint256 public performanceFee;
+  uint256 public withdrawFee;
+  uint256 public withdrawFeePeriod;
 
   event Deposit(address indexed sender, uint256 amount, uint256 shares, uint256 lastDepositedTime);
   event Withdraw(address indexed sender, uint256 amount, uint256 shares);
-  event Harvest(address indexed sender, uint256 performanceFee);
+  event TransferPerformanceFee(address indexed sender, uint256 performanceFee);
+  event Harvest(address indexed sender, uint256 balance);
   event Pause();
   event Unpause();
 
   /**
-   * @notice Constructor
-   * @param _latte: LATTE token contract
+   * @notice Upgradeable Initializer Function
+   * @param _latte: LATTEv2 token contract
+   * @param _bean: BeanBagv2 token contract
    * @param _masterBarista: MasterBarista contract
    * @param _treasury: address of the treasury (collects fees)
+   * @param _farmers: list of reinvestors
    */
-  constructor(
-    IERC20 _latte,
+  function initialize(
+    IERC20Upgradeable _latte,
+    IERC20Upgradeable _bean,
     IMasterBarista _masterBarista,
     address _treasury,
     address[] memory _farmers
-  ) public {
+  ) external initializer {
+    OwnableUpgradeable.__Ownable_init();
+    PausableUpgradeable.__Pausable_init();
+    ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
+    AccessControlUpgradeable.__AccessControl_init();
+
     latte = _latte;
     masterBarista = _masterBarista;
     treasury = _treasury;
+    bean = _bean;
+
+    performanceFee = 225; // 2.25%
+    withdrawFee = 10; // 0.1%
+    withdrawFeePeriod = 72 hours; // 3 days
 
     _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     _setupRole(GOVERNANCE_ROLE, _msgSender());
@@ -91,9 +106,9 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
     _;
   }
 
-  modifier permit(bytes calldata _sig) {
-    address recoveredAddress = ECDSA.recover(ECDSA.toEthSignedMessageHash(SIGNATURE_HASH), _sig);
-    require(recoveredAddress == _msgSender(), "LatteVault::permit::INVALID_SIGNATURE");
+  /// @dev Require that the caller must be an EOA account to avoid flash loans.
+  modifier onlyEOA() {
+    require(msg.sender == tx.origin, "LatteVault::onlyEOA:: not eoa");
     _;
   }
 
@@ -102,13 +117,15 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
    * @dev Only possible when contract not paused.
    * @param _amount: number of tokens to deposit (in LATTE)
    */
-  function deposit(uint256 _amount, bytes calldata _sig) external whenNotPaused nonReentrant permit(_sig) {
+  function deposit(uint256 _amount) external whenNotPaused nonReentrant onlyEOA {
     require(_amount > 0, "LatteVault::deposit::nothing to deposit");
 
     _harvest();
 
     uint256 pool = balanceOf();
+
     latte.safeTransferFrom(msg.sender, address(this), _amount);
+
     uint256 currentShares = 0;
     if (totalShares != 0) {
       currentShares = (_amount.mul(totalShares)).div(pool);
@@ -118,9 +135,11 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
     UserInfo storage user = userInfo[msg.sender];
 
     user.shares = user.shares.add(currentShares);
+    user.amount = user.amount.add(_amount);
     user.lastDepositedTime = block.timestamp;
 
     totalShares = totalShares.add(currentShares);
+    totalStakingAmount = totalStakingAmount.add(_amount);
 
     user.latteAtLastUserAction = user.shares.mul(balanceOf()).div(totalShares);
     user.lastUserActionTime = block.timestamp;
@@ -129,14 +148,16 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
 
     require(totalShares > 1e17, "LatteVault::deposit::no tiny shares");
 
+    bean.safeTransfer(_msgSender(), _amount);
+
     emit Deposit(msg.sender, _amount, currentShares, block.timestamp);
   }
 
   /**
    * @notice Withdraws all funds for a user
    */
-  function withdrawAll(bytes calldata _sig) external permit(_sig) {
-    withdraw(userInfo[msg.sender].shares, _sig);
+  function withdrawAll() external onlyEOA {
+    withdraw(userInfo[msg.sender].shares);
   }
 
   /**
@@ -149,6 +170,12 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
 
   /// @dev internal function for harvest to be reusable within the contract
   function _harvest() internal {
+    (uint256 userStakeAmount, , , ) = masterBarista.userInfo(address(latte), address(this));
+    if (userStakeAmount == 0) {
+      emit Harvest(msg.sender, 0);
+      emit TransferPerformanceFee(msg.sender, 0);
+      return;
+    }
     IMasterBarista(masterBarista).harvest(address(this), address(latte));
 
     uint256 bal = available();
@@ -159,7 +186,8 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
 
     lastHarvestedTime = block.timestamp;
 
-    emit Harvest(msg.sender, currentPerformanceFee);
+    emit Harvest(msg.sender, bal.sub(currentPerformanceFee));
+    emit TransferPerformanceFee(msg.sender, currentPerformanceFee);
   }
 
   /**
@@ -221,8 +249,8 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
   function inCaseTokensGetStuck(address _token) external onlyOwner {
     require(_token != address(latte), "LatteVault::inCaseTokensGetStuck::token cannot be same as deposit token");
 
-    uint256 amount = IERC20(_token).balanceOf(address(this));
-    IERC20(_token).safeTransfer(msg.sender, amount);
+    uint256 amount = IERC20Upgradeable(_token).balanceOf(address(this));
+    IERC20Upgradeable(_token).safeTransfer(msg.sender, amount);
   }
 
   /**
@@ -265,10 +293,16 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
    * @notice Withdraws from funds from the Latte Vault
    * @param _shares: Number of shares to withdraw
    */
-  function withdraw(uint256 _shares, bytes calldata _sig) public nonReentrant permit(_sig) {
+  function withdraw(uint256 _shares) public nonReentrant onlyEOA {
     UserInfo storage user = userInfo[msg.sender];
     require(_shares > 0, "LatteVault::withdraw::nothing to withdraw");
     require(_shares <= user.shares, "LatteVault::withdraw::withdraw amount exceeds balance");
+
+    uint256 _beanAmount = (totalStakingAmount.mul(_shares)).div(totalShares);
+    user.amount = user.amount.sub(_beanAmount);
+    totalStakingAmount = totalStakingAmount.sub(_beanAmount);
+
+    bean.safeTransferFrom(_msgSender(), address(this), _beanAmount);
 
     uint256 currentAmount = (balanceOf().mul(_shares)).div(totalShares);
     user.shares = user.shares.sub(_shares);
@@ -277,14 +311,13 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
     uint256 bal = available();
     if (bal < currentAmount) {
       uint256 balWithdraw = currentAmount.sub(bal);
-      IMasterBarista(masterBarista).withdraw(address(this), address(latte), balWithdraw);
+      IMasterBarista(masterBarista).withdrawLatteV2(address(this), balWithdraw);
       uint256 balAfter = available();
       uint256 diff = balAfter.sub(bal);
       if (diff < balWithdraw) {
         currentAmount = bal.add(diff);
       }
     }
-
     if (block.timestamp < user.lastDepositedTime.add(withdrawFeePeriod)) {
       uint256 currentWithdrawFee = currentAmount.mul(withdrawFee).div(10000);
       latte.safeTransfer(treasury, currentWithdrawFee);
@@ -330,7 +363,9 @@ contract LatteVault is Ownable, Pausable, ReentrancyGuard, AccessControl {
   function _earn() internal {
     uint256 bal = available();
     if (bal > 0) {
-      IMasterBarista(masterBarista).deposit(address(this), address(latte), bal);
+      latte.safeApprove(address(masterBarista), bal);
+      IMasterBarista(masterBarista).depositLatteV2(address(this), bal);
+      latte.safeApprove(address(masterBarista), 0);
     }
   }
 }
