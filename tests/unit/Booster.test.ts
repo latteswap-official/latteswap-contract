@@ -1390,7 +1390,7 @@ describe("Booster", () => {
               // owner is expected have 10 rewards from 10% (based on boostBps) of 100 + 100 from rewards
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("110"));
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("1.5"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
+              // expect balance of the owner to be 50 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq(parseEther("60"));
@@ -1483,7 +1483,7 @@ describe("Booster", () => {
               // owner is expected have 100 from rewards
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
+              // expect balance of the owner to be 50 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq(parseEther("60"));
@@ -1684,7 +1684,7 @@ describe("Booster", () => {
               // owner is expected have 10 rewards from 10% (based on boostBps) of 100 + 100 from rewards
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("110"));
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("1.5"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
+              // expect balance of the owner to be 50 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
@@ -1778,7 +1778,7 @@ describe("Booster", () => {
               // owner is expected have 100 from rewards
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
+              // expect balance of the owner to be 50 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
@@ -1922,7 +1922,7 @@ describe("Booster", () => {
             // owner is expected have 10 rewards from 10% (based on boostBps) of 100 + 100 from rewards
             expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("110"));
             expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("1.5"));
-            // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
+            // expect balance of the owner to be 50 (from stake) + 10 from previous staking balance
             expect(
               (await (masterBarista as unknown as MasterBarista).userInfo(latteToken.address, ownerAddress)).amount
             ).to.eq(parseEther("60"));
@@ -2010,7 +2010,7 @@ describe("Booster", () => {
             // owner is expected have 100 from rewards
             expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
             expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("0"));
-            // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
+            // expect balance of the owner to be 50 (from stake) + 10 from previous staking balance
             expect(
               (await (masterBarista as unknown as MasterBarista).userInfo(latteToken.address, ownerAddress)).amount
             ).to.eq(parseEther("60"));
@@ -2220,7 +2220,6 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("110"));
               // latte token from 15% of 100 (from normal reward) + 15% of 10 (from extra reward) = 16.5
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("16.5"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
@@ -2320,7 +2319,6 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("110"));
               // latte token from 15% of 100 (from normal reward) + 15% of 10 (from extra reward) = 16.5
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("16.5"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
@@ -2419,7 +2417,6 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
               // latte token from 15% of 100 (from normal reward)
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("15"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
@@ -2519,7 +2516,6 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
               // latte token from 15% of 100 (from normal reward)
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("15"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(wbnb.address, ownerAddress)).amount
               ).to.eq("0");
@@ -2678,7 +2674,6 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("110"));
               // latte token from 15% of 100 (from normal reward) + 15% of 10 (from extra reward) = 16.5
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("16.5"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
@@ -2778,7 +2773,6 @@ describe("Booster", () => {
               expect(await latteToken.balanceOf(ownerAddress)).to.eq(parseEther("100"));
               // latte token from 15% of 100 (from normal reward)
               expect(await latteToken.balanceOf(await dev.getAddress())).to.eq(parseEther("15"));
-              // expect balance of the owner to be 100 (from stake) + 10 from previous staking balance
               expect(
                 (await (masterBarista as unknown as MasterBarista).userInfo(stakingTokens[0].address, ownerAddress))
                   .amount
