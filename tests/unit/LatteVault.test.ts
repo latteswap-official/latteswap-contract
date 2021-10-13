@@ -400,6 +400,9 @@ describe("LatteVault", () => {
         )
           .to.emit(latteVault, "Withdraw")
           .withArgs(ownerAddress, parseEther("109.67022"), parseEther("99.8"));
+        expect(await beanBag.balanceOf(ownerAddress), "bean bag should be sent to the user with 100 BEAN").to.eq(
+          parseEther("0.2")
+        );
       });
     });
 
@@ -464,6 +467,9 @@ describe("LatteVault", () => {
         )
           .to.emit(latteVault, "Withdraw")
           .withArgs(ownerAddress, parseEther("109.78"), parseEther("99.8"));
+        expect(await beanBag.balanceOf(ownerAddress), "bean bag should be sent to the user with 100 BEAN").to.eq(
+          parseEther("0.2")
+        );
       });
     });
   });
