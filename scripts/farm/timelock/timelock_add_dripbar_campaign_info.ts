@@ -1,7 +1,5 @@
-import { constants } from "ethers";
-import { ethers, network } from "hardhat";
-import { DripBar, DripBar__factory, SimpleToken__factory } from "../../typechain";
-import { withNetworkFile, getConfig } from "../../utils";
+import { DripBar__factory } from "../../../typechain";
+import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
 
 interface IAddDripBarCampaignParam {
   NAME: string;
@@ -23,33 +21,35 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const deployer = (await ethers.getSigners())[0];
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "Elastic BNB Dripbar",
+      NAME: "LuckyLion Dripbar",
       STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: config.Tokens.XBN,
-      START_BLOCK: "11765600",
+      REWARD_TOKEN: config.Tokens.LUCKY,
+      START_BLOCK: "11708000",
     },
   ];
+  const EXACT_ETA = "";
 
-  const luckyAsDeployer = SimpleToken__factory.connect(config.Tokens.LUCKY, deployer);
-  if ((await luckyAsDeployer.allowance(await deployer.getAddress(), config.DripBar)).lte(constants.Zero)) {
-    console.log(`>> Execute approve tx to let the deployer (as a token holder) approve Dripbar to transfer the money`);
-    const tx = await luckyAsDeployer.approve(config.DripBar, constants.MaxUint256);
-    await tx.wait();
+  const timelockTransactions: Array<ITimelockResponse> = [];
+
+  for (const campaign of CAMPAIGNS) {
+    console.log(`>> Queue Transaction to to add ${campaign.NAME} to Dripbar`);
+    timelockTransactions.push(
+      await TimelockService.queueTransaction(
+        `add ${campaign.NAME} to Dripbar`,
+        config.DripBar,
+        "0",
+        "addCampaignInfo(address,address,uint256)",
+        ["address", "address", "uint256"],
+        [campaign.STAKING_TOKEN, campaign.REWARD_TOKEN, campaign.START_BLOCK],
+        EXACT_ETA
+      )
+    );
     console.log("✅ Done");
   }
 
-  for (let i = 0; i < CAMPAIGNS.length; i++) {
-    const campaign = CAMPAIGNS[i];
-    console.log(`>> Execute Transaction to add ${campaign.NAME} to Dripbar`);
-    const dripbar = DripBar__factory.connect(config.DripBar, (await ethers.getSigners())[0]) as DripBar;
-    const tx = await dripbar.addCampaignInfo(campaign.STAKING_TOKEN, campaign.REWARD_TOKEN, campaign.START_BLOCK);
-    await tx.wait();
-    console.log(`>> returned tx hash: ${tx.hash}`);
-    console.log("✅ Done");
-  }
+  await FileService.write("add-dripbar-campaign-info", timelockTransactions);
 }
 
 withNetworkFile(main)

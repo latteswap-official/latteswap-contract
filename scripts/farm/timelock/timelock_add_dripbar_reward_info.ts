@@ -1,12 +1,15 @@
+import { ethers } from "ethers";
+import { DripBar__factory } from "../../../typechain";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
 
-interface IStakingPool {
-  STAKING_TOKEN_ADDRESS: string;
-  ALLOC_POINT: string;
-  EXACT_ETA: string;
+interface IAddDripBarRewardInfoParam {
+  PHASE_NAME: string;
+  CAMPAIGN_ID: string;
+  ENDBLOCK: string;
+  REWARD_PER_BLOCK: string;
 }
 
-type IStakingPools = Array<IStakingPool>;
+type IAddDripBarRewardInfoParamList = Array<IAddDripBarRewardInfoParam>;
 
 async function main() {
   /*
@@ -19,33 +22,37 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const STAKING_POOLS: IStakingPools = [
+  const REWARDINFO: IAddDripBarRewardInfoParamList = [
     {
-      STAKING_TOKEN_ADDRESS: "0xA4d38Dd8050AC66E4f0101BaD1Ac62B3995BDAFC", // XBN-BUSD
-      ALLOC_POINT: "100",
-      EXACT_ETA: "1634144400",
+      PHASE_NAME: "Phase 1 (8 weeks)",
+      CAMPAIGN_ID: "0",
+      ENDBLOCK: "13320800",
+      REWARD_PER_BLOCK: ethers.utils.parseEther("0.52250").toString(),
     },
   ];
+  const EXACT_ETA = "";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
-  for (const STAKING_POOL of STAKING_POOLS) {
-    console.log(">> Queue Transaction to set a staking token pool alloc point through Timelock");
+  for (const rewardInfo of REWARDINFO) {
+    console.log(
+      `>> Queue Transaction to add reward info for campaign#${rewardInfo.CAMPAIGN_ID} ${rewardInfo.PHASE_NAME}`
+    );
     timelockTransactions.push(
       await TimelockService.queueTransaction(
-        `setting staking token pool alloc point ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`,
-        config.MasterBarista,
+        `add reward info for campaign#${rewardInfo.CAMPAIGN_ID} ${rewardInfo.PHASE_NAME}`,
+        config.DripBar,
         "0",
-        "setPool(address,uint256)",
-        ["address", "uint256"],
-        [STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_POINT],
-        STAKING_POOL.EXACT_ETA
+        "addRewardInfo(uint256,uint256,uint256)",
+        ["uint256", "uint256", "uint256"],
+        [rewardInfo.CAMPAIGN_ID, rewardInfo.ENDBLOCK, rewardInfo.REWARD_PER_BLOCK],
+        EXACT_ETA
       )
     );
     console.log("✅ Done");
   }
 
-  await FileService.write("set-staking-token-pool-alloc-point", timelockTransactions);
+  await FileService.write("add-dripbar-reward-info", timelockTransactions);
 }
 
 withNetworkFile(main)

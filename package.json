@@ -60,6 +60,7 @@
     "script:mainnet:farm:addDripBarCampaignInfo": "hardhat --network mainnet run --no-compile ./scripts/farm/add_dripbar_campaign_info.ts",
     "script:mainnet:farm:addDripBarRewardInfo": "hardhat --network mainnet run --no-compile ./scripts/farm/add_dripbar_reward_info.ts",
     "script:mainnet:farm:timelock:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_pool_to_master_barista.ts",
+    "script:mainnet:farm:timelock:addBoosterPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_booster_pool_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPoolAllocBps": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_bps_to_master_barista.ts",
     "script:mainnet:farm:timelock:setPool": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_pool_alloc_point_to_master_barista.ts",
     "script:mainnet:farm:timelock:setBonusMultiplier": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_bonus_multiplier_to_master_barista.ts",
@@ -109,13 +110,13 @@
     "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts",
     "script:mainnetfork:farm:e2e:MigrateToV2": "hardhat --network mainnetfork run --no-compile ./scripts/farm/e2e/migrate_to_v2.ts"
   },
-  "version": "2.1.0-rc.0",
+  "version": "2.1.0",
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
     "@eth-optimism/smock": "^1.1.10",
     "@ethersproject/bignumber": "^5.0.14",
-    "@latteswap/latteswap-contract-config": "^1.1.0-rc.3",
+    "@latteswap/latteswap-contract-config": "^1.2.0",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
