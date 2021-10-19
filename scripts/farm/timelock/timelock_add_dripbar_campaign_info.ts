@@ -1,4 +1,5 @@
-import { DripBar__factory } from "../../../typechain";
+import { constants } from "ethers";
+import { DripBar__factory, SimpleToken__factory } from "../../../typechain";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
 
 interface IAddDripBarCampaignParam {
@@ -21,6 +22,7 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
+  const deployer = (await ethers.getSigners())[0];
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
       NAME: "LuckyLion Dripbar",
@@ -34,6 +36,16 @@ async function main() {
   const timelockTransactions: Array<ITimelockResponse> = [];
 
   for (const campaign of CAMPAIGNS) {
+    const tokenAsDeployer = SimpleToken__factory.connect(campaign.REWARD_TOKEN, deployer);
+    if ((await tokenAsDeployer.allowance(await deployer.getAddress(), config.DripBar)).lte(constants.Zero)) {
+      console.log(
+        `>> Execute approve tx to let the deployer (as a token holder) approve Dripbar to transfer the money`
+      );
+      const tx = await tokenAsDeployer.approve(config.DripBar, constants.MaxUint256);
+      await tx.wait();
+      console.log("✅ Done");
+    }
+
     console.log(`>> Queue Transaction to to add ${campaign.NAME} to Dripbar`);
     timelockTransactions.push(
       await TimelockService.queueTransaction(
