@@ -110,7 +110,7 @@
     "script:mainnetfork:ogNftOffering:e2e:buyAllNFT": "hardhat --network mainnetfork run --no-compile ./scripts/og-nft-offering/e2e/buy_all_nft.ts",
     "script:mainnetfork:farm:e2e:MigrateToV2": "hardhat --network mainnetfork run --no-compile ./scripts/farm/e2e/migrate_to_v2.ts"
   },
-  "version": "2.1.0",
+  "version": "2.2.0-rc.0",
   "main": "index.js",
   "license": "GPL-3.0",
   "devDependencies": {
