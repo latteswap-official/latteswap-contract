@@ -33,10 +33,10 @@ async function main() {
     },
   ];
 
-  const luckyAsDeployer = SimpleToken__factory.connect(config.Tokens.LUCKY, deployer);
-  if ((await luckyAsDeployer.allowance(await deployer.getAddress(), config.DripBar)).lte(constants.Zero)) {
+  const tokenAsDeployer = SimpleToken__factory.connect(config.Tokens.XBN, deployer);
+  if ((await tokenAsDeployer.allowance(await deployer.getAddress(), config.DripBar)).lte(constants.Zero)) {
     console.log(`>> Execute approve tx to let the deployer (as a token holder) approve Dripbar to transfer the money`);
-    const tx = await luckyAsDeployer.approve(config.DripBar, constants.MaxUint256);
+    const tx = await tokenAsDeployer.approve(config.DripBar, constants.MaxUint256);
     await tx.wait();
     console.log("✅ Done");
   }
