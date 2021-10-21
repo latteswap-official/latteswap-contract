@@ -109,16 +109,16 @@ describe("LatteVault", () => {
         await SimpleToken__factory.connect(latteToken.address, alice).approve(latteVault.address, parseEther("50"));
         await expect(
           latteVaultAsReinvestor.harvest(),
-          "the reward should be 10(LATTE per share) * 10 (amount) = 100 - 2.25 from performance fee"
+          "the reward should be 10(LATTE per share) * 10 (amount) = 100 - 2 from performance fee"
         )
           .to.emit(latteVault, "Harvest")
-          .withArgs(await farmer.getAddress(), parseEther("97.75"))
+          .withArgs(await farmer.getAddress(), parseEther("98"))
           .to.emit(latteVault, "TransferPerformanceFee")
-          .withArgs(await farmer.getAddress(), parseEther("2.25"));
+          .withArgs(await farmer.getAddress(), parseEther("2"));
         expect(
           (await (masterBarista as unknown as MasterBarista).userInfo(latteToken.address, latteVault.address)).amount,
-          "latte vault is expected to have 100 LATTE from reinvest"
-        ).to.eq(parseEther("107.75"));
+          "latte vault is expected to have 108 LATTE from reinvest"
+        ).to.eq(parseEther("108"));
       });
     });
   });
@@ -254,13 +254,13 @@ describe("LatteVault", () => {
         );
         expect(
           await latteVault.getPricePerFullShare(),
-          "price per full share should be (60 (from stake) + 100 * (1 - 0.0225) (from harvest)) / 50 (shares) = 3.155"
-        ).to.eq(parseEther("3.155"));
+          "price per full share should be (60 (from stake) + 100 * (1 - 0.02) (from harvest)) / 50 (shares) = 3.16"
+        ).to.eq(parseEther("3.16"));
         expect(await latteToken.balanceOf(latteVault.address), "latte of address should be 0").to.eq(parseEther("0"));
         expect(
           (await (masterBarista as unknown as MasterBarista).userInfo(latteToken.address, latteVault.address)).amount,
-          "latte vault is expected to have 157.75 LATTE stake amount from (60 (from stake) + 100 * (1 - 0.0225) (from harvest))"
-        ).to.eq(parseEther("157.75"));
+          "latte vault is expected to have 157.75 LATTE stake amount from (60 (from stake) + 100 * (1 - 0.02) (from harvest))"
+        ).to.eq(parseEther("158"));
       });
 
       context("when there are multiple depositors", () => {
@@ -304,8 +304,8 @@ describe("LatteVault", () => {
             );
             expect(
               await latteVault.getPricePerFullShare(),
-              "price per full share should be (60 (from stake) + 100 * (1 - 0.0225) (from harvest)) / 50 (shares) = 3.155"
-            ).to.eq(parseEther("3.155"));
+              "price per full share should be (60 (from stake) + 100 * (1 - 0.02) (from harvest)) / 50 (shares) = 3.16"
+            ).to.eq(parseEther("3.16"));
             expect(await latteToken.balanceOf(latteVault.address), "latte of address should be 0").to.eq(
               parseEther("0")
             );
