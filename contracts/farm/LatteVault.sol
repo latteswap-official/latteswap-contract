@@ -52,6 +52,12 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
   event Withdraw(address indexed sender, uint256 amount, uint256 shares);
   event TransferPerformanceFee(address indexed sender, uint256 performanceFee);
   event Harvest(address indexed sender, uint256 balance);
+  event LogSetTreasury(address indexed prevTreasury, address indexed newTreasury);
+  event LogSetPerformanceFee(uint256 prevPerformanceFee, uint256 newPerformanceFee);
+  event LogSetWithdrawFee(uint256 prevWithdrawFee, uint256 newWithdrawFee);
+  event LogSetWithdrawFeePeriod(uint256 prevWithdrawFeePeriod, uint256 newWithdrawFeePeriod);
+  event LogEmergencyWithdraw(uint256 withdrawAmount);
+  event LogInCaseTokensGetStuck(address indexed token, uint256 amount);
   event Pause();
   event Unpause();
 
@@ -196,6 +202,9 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
    */
   function setTreasury(address _treasury) external onlyOwner {
     require(_treasury != address(0), "LatteVault::setTreasury::cannot be zero address");
+
+    emit LogSetTreasury(treasury, _treasury);
+
     treasury = _treasury;
   }
 
@@ -208,6 +217,7 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
       _performanceFee <= MAX_PERFORMANCE_FEE,
       "LatteVault::setPerformanceFee::performanceFee cannot be more than MAX_PERFORMANCE_FEE"
     );
+    emit LogSetPerformanceFee(performanceFee, _performanceFee);
     performanceFee = _performanceFee;
   }
 
@@ -220,6 +230,9 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
       _withdrawFee <= MAX_WITHDRAW_FEE,
       "LatteVault::setWithdrawFee::withdrawFee cannot be more than MAX_WITHDRAW_FEE"
     );
+
+    emit LogSetWithdrawFee(withdrawFee, _withdrawFee);
+
     withdrawFee = _withdrawFee;
   }
 
@@ -232,6 +245,9 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
       _withdrawFeePeriod <= MAX_WITHDRAW_FEE_PERIOD,
       "LatteVault::setWithdrawFeePeriod::withdrawFeePeriod cannot be more than MAX_WITHDRAW_FEE_PERIOD"
     );
+
+    emit LogSetWithdrawFeePeriod(withdrawFeePeriod, _withdrawFeePeriod);
+
     withdrawFeePeriod = _withdrawFeePeriod;
   }
 
@@ -241,6 +257,8 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
    */
   function emergencyWithdraw() external onlyOwner {
     IMasterBarista(masterBarista).emergencyWithdraw(address(this), address(latte));
+    uint256 bal = available();
+    emit LogEmergencyWithdraw(bal);
   }
 
   /**
@@ -251,6 +269,8 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
 
     uint256 amount = IERC20Upgradeable(_token).balanceOf(address(this));
     IERC20Upgradeable(_token).safeTransfer(msg.sender, amount);
+
+    emit LogInCaseTokensGetStuck(_token, amount);
   }
 
   /**
