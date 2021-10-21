@@ -1,6 +1,6 @@
-import { Ownable__factory } from "../../typechain";
-import { ethers, network } from "hardhat";
-import { withNetworkFile, getConfig } from "../../utils";
+import { ethers, network, upgrades } from "hardhat";
+import { LatteVault, LatteVault__factory } from "../../../typechain";
+import { getConfig, withNetworkFile } from "../../../utils";
 
 async function main() {
   /*
@@ -13,16 +13,17 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
-  const TO_BE_TRANSFERED: Array<string> = [config.DripBar];
 
-  for (let i = 0; i < TO_BE_TRANSFERED.length; i++) {
-    console.log(`>> Transferring ownership of ${TO_BE_TRANSFERED[i]} to TIMELOCK`);
-    const ownable = Ownable__factory.connect(TO_BE_TRANSFERED[i], (await ethers.getSigners())[0]);
-    const tx = await ownable.transferOwnership(config.Timelock);
-    await tx.wait();
-    console.log(`>> tx hash: ${tx.hash}`);
-    console.log("✅ Done");
-  }
+  console.log(`>> Upgrading a LatteVault`);
+  const LatteVault = (await ethers.getContractFactory(
+    "LatteVault",
+    (
+      await ethers.getSigners()
+    )[0]
+  )) as LatteVault__factory;
+  const latteVault = (await upgrades.upgradeProxy(config.LatteVault, LatteVault)) as LatteVault;
+  await latteVault.deployed();
+  console.log(`✅ Done Upgrading a LatteVault`);
 }
 
 withNetworkFile(main)

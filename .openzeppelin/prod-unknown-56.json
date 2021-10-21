@@ -99,6 +99,11 @@
       "address": "0xF4Bb273761E8AFB98E9628D68C5816687150a867",
       "txHash": "0x4aa9a1ab9398f9409d38efbd4c9fd613d934a821ae7854e319834a757296e45d",
       "kind": "transparent"
+    },
+    {
+      "address": "0x0201740f48158B43f72c30a39C122925008E1EE5",
+      "txHash": "0x4ed9ccc89abe18793b9ea2a926dfd3f8b7328eeaef33865056ac5cecd33f4df9",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -4301,6 +4306,253 @@
           },
           "t_bool": {
             "label": "bool"
+          }
+        }
+      }
+    },
+    "d7ea94ea7dd387f4fa4f9f00a3f87361d45c879888971aa8b2b41fdd6bad54ae": {
+      "address": "0xD839c004F5167A7ED1A7cd135c18fbf718589935",
+      "txHash": "0xbb4836b4d72ea4031e75907b6b982e49bfb57a7ec1a6d8f060e04bbb0c8d7cc7",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:25"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:30"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "_roles",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)39_storage)",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "contract": "AccessControlUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:225"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "latte",
+            "type": "t_contract(IERC20Upgradeable)1743",
+            "src": "contracts/farm/LatteVault.sol:29"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "bean",
+            "type": "t_contract(IERC20Upgradeable)1743",
+            "src": "contracts/farm/LatteVault.sol:30"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "masterBarista",
+            "type": "t_contract(IMasterBarista)22125",
+            "src": "contracts/farm/LatteVault.sol:32"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "userInfo",
+            "type": "t_mapping(t_address,t_struct(UserInfo)14329_storage)",
+            "src": "contracts/farm/LatteVault.sol:34"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "totalShares",
+            "type": "t_uint256",
+            "src": "contracts/farm/LatteVault.sol:36"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "totalStakingAmount",
+            "type": "t_uint256",
+            "src": "contracts/farm/LatteVault.sol:37"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "lastHarvestedTime",
+            "type": "t_uint256",
+            "src": "contracts/farm/LatteVault.sol:38"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "treasury",
+            "type": "t_address",
+            "src": "contracts/farm/LatteVault.sol:39"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "okFarmers",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/farm/LatteVault.sol:40"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "performanceFee",
+            "type": "t_uint256",
+            "src": "contracts/farm/LatteVault.sol:47"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "withdrawFee",
+            "type": "t_uint256",
+            "src": "contracts/farm/LatteVault.sol:48"
+          },
+          {
+            "contract": "LatteVault",
+            "label": "withdrawFeePeriod",
+            "type": "t_uint256",
+            "src": "contracts/farm/LatteVault.sol:49"
+          }
+        ],
+        "types": {
+          "t_contract(IERC20Upgradeable)1743": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_contract(IMasterBarista)22125": {
+            "label": "contract IMasterBarista"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)14329_storage)": {
+            "label": "mapping(address => struct LatteVault.UserInfo)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(UserInfo)14329_storage": {
+            "label": "struct LatteVault.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "shares",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastDepositedTime",
+                "type": "t_uint256"
+              },
+              {
+                "label": "latteAtLastUserAction",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastUserActionTime",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)39_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_struct(RoleData)39_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_struct(AddressSet)4414_storage"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32"
+              }
+            ]
+          },
+          "t_struct(AddressSet)4414_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)4149_storage"
+              }
+            ]
+          },
+          "t_struct(Set)4149_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)"
+              }
+            ]
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
           }
         }
       }

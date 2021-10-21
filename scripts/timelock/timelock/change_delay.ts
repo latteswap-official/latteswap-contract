@@ -19,7 +19,7 @@ async function main() {
   const config = getConfig();
   const timelockTransactions: Array<ITimelockResponse> = [];
   const DELAY = 86400; // 24 hrs
-  const TIMELOCK_ETA = "1632067801";
+  const TIMELOCK_ETA = "1633971600";
 
   console.log(`>> Queue Master Transaction to setDelay in timelock ${config.Timelock} `);
   timelockTransactions.push(

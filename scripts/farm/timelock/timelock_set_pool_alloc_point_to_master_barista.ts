@@ -21,9 +21,9 @@ async function main() {
   const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0xA4d38Dd8050AC66E4f0101BaD1Ac62B3995BDAFC", // XBN-BUSD
-      ALLOC_POINT: "100",
-      EXACT_ETA: "1634144400",
+      STAKING_TOKEN_ADDRESS: "0x7ffAfa8F5846476688708096F6Cdf7c96CaA5B32", // ALPACA-BUSD
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1634803200",
     },
   ];
 
