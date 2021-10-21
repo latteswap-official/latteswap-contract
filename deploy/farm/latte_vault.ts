@@ -19,8 +19,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const config = getConfig();
 
-  const TREASURY_ADDRESS = "0x864e90222f99a70aeECa036Ffc7d12cC4b3313B4";
-  const FARMER_ADDRESSES: Array<string> = ["0x6A0611A7107d3D4C1F8cde8b7aF9e2b46A63Fed0"];
+  const TREASURY_ADDRESS = "0x50e05d251feaBCB4FC7028c03F15854fA5A0AaC3";
+  const FARMER_ADDRESSES: Array<string> = ["0x1Bc6927d53dc647288F77E10A92973C6F22Ce6D2"];
 
   await withNetworkFile(async () => {
     console.log(`>> Deploying LatteVault via proxy`);
