@@ -86,7 +86,7 @@ contract LatteVault is OwnableUpgradeable, PausableUpgradeable, ReentrancyGuardU
     treasury = _treasury;
     bean = _bean;
 
-    performanceFee = 225; // 2.25%
+    performanceFee = 200; // 2.00%
     withdrawFee = 10; // 0.1%
     withdrawFeePeriod = 72 hours; // 3 days
 
