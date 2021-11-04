@@ -25,12 +25,12 @@ async function main() {
   const REWARDINFO: IAddDripBarRewardInfoParamList = [
     {
       PHASE_NAME: "Phase 1 (8 weeks)",
-      CAMPAIGN_ID: "0",
-      ENDBLOCK: "13320800",
-      REWARD_PER_BLOCK: ethers.utils.parseEther("0.52250").toString(),
+      CAMPAIGN_ID: "2",
+      ENDBLOCK: "13942300",
+      REWARD_PER_BLOCK: ethers.utils.parseEther("0.09300").toString(),
     },
   ];
-  const EXACT_ETA = "";
+  const EXACT_ETA = "1635919200";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 

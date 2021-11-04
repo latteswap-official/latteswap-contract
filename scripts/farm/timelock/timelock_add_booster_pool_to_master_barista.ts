@@ -24,11 +24,11 @@ async function main() {
   const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0xA4d38Dd8050AC66E4f0101BaD1Ac62B3995BDAFC", // XBN-BUSD
+      STAKING_TOKEN_ADDRESS: "0x225170b4308EE84627Ee29296d014908bab56313", // KSW-BUSD
       ALLOC_POINT: "0",
     },
   ];
-  const TIMELOCK_ETA = "1634144400";
+  const TIMELOCK_ETA = "1635919200";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 

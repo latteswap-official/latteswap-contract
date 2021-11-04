@@ -69,6 +69,8 @@
     "script:mainnet:farm:timelock:migrateMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_migrate_master_barista_to_v2.ts",
     "script:mainnet:farm:timelock:upgradeMasterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_upgrade_master_barista.ts",
     "script:mainnet:farm:timelock:setLattePerBlock": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_set_reward_emission.ts",
+    "script:mainnet:farm:timelock:addDripBarCampaignInfo": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_dripbar_campaign_info.ts",
+    "script:mainnet:farm:timelock:addDripBarRewardInfo": "hardhat --network mainnet run --no-compile ./scripts/farm/timelock/timelock_add_dripbar_reward_info.ts",
     "script:mainnet:farm:upgrade:masterBarista": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_master_barista.ts",
     "script:mainnet:farm:upgrade:latteVault": "hardhat --network mainnet run --no-compile ./scripts/farm/upgrade/upgrade_latte_vault.ts",
     "script:mainnet:farm:validate:addPool": "hardhat --network mainnet run --no-compile ./scripts/farm/validate/add_pool_to_master_barista.ts",
@@ -116,7 +118,7 @@
   "devDependencies": {
     "@eth-optimism/smock": "^1.1.10",
     "@ethersproject/bignumber": "^5.0.14",
-    "@latteswap/latteswap-contract-config": "^1.3.0-rc.0",
+    "@latteswap/latteswap-contract-config": "^1.4.0",
     "@nomiclabs/ethereumjs-vm": "^4.2.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",
