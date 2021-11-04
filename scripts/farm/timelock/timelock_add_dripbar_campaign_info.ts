@@ -26,13 +26,13 @@ async function main() {
   const deployer = (await ethers.getSigners())[0];
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "LuckyLion Dripbar",
+      NAME: "KillSwitch Dripbar",
       STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: config.Tokens.LUCKY,
-      START_BLOCK: "11708000",
+      REWARD_TOKEN: config.Tokens.KSW,
+      START_BLOCK: "12329500",
     },
   ];
-  const EXACT_ETA = "";
+  const EXACT_ETA = "1635919200";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 

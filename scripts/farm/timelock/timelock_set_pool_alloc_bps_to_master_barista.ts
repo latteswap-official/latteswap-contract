@@ -33,7 +33,7 @@ async function main() {
     console.log(">> Queue Transaction to set a staking token pool bps through Timelock");
     timelockTransactions.push(
       await TimelockService.queueTransaction(
-        `adding staking token pool bps of ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`,
+        `set a staking token pool bps of ${STAKING_POOL.STAKING_TOKEN_ADDRESS}`,
         config.MasterBarista,
         "0",
         "setPoolAllocBps(address,uint256)",
