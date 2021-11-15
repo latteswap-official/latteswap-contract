@@ -26,13 +26,13 @@ async function main() {
   const deployer = (await ethers.getSigners())[0];
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "KillSwitch Dripbar",
+      NAME: "Samoyed Dripbar",
       STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: config.Tokens.KSW,
-      START_BLOCK: "12329500",
+      REWARD_TOKEN: config.Tokens.SMOY,
+      START_BLOCK: "12526500",
     },
   ];
-  const EXACT_ETA = "1635919200";
+  const EXACT_ETA = "1636524000";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
