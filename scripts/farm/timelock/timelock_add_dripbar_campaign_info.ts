@@ -26,13 +26,13 @@ async function main() {
   const deployer = (await ethers.getSigners())[0];
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "Samoyed Dripbar",
+      NAME: "FootCourt Dripbar",
       STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: config.Tokens.SMOY,
-      START_BLOCK: "12526500",
+      REWARD_TOKEN: config.Tokens.COUPON,
+      START_BLOCK: "12692200",
     },
   ];
-  const EXACT_ETA = "1636524000";
+  const EXACT_ETA = "1637042400";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 

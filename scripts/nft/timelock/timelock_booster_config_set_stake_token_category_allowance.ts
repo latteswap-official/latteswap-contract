@@ -26,7 +26,7 @@ async function main() {
   const timelockTransactions: Array<ITimelockResponse> = [];
   const STAKING_POOLS: ISetStakingTokenBoosterAllowanceParams = [
     {
-      stakingToken: "0xda2C54De8fBcE8a48E6BbE3B4088923B483EeBe1", // SMOY-BUSD
+      stakingToken: "0x3461AB63e417F49C25BB37F372B2Fc731e6AE6Bc", // COUPON-WBNB
       allowance: [
         {
           nftAddress: config.LatteNFT,
@@ -46,7 +46,7 @@ async function main() {
       ],
     },
   ];
-  const TIMELOCK_ETA = "1636524000";
+  const TIMELOCK_ETA = "1637042400";
 
   for (const STAKING_POOL of STAKING_POOLS) {
     console.log(`>> Queue BoosterConfig Transaction to setStakingTokenCategoryAllowance ${STAKING_POOL.stakingToken}`);
