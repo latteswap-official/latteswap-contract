@@ -21,20 +21,8 @@ async function main() {
   */
   const CATEGORIES: ICategories = [
     {
-      NAME: "BIN",
-      URI: "",
-    },
-    {
-      NAME: "Soy Milk",
-      URI: "soymilk.json",
-    },
-    {
-      NAME: "Almond Milk",
-      URI: "almondmilk.json",
-    },
-    {
-      NAME: "Whole Milk",
-      URI: "wholemilk.json",
+      NAME: "Keopi Guard",
+      URI: "keopi_guard.json",
     },
   ];
 
@@ -42,6 +30,7 @@ async function main() {
   const latteNFT = LatteNFT__factory.connect(config.LatteNFT, (await ethers.getSigners())[0]) as LatteNFT;
   for (const CATEGORY of CATEGORIES) {
     console.log(`>> Execute Transaction to add category info ${CATEGORY.NAME} with URI ${CATEGORY.URI}`);
+    console.log(`${CATEGORY.NAME} category ID: `, (await latteNFT.currentCategoryId()).toString());
     const estimatedGas = await latteNFT.estimateGas.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI);
     const tx = await latteNFT.addCategoryInfo(CATEGORY.NAME, CATEGORY.URI, {
       gasLimit: estimatedGas.add(100000),

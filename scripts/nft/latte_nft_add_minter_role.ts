@@ -1,5 +1,5 @@
 import { ethers, network } from "hardhat";
-import { LatteNFT__factory, LatteNFT } from "../../typechain";
+import { LatteNFT, LatteNFT__factory } from "../../typechain";
 import { getConfig, withNetworkFile } from "../../utils";
 
 async function main() {
@@ -12,17 +12,21 @@ async function main() {
   ░░░╚═╝░░░╚═╝░░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚═╝░░╚══╝░╚═════╝░
   Check all variables below before execute the deployment script
   */
-  const BASE_URI = "ipfs://Qmewoc66BC5FgkTJx872AkmiT5TEq5V1bdcAuDqgtyXCPW/";
 
   const config = getConfig();
+  const MINTER_ROLES: Array<string> = [config.SurvivalGame];
+
   const latteNFT = LatteNFT__factory.connect(config.LatteNFT, (await ethers.getSigners())[0]) as LatteNFT;
-  console.log(`>> Execute Transaction to set base uri ${BASE_URI} to latte nft`);
-  const estimatedGas = await latteNFT.estimateGas.setBaseURI(BASE_URI);
-  const tx = await latteNFT.setBaseURI(BASE_URI, {
-    gasLimit: estimatedGas.add(100000),
-  });
-  console.log(`>> returned tx hash: ${tx.hash}`);
-  console.log("✅ Done");
+  for (const MINTER_ROLE of MINTER_ROLES) {
+    console.log(`>> Execute Transaction to add minter role to ${MINTER_ROLE}`);
+    const estimatedGas = await latteNFT.estimateGas.grantRole(await latteNFT.MINTER_ROLE(), MINTER_ROLE);
+    const tx = await latteNFT.grantRole(await latteNFT.MINTER_ROLE(), MINTER_ROLE, {
+      gasLimit: estimatedGas.add(100000),
+    });
+    await tx.wait();
+    console.log(`>> returned tx hash: ${tx.hash}`);
+    console.log("✅ Done");
+  }
 }
 
 withNetworkFile(main)
