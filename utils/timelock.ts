@@ -21,9 +21,11 @@ export async function queueTransaction(
     value,
     signature,
     ethers.utils.defaultAbiCoder.encode(paramTypes, params),
-    eta
+    eta,
+    {
+      gasPrice: ethers.utils.parseUnits("10", "gwei"),
+    }
   );
-  await queueTx.wait();
   const paramTypesStr = paramTypes.map((p) => `'${p}'`);
   const paramsStr = params.map((p) => {
     if (Array.isArray(p)) {
@@ -84,6 +86,7 @@ export async function executeTransaction(
     eta,
     {
       gasLimit: estimatedGas.add(2000000),
+      gasPrice: ethers.utils.parseUnits("11", "gwei"),
     }
   );
   await executeTx.wait();

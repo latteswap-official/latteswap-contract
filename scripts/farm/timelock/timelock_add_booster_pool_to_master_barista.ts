@@ -24,11 +24,15 @@ async function main() {
   const config = getConfig();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0x3461AB63e417F49C25BB37F372B2Fc731e6AE6Bc", // COUPON-WBNB
+      STAKING_TOKEN_ADDRESS: "0x0efa34E1ed6184ECfdC739f6dDFB3890fe5e8054", // CZF-WBNB
+      ALLOC_POINT: "0",
+    },
+    {
+      STAKING_TOKEN_ADDRESS: "0x2d8166A5ADCf8305873dedAf4727Cf0731579a86", // GNT-BUSD
       ALLOC_POINT: "0",
     },
   ];
-  const TIMELOCK_ETA = "1637042400";
+  const TIMELOCK_ETA = "1637906400";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
