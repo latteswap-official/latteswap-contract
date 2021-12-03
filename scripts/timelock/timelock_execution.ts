@@ -1,8 +1,11 @@
 import { ITimelockResponse, withNetworkFile } from "../../utils";
-import TimelockTransactions from "../results/prod/1637774678_set-staking-token-category-allowance.json";
+import TimelockTransactions from "../results/prod/1638385334_set-staking-token-pool-alloc-point.json";
 import { FileService, TimelockService } from "../../utils";
+import { ethers } from "hardhat";
 
 async function main() {
+  const deployer = (await ethers.getSigners())[0];
+  let nonce = await deployer.getTransactionCount();
   const timelockTransactions: Array<ITimelockResponse> = [];
   try {
     for (const timelockTransaction of TimelockTransactions) {
@@ -16,7 +19,8 @@ async function main() {
           timelockTransaction.signature,
           timelockTransaction.paramTypes,
           timelockTransaction.params,
-          timelockTransaction.eta
+          timelockTransaction.eta,
+          nonce++
         )
       );
     }

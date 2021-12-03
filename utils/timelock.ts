@@ -10,7 +10,8 @@ export async function queueTransaction(
   signature: string,
   paramTypes: Array<string>,
   params: Array<any>,
-  eta: string
+  eta: string,
+  nonce?: number
 ): Promise<ITimelockResponse> {
   console.log(`==========`);
   console.log(`>> Queue tx for: ${info}`);
@@ -23,7 +24,8 @@ export async function queueTransaction(
     ethers.utils.defaultAbiCoder.encode(paramTypes, params),
     eta,
     {
-      gasPrice: ethers.utils.parseUnits("10", "gwei"),
+      gasPrice: ethers.utils.parseUnits("20", "gwei"),
+      ...(!!nonce && { nonce: nonce }),
     }
   );
   const paramTypesStr = paramTypes.map((p) => `'${p}'`);
@@ -65,7 +67,8 @@ export async function executeTransaction(
   signature: string,
   paramTypes: Array<string>,
   params: Array<any>,
-  eta: string
+  eta: string,
+  nonce?: number
 ): Promise<ITimelockResponse> {
   console.log(`==========`);
   console.log(`>> Execute tx for: ${info}`);
@@ -86,10 +89,10 @@ export async function executeTransaction(
     eta,
     {
       gasLimit: estimatedGas.add(2000000),
-      gasPrice: ethers.utils.parseUnits("11", "gwei"),
+      gasPrice: ethers.utils.parseUnits("20", "gwei"),
+      ...(!!nonce && { nonce: nonce }),
     }
   );
-  await executeTx.wait();
   console.log(`>> Done.`);
 
   return {

@@ -24,21 +24,16 @@ async function main() {
   */
   const config = getConfig();
   const deployer = (await ethers.getSigners())[0];
+  let nonce = await deployer.getTransactionCount();
   const CAMPAIGNS: IAddDripBarCampaignParamList = [
     {
-      NAME: "CZFarm Dripbar",
+      NAME: "PlayMining(Dep) Dripbar",
       STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: config.Tokens.CZF,
-      START_BLOCK: "12968000",
-    },
-    {
-      NAME: "GreenTrust Dripbar",
-      STAKING_TOKEN: config.BeanBagV2,
-      REWARD_TOKEN: config.Tokens.GNT,
-      START_BLOCK: "12968000",
+      REWARD_TOKEN: config.Tokens.DEP,
+      START_BLOCK: "13097500",
     },
   ];
-  const EXACT_ETA = "1637906400";
+  const EXACT_ETA = "1638338400";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
@@ -48,7 +43,10 @@ async function main() {
       console.log(
         `>> Execute approve tx to let the deployer (as a token holder) approve Dripbar to transfer the money`
       );
-      const tx = await tokenAsDeployer.approve(config.DripBar, constants.MaxUint256);
+      const tx = await tokenAsDeployer.approve(config.DripBar, constants.MaxUint256, {
+        nonce: nonce++,
+        gasPrice: ethers.utils.parseUnits("15", "gwei"),
+      });
       await tx.wait();
       console.log("✅ Done");
     }
@@ -62,7 +60,8 @@ async function main() {
         "addCampaignInfo(address,address,uint256)",
         ["address", "address", "uint256"],
         [campaign.STAKING_TOKEN, campaign.REWARD_TOKEN, campaign.START_BLOCK],
-        EXACT_ETA
+        EXACT_ETA,
+        nonce++
       )
     );
     console.log("✅ Done");

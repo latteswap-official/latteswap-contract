@@ -26,32 +26,7 @@ async function main() {
   const timelockTransactions: Array<ITimelockResponse> = [];
   const STAKING_POOLS: ISetStakingTokenBoosterAllowanceParams = [
     {
-      stakingToken: "0x0efa34E1ed6184ECfdC739f6dDFB3890fe5e8054", // CZF-WBNB
-      allowance: [
-        {
-          nftAddress: config.LatteNFT,
-          nftCategoryId: 1,
-          allowance: false,
-        },
-        {
-          nftAddress: config.LatteNFT,
-          nftCategoryId: 2,
-          allowance: false,
-        },
-        {
-          nftAddress: config.LatteNFT,
-          nftCategoryId: 3,
-          allowance: true,
-        },
-        {
-          nftAddress: config.LatteNFT,
-          nftCategoryId: 4,
-          allowance: true,
-        },
-      ],
-    },
-    {
-      stakingToken: "0x2d8166A5ADCf8305873dedAf4727Cf0731579a86", // GNT-BUSD
+      stakingToken: "0x24734C67CB3a9812772bF289d7898b90EE2859FB", // DEP-WBNB
       allowance: [
         {
           nftAddress: config.LatteNFT,
@@ -76,7 +51,7 @@ async function main() {
       ],
     },
   ];
-  const TIMELOCK_ETA = "1637906400";
+  const TIMELOCK_ETA = "1638338400";
 
   for (const STAKING_POOL of STAKING_POOLS) {
     console.log(`>> Queue BoosterConfig Transaction to setStakingTokenCategoryAllowance ${STAKING_POOL.stakingToken}`);
