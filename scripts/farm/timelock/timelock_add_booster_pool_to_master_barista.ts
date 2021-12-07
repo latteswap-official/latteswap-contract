@@ -1,3 +1,4 @@
+import { ethers } from "hardhat";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
 
 interface IStakingPool {
@@ -22,17 +23,19 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
+  const deployer = (await ethers.getSigners())[0];
+  let nonce = await deployer.getTransactionCount();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0x0efa34E1ed6184ECfdC739f6dDFB3890fe5e8054", // CZF-WBNB
-      ALLOC_POINT: "0",
+      STAKING_TOKEN_ADDRESS: "0xDa01147B87d389d1BDB3c2dD28bf56c79BE74E3c", // LATTEv2-BUSD
+      ALLOC_POINT: "1500",
     },
     {
-      STAKING_TOKEN_ADDRESS: "0x2d8166A5ADCf8305873dedAf4727Cf0731579a86", // GNT-BUSD
-      ALLOC_POINT: "0",
+      STAKING_TOKEN_ADDRESS: "0xf180466bBbaD8883360334309f558842e4B6eE59", // USDT-BUSD,
+      ALLOC_POINT: "1500",
     },
   ];
-  const TIMELOCK_ETA = "1637906400";
+  const TIMELOCK_ETA = "1638435600";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
@@ -46,7 +49,8 @@ async function main() {
         "setStakeTokenAllowance(address,bool)",
         ["address", "bool"],
         [STAKING_POOL.STAKING_TOKEN_ADDRESS, true],
-        TIMELOCK_ETA
+        TIMELOCK_ETA,
+        nonce++
       )
     );
     console.log("✅ Done");
@@ -62,7 +66,8 @@ async function main() {
         "setStakeTokenCallerAllowancePool(address,bool)",
         ["address", "bool"],
         [STAKING_POOL.STAKING_TOKEN_ADDRESS, true],
-        TIMELOCK_ETA
+        TIMELOCK_ETA,
+        nonce++
       )
     );
     console.log("✅ Done");
@@ -78,7 +83,8 @@ async function main() {
         "addStakeTokenCallerContract(address,address)",
         ["address", "address"],
         [STAKING_POOL.STAKING_TOKEN_ADDRESS, config.Booster],
-        TIMELOCK_ETA
+        TIMELOCK_ETA,
+        nonce++
       )
     );
     console.log("✅ Done");
@@ -93,7 +99,8 @@ async function main() {
         "addPool(address,uint256)",
         ["address", "uint256"],
         [STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_POINT],
-        TIMELOCK_ETA
+        TIMELOCK_ETA,
+        nonce++
       )
     );
     console.log("✅ Done");

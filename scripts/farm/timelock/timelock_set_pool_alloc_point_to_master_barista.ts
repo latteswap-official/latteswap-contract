@@ -1,3 +1,4 @@
+import { ethers } from "hardhat";
 import { FileService, TimelockService, ITimelockResponse, getConfig, withNetworkFile } from "../../../utils";
 
 interface IStakingPool {
@@ -19,16 +20,13 @@ async function main() {
   Check all variables below before execute the deployment script
   */
   const config = getConfig();
+  const deployer = (await ethers.getSigners())[0];
+  let nonce = await deployer.getTransactionCount();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0x0efa34E1ed6184ECfdC739f6dDFB3890fe5e8054", // CZF-WBNB
-      ALLOC_POINT: "90",
-      EXACT_ETA: "1637906400",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: "0x2d8166A5ADCf8305873dedAf4727Cf0731579a86", // GNT-BUSD
-      ALLOC_POINT: "115",
-      EXACT_ETA: "1637906400",
+      STAKING_TOKEN_ADDRESS: "0xa63b4be46ec650e2d786fa0fd763c61d6b56871c", // LATTEv1-BUSD
+      ALLOC_POINT: "0",
+      EXACT_ETA: "1638434100",
     },
   ];
 
@@ -44,7 +42,8 @@ async function main() {
         "setPool(address,uint256)",
         ["address", "uint256"],
         [STAKING_POOL.STAKING_TOKEN_ADDRESS, STAKING_POOL.ALLOC_POINT],
-        STAKING_POOL.EXACT_ETA
+        STAKING_POOL.EXACT_ETA,
+        nonce++
       )
     );
     console.log("✅ Done");
