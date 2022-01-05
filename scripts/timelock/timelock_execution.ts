@@ -1,5 +1,5 @@
 import { ITimelockResponse, withNetworkFile } from "../../utils";
-import TimelockTransactions from "../results/prod/1638385334_set-staking-token-pool-alloc-point.json";
+import TimelockTransactions from "../results/prod/1640153998_set-staking-token-category-allowance.json";
 import { FileService, TimelockService } from "../../utils";
 import { ethers } from "hardhat";
 

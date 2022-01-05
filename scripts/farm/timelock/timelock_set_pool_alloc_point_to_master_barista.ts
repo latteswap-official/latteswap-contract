@@ -24,9 +24,9 @@ async function main() {
   let nonce = await deployer.getTransactionCount();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0xa63b4be46ec650e2d786fa0fd763c61d6b56871c", // LATTEv1-BUSD
-      ALLOC_POINT: "0",
-      EXACT_ETA: "1638434100",
+      STAKING_TOKEN_ADDRESS: "0x0B350418dDF4122b17aDb4dC1638fdDE2b7eC2d8", // FLAT-BUSD
+      ALLOC_POINT: "1500",
+      EXACT_ETA: "1640241000",
     },
   ];
 

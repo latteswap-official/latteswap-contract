@@ -27,15 +27,11 @@ async function main() {
   let nonce = await deployer.getTransactionCount();
   const STAKING_POOLS: IStakingPools = [
     {
-      STAKING_TOKEN_ADDRESS: "0xDa01147B87d389d1BDB3c2dD28bf56c79BE74E3c", // LATTEv2-BUSD
-      ALLOC_POINT: "1500",
-    },
-    {
-      STAKING_TOKEN_ADDRESS: "0xf180466bBbaD8883360334309f558842e4B6eE59", // USDT-BUSD,
-      ALLOC_POINT: "1500",
+      STAKING_TOKEN_ADDRESS: "0x0B350418dDF4122b17aDb4dC1638fdDE2b7eC2d8", // FLAT-BUSD
+      ALLOC_POINT: "0",
     },
   ];
-  const TIMELOCK_ETA = "1638435600";
+  const TIMELOCK_ETA = "1640239800";
 
   const timelockTransactions: Array<ITimelockResponse> = [];
 
